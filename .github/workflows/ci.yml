@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+
+# Um push novo no mesmo PR cancela a verificação anterior, que ficou obsoleta.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verificar:
+    name: Verificar app
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Baixar o código
+        uses: actions/checkout@v7
+
+      - name: Preparar o Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Verificar compatibilidade com o SDK do Expo
+        run: npx expo-doctor
+
+      - name: Verificar tipos
+        run: npx tsc --noEmit
+
+      - name: Lint
+        run: |
+          if ls eslint.config.* > /dev/null 2>&1; then
+            npx expo lint
+          else
+            echo "ESLint ainda não configurado. Rode 'npx expo lint' localmente uma vez e versione a configuração."
+          fi
+
+      - name: Testes
+        run: npm run test --if-present
+
+      - name: Garantir que o app não acessa a rede
+        run: |
+          if grep -rnE '\bfetch\(|\baxios\b|XMLHttpRequest|\bWebSocket\b' src; then
+            echo "::error::Chamada de rede encontrada em src/. O app funciona sem rede (veja AGENTS.md)."
+            exit 1
+          fi
+
+      - name: Gerar o bundle Android
+        run: npx expo export --platform android --output-dir dist/android
+
+      - name: Gerar o bundle iOS
+        run: npx expo export --platform ios --output-dir dist/ios
