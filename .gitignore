@@ -41,3 +41,7 @@ example
 # generated native folders
 /ios
 /android
+
+# Normas ISO: licença individual, não versionar
+docs/iso/*
+!docs/iso/README.md

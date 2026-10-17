@@ -1,56 +1,125 @@
-# Welcome to your Expo app 👋
+# App de Emissões (nome provisório)
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Aplicativo móvel para Android e iOS que ajuda pessoas e pequenos comércios a calcular suas emissões de gases de efeito estufa e a entender quanto plantio de árvores seria necessário para neutralizá-las.
 
-## Get started
+Tudo funciona offline. Os dados ficam apenas no celular do usuário: não há conta, servidor nem compartilhamento automático.
 
-1. Install dependencies
+Projeto da disciplina de Educação Ambiental da UFC Quixadá, em parceria com o IFCE.
 
-   ```bash
-   npm install
-   ```
+## Equipe
 
-2. Start the app
+- José Rian Mendes Lima
+- Renan Alencar Soares
+- Francisco Samuel Cabral Leitão
 
-   ```bash
-   npx expo start
-   ```
+## Como rodar
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+Pré-requisitos: Node.js em versão LTS e o aplicativo Expo Go instalado no celular.
 
 ```bash
-npm run reset-project
+git clone <url-do-repositorio>
+cd app-emissoes
+npm install
+npx expo start
 ```
 
-This command will move the starter code to the **example** directory and create a blank **src/app** directory where you can start developing.
+Escaneie o QR code com a câmera (iOS) ou com o Expo Go (Android). O celular e o computador precisam estar na mesma rede.
 
-### Other setup steps
+Testes e verificação de tipos:
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+```bash
+npm test
+npx tsc --noEmit
+```
 
-## Learn more
+## Como contribuir
 
-To learn more about developing your project with Expo, look at the following resources:
+Nenhuma alteração vai direto para a `main`. Todo código entra por pull request, revisado por outra pessoa da equipe.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+1. Crie uma branch a partir da `main` atualizada.
+2. Implemente seguindo o `AGENTS.md`, que vale tanto para pessoas quanto para agentes de código.
+3. Faça commits no padrão descrito abaixo.
+4. Abra um pull request e peça revisão.
+5. Depois de aprovado, faça o merge e apague a branch.
 
-## Join the community
+### Nomes de branch
 
-Join our community of developers creating universal apps.
+`<tipo>/<descrição-curta>`, com o mesmo `tipo` dos commits e o requisito quando houver:
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```
+feat/rf03-calculo-emissoes
+fix/arredondamento-arvores
+docs/fatores-energia
+```
+
+### Mensagens de commit
+
+Usamos [Conventional Commits](https://www.conventionalcommits.org/pt-br/), com a descrição em português:
+
+```
+<tipo>(<escopo>): <descrição>
+```
+
+| Tipo | Quando usar |
+| --- | --- |
+| `feat` | Nova funcionalidade para o usuário |
+| `fix` | Correção de um erro |
+| `docs` | Apenas documentação |
+| `test` | Criação ou ajuste de testes, sem mudar o código do app |
+| `refactor` | Mudança de código que não altera o comportamento |
+| `style` | Formatação, sem mudança de lógica |
+| `chore` | Configuração, dependências, scripts |
+
+O escopo é opcional e indica a área afetada: `calculo`, `dados`, `ui`, `telas`, `backup`, `tema`.
+
+Regras:
+
+- Descrição no presente, começando com letra minúscula e sem ponto final: "adiciona", não "adicionado" nem "Adicionando".
+- Até 72 caracteres na primeira linha. Se precisar explicar mais, pule uma linha e escreva no corpo.
+- Cite o requisito entre parênteses quando o commit implementar um.
+- Um commit por mudança coerente. "Ajustes diversos" não diz nada a quem revisa.
+
+Exemplos:
+
+```
+feat(calculo): adiciona fonte GLP (RF02)
+fix(calculo): arredonda árvores sempre para cima (RF05)
+test(dados): cobre importação de backup com versão desconhecida
+docs: registra fator de energia elétrica com fonte e ano
+chore: adiciona react-native-svg
+```
+
+### Pull requests
+
+**Todo pull request precisa da aprovação de pelo menos uma pessoa da equipe que não seja o autor** antes do merge. Ninguém aprova o próprio PR.
+
+Ao abrir o PR, a descrição deve conter:
+
+- O que mudou e por quê, em poucas linhas.
+- O requisito atendido (RF ou RNF), quando houver.
+- Como testar: os passos para ver a mudança funcionando no Expo Go.
+- Capturas de tela nos temas claro e escuro, se a mudança for visual.
+
+Antes de pedir revisão, confirme que `npx tsc --noEmit` e `npm test` passam.
+
+Quem revisa confere:
+
+- Se o requisito foi atendido de fato, testando no celular quando houver mudança visual.
+- Se há testes para o que mudou em `src/calculo/` e `src/dados/`.
+- Se as regras do `AGENTS.md` foram respeitadas: nenhuma chamada de rede, nenhum fator sem fonte, nenhuma cor fora do tema.
+- Se o código é compreensível para quem não o escreveu.
+
+**Código gerado por agente é revisado como qualquer outro.** Quem abre o PR responde pelo conteúdo, tenha escrito à mão ou não. Se não souber explicar um trecho, ele ainda não está pronto para revisão.
+
+O merge é feito com **Squash and merge**, usando como título do commit final um título no padrão Conventional Commits. Assim, a `main` fica com um commit legível por PR.
+
+## Documentação
+
+- `docs/requisitos.md`: o que o app precisa fazer.
+- `docs/metodologia-calculo.md`: como as emissões e as árvores são calculadas, com fatores e fontes.
+- `docs/design.md`: cores, tipografia e componentes do estilo visual.
+- `docs/iso/`: cópias locais da ISO 14064. Cada membro mantém a sua; os arquivos não são versionados porque a licença da norma não permite redistribuição.
+
+## Desenvolvimento assistido por agentes
+
+As regras gerais ficam em `AGENTS.md`, lido por Claude Code, Codex, Cursor, Copilot e outras ferramentas. Procedimentos específicos ficam em `.agents/skills/`. A pasta `.claude/skills` é um link simbólico para `.agents/skills`, para que o Claude Code também encontre as skills.
