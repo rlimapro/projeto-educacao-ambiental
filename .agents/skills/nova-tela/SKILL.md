@@ -23,7 +23,7 @@ description: Como criar ou alterar telas e componentes visuais no estilo Carvão
 - Botões só com ícone têm `accessibilityLabel` em português.
 - Gráficos têm um `accessibilityLabel` que descreve os valores ("Combustível 81%, gás 15%, energia 4%").
 - Não desative o ajuste de tamanho de fonte do sistema. Teste com fonte grande: o layout deve crescer, não cortar.
-- Animações respeitam a redução de movimento (`useReducedMotion` do Reanimated).
+- Animações respeitam a redução de movimento (hook `useReduzirMovimento` de `src/ui`).
 
 ## Texto
 

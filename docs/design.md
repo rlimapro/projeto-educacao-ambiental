@@ -66,7 +66,7 @@ Construa e revise estes antes de qualquer tela:
 - O anel se desenha de zero até o valor ao abrir a tela e ao trocar de período: 700 ms, curva de saída suave, segmentos em sequência.
 - O total no centro conta de zero até o valor durante a mesma animação.
 - Transições entre telas: as padrão do Expo Router.
-- Com a opção de reduzir movimento ativada no sistema, os elementos aparecem já no estado final. Use `useReducedMotion` do Reanimated.
+- Com a opção de reduzir movimento ativada no sistema, os elementos aparecem já no estado final. Use o hook `useReduzirMovimento` de `src/ui`, que lê a configuração pelo `AccessibilityInfo` do React Native e, ao contrário do `useReducedMotion` do Reanimated, funciona nos testes do Jest.
 
 ## Tema
 
