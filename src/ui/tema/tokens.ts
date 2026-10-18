@@ -97,4 +97,5 @@ export const medidas = {
   areaToqueMinima: 44,
   alturaBotao: 56,
   bordaCartao: 1,
+  opacidadePressionado: 0.8,
 } as const;
