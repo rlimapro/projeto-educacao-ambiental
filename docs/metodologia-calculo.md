@@ -135,8 +135,79 @@ arvores = arredondarParaCima( emissaoKgCo2e / (sequestroKgPorArvorePorAno × hor
 
 | Parâmetro | Valor | Fonte | Observação |
 | --- | --- | --- | --- |
-| sequestroKgPorArvorePorAno | [A DEFINIR] | [A DEFINIR] | A ISO não fornece o número. Caminho sugerido: taxa de remoção por hectare para a Caatinga (ou para floresta tropical seca nas tabelas de AFOLU do IPCC, Volume 4) dividida pela densidade de plantio de um projeto de restauração, descontando a mortalidade das mudas. A taxa por hectare, a densidade e a mortalidade precisam de fonte citada. Escolher o valor mais baixo do intervalo, pelo princípio de conservadorismo da ISO 14064-2. Precisa de revisão do especialista. |
-| horizonteAnos | 20 (proposta) | Decisão da equipe | Precisa ser exibido ao usuário junto do resultado. |
+| sequestroKgPorArvorePorAno | Depende do bioma, ver tabela abaixo | IPCC 2019 (AFOLU), ver "Como a taxa foi obtida" | Proposta da equipe, ainda precisa de revisão do especialista |
+| horizonteAnos | 20 (proposta) | Decisão da equipe | Precisa ser exibido ao usuário junto do resultado. Coincide com o período de "até 20 anos" das taxas do IPCC. |
+
+### Taxa de sequestro por bioma
+
+| Zona ecológica do IPCC | Biomas e estados em que se aplica | t CO₂/ha/ano | **kg CO₂ por árvore por ano** | kg CO₂ por árvore em 20 anos |
+| --- | --- | --- | --- | --- |
+| Floresta tropical úmida | Amazônia | 12,415 | **7,449** | 149,0 |
+| Floresta tropical úmida decídua | Mata Atlântica, exceto no PR, em SC e no RS | 11,511 | **6,906** | 138,1 |
+| Floresta tropical seca | Cerrado, Caatinga, Pantanal | 8,966 | **5,379** | 107,6 |
+| Floresta subtropical úmida | Pampa; Mata Atlântica no PR, em SC e no RS | 5,062 | **3,037** | 60,7 |
+
+Sem estado escolhido, o app usa a menor taxa da tabela (3,037 kg por árvore por ano). Assim, o número de árvores nunca é subestimado.
+
+### Como a taxa foi obtida
+
+A ISO 14064-1, a 14064-2 e a 14068-1 não trazem taxa por árvore. Seguimos o mesmo caminho dos combustíveis: as diretrizes do IPCC, que o guia ABNT/Sebrae indica quando não há valor nacional.
+
+```
+tCo2PorHaPorAno = crescimentoAereo × (1 + razaoRaizParteAerea) × fracaoCarbono × 44/12
+kgCo2PorArvorePorAno = tCo2PorHaPorAno × 1000 / arvoresPorHa
+```
+
+| Insumo | Valor | Fonte |
+| --- | --- | --- |
+| Crescimento acima do solo de floresta secundária com até 20 anos, Américas (t de matéria seca/ha/ano) | Tropical úmida 5,9; tropical úmida decídua 5,2; tropical seca 3,9; subtropical úmida 2,5 | IPCC 2019 Refinement, Vol. 4, cap. 4, Tabela 4.9 |
+| Razão raiz/parte aérea, floresta natural com até 125 t/ha | Tropical úmida 0,221; úmida decídua 0,2845; seca 0,334; subtropical úmida 0,175 | IPCC 2019 Refinement, Vol. 4, cap. 4, Tabela 4.4 |
+| Fração de carbono da biomassa | 0,47 | IPCC 2006, Vol. 4, cap. 4, Tabela 4.3 |
+| Árvores por hectare | 1.666,7 (espaçamento 3 m × 2 m) | Densidade usada no estudo ESALQ/Totum/SOS Mata Atlântica (2013) e comum em plantios de restauração |
+
+Decisões e verificações:
+
+- **Bioma → zona ecológica.** A Caatinga tem zona própria no IPCC (arbustiva tropical, 9,651 t CO₂/ha/ano), mas usamos a da floresta tropical seca, que é menor. Estudos da Caatinga indicam produtividade mais baixa que a média tropical, e a ISO 14064-2 manda não superestimar remoções (seção 4.7). O Pantanal também usa a zona seca, pelo mesmo motivo. Na Mata Atlântica do Sul vale a zona subtropical.
+- **Dividir pelas mudas plantadas, e não pelas sobreviventes.** A taxa por hectare é a de uma floresta já formada. Dividi-la pelas mudas plantadas embute a perda de mudas no resultado.
+- **Conferência com medições brasileiras.** O estudo ESALQ/Totum/SOS Mata Atlântica, feito em plantios reais de restauração, mediu 163,14 kg CO₂e por árvore em 20 anos. Para a Mata Atlântica calculamos 138,1 kg, um pouco abaixo, como esperado de uma estimativa conservadora. Para florestas que se regeneram sozinhas na América do Sul, Bernal et al. (2018) encontraram 18,8 (úmida) e 13,8 (seca) t CO₂/ha/ano, acima dos valores do IPCC usados aqui.
+- **Incerteza.** As taxas do IPCC para florestas tropicais secas e subtropicais têm incerteza de até ±90%. A tela deve deixar claro que o número de árvores é uma estimativa.
+
+### Estado e bioma do usuário (RF13)
+
+O usuário escolhe o estado numa lista. O app **não pede permissão de localização**, conforme o `AGENTS.md` e a skill `privacidade-e-seguranca`. O bioma vem preenchido com o predominante no estado, isto é, o de maior área original segundo o IBGE, e o usuário pode trocá-lo por outro bioma presente no estado.
+
+Fonte: IBGE, *Biomas e Sistema Costeiro-Marinho do Brasil* (2019), Tabela 1.
+
+| UF | Predominante | Outros biomas no estado |
+| --- | --- | --- |
+| AC, AM, AP, RR | Amazônia | — |
+| PA, RO | Amazônia | Cerrado |
+| MT | Amazônia | Cerrado, Pantanal |
+| TO, MA | Cerrado | Amazônia |
+| PI | Cerrado | Caatinga |
+| GO | Cerrado | Mata Atlântica |
+| DF | Cerrado | — |
+| MS | Cerrado | Pantanal, Mata Atlântica |
+| MG | Cerrado | Mata Atlântica, Caatinga |
+| CE | Caatinga | — |
+| RN, PB, PE, SE | Caatinga | Mata Atlântica |
+| BA | Caatinga | Mata Atlântica, Cerrado |
+| AL | Mata Atlântica | Caatinga |
+| ES, RJ, SC | Mata Atlântica | — |
+| SP, PR | Mata Atlântica | Cerrado |
+| RS | Pampa | Mata Atlântica |
+
+### Árvores sugeridas (RF13)
+
+A lista de espécies fica gravada no app, para funcionar sem internet. Ela é montada uma única vez, durante o desenvolvimento, a partir da **Flora e Funga do Brasil** (Jardim Botânico do Rio de Janeiro), a lista oficial da flora brasileira:
+
+1. A equipe escolhe espécies candidatas: árvores nativas conhecidas pelo nome popular e usadas em restauração.
+2. Para cada uma, a Flora e Funga do Brasil informa o nome aceito, se a espécie é árvore, em quais estados é **nativa** e em quais biomas ocorre. Para o estado e o bioma escolhidos, o app mostra as espécies nativas daquele estado que ocorrem naquele bioma.
+3. O arquivo de dados guarda, para cada espécie, o identificador da Flora e Funga do Brasil e a data da consulta, para que qualquer pessoa possa conferir.
+
+Essa consulta já evitou erros. A goiabeira não consta como nativa em nenhum estado, e alguns nomes mudaram: a aroeira-do-sertão hoje é *Astronium urundeuva*, e a oiticica, *Microdesmia rigida*. Num teste com 64 candidatas, todos os 27 estados ficaram com 15 ou mais espécies. Os nomes populares precisam de revisão da equipe, porque variam de região para região.
+
+A taxa de sequestro é a do bioma, não a da espécie. O app não promete que uma espécie sequestra mais que outra.
 
 O arredondamento é sempre para cima, porque arredondar para baixo deixaria parte das emissões sem compensação.
 
@@ -183,4 +254,9 @@ Cada fator em `src/calculo/fatores.ts` tem um identificador, valor, unidade, fon
 - IPCC. *2006 IPCC Guidelines for National Greenhouse Gas Inventories*, Vol. 2, cap. 1 (Tab. 1.4), cap. 2 (Tab. 2.5) e cap. 3 (Tab. 3.2.2). https://www.ipcc-nggip.iges.or.jp/public/2006gl/vol2.html
 - IPCC. *AR6 WGI*, cap. 7, Tabela 7.15 (2021). https://www.ipcc.ch/report/ar6/wg1/chapter/chapter-7/
 - EPE. *Balanço Energético Nacional 2025, ano-base 2024*, Tabela VIII.9.
+- IPCC. *2019 Refinement to the 2006 IPCC Guidelines*, Vol. 4, cap. 4 (Forest Land), Tabelas 4.4 e 4.9; *2006 IPCC Guidelines*, Vol. 4, cap. 4, Tabela 4.3. https://www.ipcc-nggip.iges.or.jp/public/2019rf/vol4.html
+- Bernal, B.; Murray, L. T.; Pearson, T. R. H. *Global carbon dioxide removal rates from forest landscape restoration activities.* Carbon Balance and Management 13:22, 2018. https://doi.org/10.1186/s13021-018-0110-8
+- Instituto Totum; ESALQ/USP; Fundação SOS Mata Atlântica. Estudo de absorção de CO₂ por árvores de restauração da Mata Atlântica, 2013. https://www.sosma.org.br/noticias/cada-arvore-da-mata-atlantica-chega-a-retirar-163-kg-de-gas-carbonico-da-atmosfera/
+- IBGE. *Biomas e Sistema Costeiro-Marinho do Brasil*, 2019, Tabela 1. https://www.ibge.gov.br/apps/biomas/pdf/Lim08_BiomSist.pdf
+- Flora e Funga do Brasil. Jardim Botânico do Rio de Janeiro. https://floradobrasil.jbrj.gov.br
 - CNPE. Resoluções de mistura obrigatória: E30 e B15 a partir de 01/08/2025; E32 a partir de 01/08/2026. Lei 14.993/2024 (Combustível do Futuro).
