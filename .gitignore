@@ -45,3 +45,6 @@ example
 # Normas ISO: licença individual, não versionar
 docs/iso/*
 !docs/iso/README.md
+
+# Capturas da prévia web (scripts/previa-web)
+.previa/

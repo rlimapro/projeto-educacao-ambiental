@@ -52,7 +52,9 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "test": "jest"
+    "test": "jest",
+    "previa:web": "node scripts/previa-web/iniciar.mjs",
+    "previa:capturar": "node scripts/previa-web/capturar.mjs"
   },
   "private": true,
   "jest": {

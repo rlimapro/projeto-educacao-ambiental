@@ -4,6 +4,25 @@ Referência visual: o protótipo de alta fidelidade no Figma ([App de Emissões]
 
 O estilo combina tipografia geométrica para números, um verde-limão como marca e superfícies discretas. O tema claro é o padrão; o escuro é opcional.
 
+## Telas do protótipo
+
+Identificadores dos nós no Figma (arquivo `HlJaNtDhNHMXjLkzh4tK47`), usados para ler cada tela pelo servidor MCP do Figma. O processo de implementação está na skill `nova-tela`.
+
+| Tela | Claro | Escuro | Implementada |
+| --- | --- | --- | --- |
+| 01 Boas-vindas · O app | `4:2` | `7:2` | Sim (`src/app/boas-vindas.tsx`) |
+| 02 Boas-vindas · Privacidade | `4:21` | `7:21` | Sim |
+| 03 Boas-vindas · Perfil | `4:59` | `7:59` | Sim |
+| 04 Início | `2:2` | `7:109` | Não |
+| 05 Registrar consumo | `5:2` | `7:188` | Não |
+| 06 Memória de cálculo | `5:83` | `7:269` | Não |
+| 07 Sugestões de redução | `5:150` | `7:336` | Não |
+| 08 Simular plantio | `6:2` | `7:407` | Não |
+| 09 Histórico | `6:69` | `7:474` | Não |
+| 10 Ajustes | `6:154` | `7:559` | Não |
+
+O protótipo não tem a tela "Uma conta que você pode conferir" das boas-vindas, nem a escolha de estado e bioma do RF13. Telas sem protótipo seguem o modelo das existentes.
+
 ## Cores
 
 Todos os valores abaixo vivem em `src/ui/tema` e são a única fonte de cor do app. Componentes nunca usam hexadecimais diretamente.

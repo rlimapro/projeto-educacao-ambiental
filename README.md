@@ -98,7 +98,7 @@ Ao abrir o PR, a descrição deve conter:
 - O que mudou e por quê, em poucas linhas.
 - O requisito atendido (RF ou RNF), quando houver.
 - Como testar: os passos para ver a mudança funcionando no Expo Go.
-- Capturas de tela nos temas claro e escuro, se a mudança for visual.
+- Capturas de tela nos temas claro e escuro, se a mudança for visual. A prévia web gera essas capturas com um comando (`scripts/previa-web/README.md`).
 
 Antes de pedir revisão, confirme que `npx tsc --noEmit` e `npm test` passam.
 
