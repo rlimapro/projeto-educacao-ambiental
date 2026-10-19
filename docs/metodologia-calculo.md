@@ -1,8 +1,23 @@
 # Metodologia de cálculo
 
-Este documento é a referência única para os cálculos do app. Ele resume, com as palavras da equipe, o que foi adotado a partir da ISO 14064 e de outras fontes. O código em `src/calculo/` deve corresponder exatamente ao que está aqui.
+Este documento é a referência única para os cálculos do app. Ele resume, com as palavras da equipe, o que foi adotado a partir da ISO 14064-1 e de outras fontes. O código em `src/calculo/` deve corresponder exatamente ao que está aqui.
 
 Itens marcados com **[A DEFINIR]** ainda não têm valor aprovado. Agentes de código não devem preencher esses campos por conta própria nem usar valores "típicos" encontrados na internet: a lacuna deve ser resolvida por uma pessoa da equipe, com fonte citada.
+
+## Base normativa
+
+A pedido do stakeholder, a referência do cálculo é a **ISO 14064-1:2018**. A norma define *como* quantificar emissões, mas não traz nenhum número: ela manda usar fatores "de origem reconhecida" e explicar a escolha. Por isso, cada número deste documento vem de uma fonte que a própria norma, ou o guia brasileiro dela, indica.
+
+| Documento | O que usamos dele |
+| --- | --- |
+| ISO 14064-1:2018, cláusula 6 | Estrutura do cálculo (dado de atividade × fator), conversão para CO₂e com o GWP mais recente do IPCC em horizonte de 100 anos |
+| ISO 14064-1:2018, Anexo D (normativo) | CO₂ biogênico é quantificado e informado separadamente; CH₄ e N₂O de biocombustíveis entram no total |
+| ISO 14064-1:2018, Anexo E (normativo) | Eletricidade da rede pela abordagem por localização, com o fator médio da rede do ano do período ou, se ainda não publicado, o mais recente |
+| ABNT NBR ISO 14064 — Guia de implementação para pequenos negócios (ABNT/Sebrae, 2015) | Indica, no Brasil, MCTI e Programa Brasileiro GHG Protocol como fontes de fatores e as Diretrizes do IPCC 2006 quando não houver fator nacional; desaconselha estimar por quilometragem quando há dado de combustível |
+| ISO 14068-1:2023 | Hierarquia reduzir → remover → compensar; regras para declarar neutralidade (ver "Linguagem ao usuário") |
+| ISO 14064-2:2019 | Referência para quantificar remoções por plantio (ver "Compensação por plantio") |
+
+Cópias locais das normas ficam em `docs/iso/` (não versionadas).
 
 ## Princípio
 
@@ -14,7 +29,15 @@ emissaoKgCo2e = consumo × fatorEmissao
 
 O consumo é informado pelo usuário (kWh, litros, quilos). O fator converte essa quantidade em quilos de CO₂ equivalente. A emissão total do período é a soma das emissões de todas as fontes registradas.
 
-Essa é a estrutura de quantificação da ISO 14064-1: dados de atividade multiplicados por fatores de emissão documentados. O app aplica essa lógica de forma simplificada a pessoas e pequenos comércios, sem a pretensão de produzir um inventário organizacional auditável.
+Essa é a estrutura de quantificação da ISO 14064-1 (cláusula 6.2.3, modelo "dado de atividade × fator de emissão"). O app aplica essa lógica de forma simplificada a pessoas e pequenos comércios, sem a pretensão de produzir um inventário organizacional auditável.
+
+Cada fator de combustível já agrega os três gases (CO₂, CH₄ e N₂O) convertidos em CO₂e:
+
+```
+fatorKgCo2ePorLitro = Σ por gás ( fatorKgPorTj × energiaTjPorLitro × gwp )
+```
+
+A derivação de cada valor está em "Como os fatores foram obtidos", para que qualquer pessoa da equipe consiga refazer a conta.
 
 ## Unidade
 
@@ -22,23 +45,87 @@ Todos os cálculos internos usam **quilogramas de CO₂ equivalente (kg CO₂e)*
 
 ## Fontes de emissão do MVP
 
-| Fonte | Entrada do usuário | Fator | Unidade do fator | Fonte bibliográfica | Ano |
+O MVP cobre períodos **a partir de agosto de 2025**. Para períodos anteriores, valem outras misturas de biocombustível e seria preciso cadastrar mais versões dos fatores.
+
+| Fonte | Entrada do usuário | Fator | Unidade do fator | CO₂ biogênico (informado à parte) | Fonte bibliográfica | Ano | Vigência |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Energia elétrica | kWh | 0,0461 | kg CO₂/kWh | — | MCTI, Fator médio anual do SIN para inventários, ano-base 2025 | 2025 | Períodos de 2025 em diante, até o MCTI publicar o fator anual de 2026 |
+| Gasolina comum (E30) | litros | 1,6187 | kg CO₂e/L | 0,4748 kg CO₂/L | IPCC 2006; BEN 2025; IPCC AR6; mistura CNPE de 30% | 2025 | 01/08/2025 a 31/07/2026 |
+| Gasolina comum (E32) | litros | 1,5738 | kg CO₂e/L | 0,5065 kg CO₂/L | IPCC 2006; BEN 2025; IPCC AR6; mistura CNPE de 32% | 2026 | A partir de 01/08/2026 |
+| Etanol hidratado | litros | 0,0436 | kg CO₂e/L | 1,5108 kg CO₂/L | IPCC 2006; BEN 2025; IPCC AR6 | 2025 | A partir de 01/08/2025 |
+| Diesel (B15) | litros | 2,2788 | kg CO₂e/L | 0,3522 kg CO₂/L | IPCC 2006; BEN 2025; IPCC AR6; mistura CNPE de 15% | 2025 | A partir de 01/08/2025 |
+| Gás de cozinha (GLP) | kg ou botijões de 13 kg | 2,9407 | kg CO₂e/kg | — | IPCC 2006; BEN 2025; IPCC AR6 | 2025 | A partir de 01/08/2025 |
+
+Para o usuário, o app mostra "Gasolina" e escolhe sozinho entre E30 e E32 pela data do período.
+
+### Decisões de domínio
+
+- **Gasolina C.** A gasolina vendida nos postos tem etanol anidro misturado: 30% de 01/08/2025 a 31/07/2026 e 32% desde 01/08/2026, por resolução do CNPE com base na Lei 14.993/2024. A gasolina premium continua com 25% e não está no MVP. O E32 foi aprovado por 180 dias, prorrogáveis. Se o percentual mudar, cria-se uma nova versão do fator com a nova data de vigência.
+- **Carbono biogênico.** Segue o Anexo D da ISO 14064-1, que é normativo. O CO₂ da queima do etanol e do biodiesel **não entra no total**: aparece na memória de cálculo como uma linha separada, "CO₂ de origem renovável". O CH₄ e o N₂O dessas parcelas entram no total. Por isso o etanol hidratado tem um fator baixo, mas não zero.
+- **Deslocamentos por distância.** O MVP aceita apenas litros. O guia ABNT/Sebrae só aceita estimar por quilometragem quando não há dado de combustível, porque o resultado depende de um consumo médio que o app teria de supor.
+- **Eletricidade só com CO₂.** O MCTI publica o fator em t CO₂/MWh, sem CH₄ e N₂O. Usamos o valor como está, porque é o fator oficial indicado para inventários. 1 t/MWh equivale a 1 kg/kWh.
+- **Ano do fator elétrico.** Pelo Anexo E, usa-se o fator do ano do período. Como o fator anual só sai depois que o ano termina, períodos do ano corrente usam o fator anual mais recente já publicado. Quando o MCTI publicar o fator anual de 2026, ele entra como nova versão, e períodos de 2026 registrados **depois disso** passam a usá-lo. Períodos já gravados mantêm a versão com que foram calculados (RNF04).
+
+## Como os fatores foram obtidos
+
+### Insumos
+
+**Fatores por energia, IPCC 2006** (*2006 IPCC Guidelines for National Greenhouse Gas Inventories*, Volume 2). Para os combustíveis veiculares, os valores de CH₄ e N₂O vêm da Tabela 3.2.2. Para o GLP, da Tabela 2.5 (uso residencial). Os valores de CO₂ vêm da Tabela 1.4.
+
+| Componente | CO₂ (kg/TJ) | CH₄ (kg/TJ) | N₂O (kg/TJ) | Observação |
+| --- | --- | --- | --- | --- |
+| Gasolina A (pura) | 69.300 | 3,8 | 5,7 | Categoria "veículo leve, 1995 ou posterior" |
+| Etanol (anidro e hidratado) | 70.800 (biogênico) | 18 | 5,7 | CH₄ de "carros a etanol, Brasil"; o IPCC não dá N₂O para essa categoria, então usamos o da gasolina (mesma frota flex) |
+| Diesel A (puro) | 74.100 | 3,9 | 3,9 | |
+| Biodiesel | 70.800 (biogênico) | 3,9 | 3,9 | CH₄ e N₂O iguais aos do diesel, mesmo motor |
+| GLP | 63.100 | 5 | 0,1 | Uso residencial |
+
+**Densidade e poder calorífico inferior (PCI)**, do Balanço Energético Nacional 2025, ano-base 2024 (EPE), Tabela VIII.9:
+
+| Componente | Densidade (kg/m³) | PCI (kcal/kg) | Energia por unidade |
+| --- | --- | --- | --- |
+| Gasolina automotiva | 742 | 10.400 | 3,230870 × 10⁻⁵ TJ/L |
+| Álcool etílico anidro | 791 | 6.750 | 2,235437 × 10⁻⁵ TJ/L |
+| Álcool etílico hidratado | 809 | 6.300 | 2,133886 × 10⁻⁵ TJ/L |
+| Óleo diesel | 840 | 10.100 | 3,552081 × 10⁻⁵ TJ/L |
+| Biodiesel (B100) | 880 | 9.000 | 3,315946 × 10⁻⁵ TJ/L |
+| GLP | — | 11.100 | 4,647348 × 10⁻⁵ TJ/kg |
+
+Energia por litro = densidade (kg/L) × PCI (kcal/kg) × 4,1868 × 10⁻⁹ TJ/kcal.
+
+**Potencial de aquecimento global (GWP-100)**, do IPCC AR6, Grupo de Trabalho I, Tabela 7.15. A ISO 14064-1 pede o GWP mais recente do IPCC. O guia ABNT/Sebrae, de 2015, ainda citava o AR5.
+
+| Gás | GWP-100 |
+| --- | --- |
+| CO₂ | 1 |
+| CH₄ de origem fóssil | 29,8 |
+| CH₄ de origem não fóssil (parcela de biocombustível) | 27,0 |
+| N₂O | 273 |
+
+**Misturas obrigatórias** (CNPE): gasolina comum com 30% de etanol anidro a partir de 01/08/2025 e 32% a partir de 01/08/2026; diesel com 15% de biodiesel (B15) a partir de 01/08/2025. A mistura é por volume: 1 L de E30 = 0,70 L de gasolina A + 0,30 L de etanol anidro.
+
+### Resultado por gás
+
+Os valores estão em kg por litro (GLP: kg por quilo). Os valores de CH₄ e N₂O já estão em CO₂e.
+
+| Fonte | CO₂ fóssil | CH₄ | N₂O | **Total (kg CO₂e)** | CO₂ biogênico, à parte |
 | --- | --- | --- | --- | --- | --- |
-| Energia elétrica | kWh | [A DEFINIR] | kg CO₂e/kWh | [A DEFINIR] | [A DEFINIR] |
-| Gasolina | litros | [A DEFINIR] | kg CO₂e/L | [A DEFINIR] | [A DEFINIR] |
-| Etanol | litros | [A DEFINIR] | kg CO₂e/L | [A DEFINIR] | [A DEFINIR] |
-| Diesel | litros | [A DEFINIR] | kg CO₂e/L | [A DEFINIR] | [A DEFINIR] |
-| Gás de cozinha (GLP) | kg ou botijões de 13 kg | [A DEFINIR] | kg CO₂e/kg | [A DEFINIR] | [A DEFINIR] |
+| Gasolina E30 | 1,5673 | 0,0058 | 0,0456 | **1,6187** | 0,4748 |
+| Gasolina E32 | 1,5225 | 0,0060 | 0,0453 | **1,5738** | 0,5065 |
+| Etanol hidratado | 0 | 0,0104 | 0,0332 | **0,0436** | 1,5108 |
+| Diesel B15 | 2,2373 | 0,0040 | 0,0374 | **2,2788** | 0,3522 |
+| GLP | 2,9325 | 0,0069 | 0,0013 | **2,9407** | — |
 
-Candidatas a fonte, a confirmar com o especialista: o fator médio de emissão do Sistema Interligado Nacional publicado pelo MCTI para energia elétrica, e a ferramenta do Programa Brasileiro GHG Protocol ou as diretrizes do IPCC para combustíveis.
+Conferência: o CO₂ do diesel puro calculado assim dá 2,63 kg/L, o mesmo valor do exemplo do guia ABNT/Sebrae.
 
-Observações de domínio a resolver:
-
-- **Gasolina C.** A gasolina vendida nos postos brasileiros contém etanol anidro misturado. O fator usado deve ser o da gasolina C, não o da gasolina pura.
-- **Carbono biogênico do etanol.** O CO₂ da queima de etanol é de origem biogênica e costuma ser contabilizado à parte. [A DEFINIR] se o app o soma ao total ou o exibe separadamente.
-- **Deslocamentos por distância.** Se o usuário informar quilômetros em vez de litros, é necessário um consumo médio por tipo de veículo. [A DEFINIR] se o MVP aceita essa entrada.
+Quando o app for implementado, a derivação acima deve existir também como função pura em `src/calculo/`, com teste que reproduza esta tabela. Assim, uma nova mistura ou um novo BEN exigem trocar só os insumos.
 
 ## Compensação por plantio
+
+### O que as normas dizem
+
+- A ISO 14064-1 e a 14064-2 tratam remoções de carbono, mas **não trazem taxa de sequestro por árvore**. A 14064-2 tem o conservadorismo como princípio (seção 4.7): na dúvida, remoções não devem ser superestimadas.
+- A ISO 14068-1 só aceita compensação por créditos de carbono certificados, já realizados e aposentados. Plantar árvores por conta própria **não permite declarar neutralidade**. Isso reforça a regra de linguagem abaixo: o app mostra uma estimativa educativa, não uma compensação.
 
 ### Árvores para neutralizar (RF05)
 
@@ -48,8 +135,79 @@ arvores = arredondarParaCima( emissaoKgCo2e / (sequestroKgPorArvorePorAno × hor
 
 | Parâmetro | Valor | Fonte | Observação |
 | --- | --- | --- | --- |
-| sequestroKgPorArvorePorAno | [A DEFINIR] | [A DEFINIR] | Depende de espécie, região e taxa de sobrevivência. Preferir referência para espécies da Caatinga. |
-| horizonteAnos | 20 (proposta) | Decisão da equipe | Precisa ser exibido ao usuário junto do resultado. |
+| sequestroKgPorArvorePorAno | Depende do bioma, ver tabela abaixo | IPCC 2019 (AFOLU), ver "Como a taxa foi obtida" | Proposta da equipe, ainda precisa de revisão do especialista |
+| horizonteAnos | 20 (proposta) | Decisão da equipe | Precisa ser exibido ao usuário junto do resultado. Coincide com o período de "até 20 anos" das taxas do IPCC. |
+
+### Taxa de sequestro por bioma
+
+| Zona ecológica do IPCC | Biomas e estados em que se aplica | t CO₂/ha/ano | **kg CO₂ por árvore por ano** | kg CO₂ por árvore em 20 anos |
+| --- | --- | --- | --- | --- |
+| Floresta tropical úmida | Amazônia | 12,415 | **7,449** | 149,0 |
+| Floresta tropical úmida decídua | Mata Atlântica, exceto no PR, em SC e no RS | 11,511 | **6,906** | 138,1 |
+| Floresta tropical seca | Cerrado, Caatinga, Pantanal | 8,966 | **5,379** | 107,6 |
+| Floresta subtropical úmida | Pampa; Mata Atlântica no PR, em SC e no RS | 5,062 | **3,037** | 60,7 |
+
+Sem estado escolhido, o app usa a menor taxa da tabela (3,037 kg por árvore por ano). Assim, o número de árvores nunca é subestimado.
+
+### Como a taxa foi obtida
+
+A ISO 14064-1, a 14064-2 e a 14068-1 não trazem taxa por árvore. Seguimos o mesmo caminho dos combustíveis: as diretrizes do IPCC, que o guia ABNT/Sebrae indica quando não há valor nacional.
+
+```
+tCo2PorHaPorAno = crescimentoAereo × (1 + razaoRaizParteAerea) × fracaoCarbono × 44/12
+kgCo2PorArvorePorAno = tCo2PorHaPorAno × 1000 / arvoresPorHa
+```
+
+| Insumo | Valor | Fonte |
+| --- | --- | --- |
+| Crescimento acima do solo de floresta secundária com até 20 anos, Américas (t de matéria seca/ha/ano) | Tropical úmida 5,9; tropical úmida decídua 5,2; tropical seca 3,9; subtropical úmida 2,5 | IPCC 2019 Refinement, Vol. 4, cap. 4, Tabela 4.9 |
+| Razão raiz/parte aérea, floresta natural com até 125 t/ha | Tropical úmida 0,221; úmida decídua 0,2845; seca 0,334; subtropical úmida 0,175 | IPCC 2019 Refinement, Vol. 4, cap. 4, Tabela 4.4 |
+| Fração de carbono da biomassa | 0,47 | IPCC 2006, Vol. 4, cap. 4, Tabela 4.3 |
+| Árvores por hectare | 1.666,7 (espaçamento 3 m × 2 m) | Densidade usada no estudo ESALQ/Totum/SOS Mata Atlântica (2013) e comum em plantios de restauração |
+
+Decisões e verificações:
+
+- **Bioma → zona ecológica.** A Caatinga tem zona própria no IPCC (arbustiva tropical, 9,651 t CO₂/ha/ano), mas usamos a da floresta tropical seca, que é menor. Estudos da Caatinga indicam produtividade mais baixa que a média tropical, e a ISO 14064-2 manda não superestimar remoções (seção 4.7). O Pantanal também usa a zona seca, pelo mesmo motivo. Na Mata Atlântica do Sul vale a zona subtropical.
+- **Dividir pelas mudas plantadas, e não pelas sobreviventes.** A taxa por hectare é a de uma floresta já formada. Dividi-la pelas mudas plantadas embute a perda de mudas no resultado.
+- **Conferência com medições brasileiras.** O estudo ESALQ/Totum/SOS Mata Atlântica, feito em plantios reais de restauração, mediu 163,14 kg CO₂e por árvore em 20 anos. Para a Mata Atlântica calculamos 138,1 kg, um pouco abaixo, como esperado de uma estimativa conservadora. Para florestas que se regeneram sozinhas na América do Sul, Bernal et al. (2018) encontraram 18,8 (úmida) e 13,8 (seca) t CO₂/ha/ano, acima dos valores do IPCC usados aqui.
+- **Incerteza.** As taxas do IPCC para florestas tropicais secas e subtropicais têm incerteza de até ±90%. A tela deve deixar claro que o número de árvores é uma estimativa.
+
+### Estado e bioma do usuário (RF13)
+
+O usuário escolhe o estado numa lista. O app **não pede permissão de localização**, conforme o `AGENTS.md` e a skill `privacidade-e-seguranca`. O bioma vem preenchido com o predominante no estado, isto é, o de maior área original segundo o IBGE, e o usuário pode trocá-lo por outro bioma presente no estado.
+
+Fonte: IBGE, *Biomas e Sistema Costeiro-Marinho do Brasil* (2019), Tabela 1.
+
+| UF | Predominante | Outros biomas no estado |
+| --- | --- | --- |
+| AC, AM, AP, RR | Amazônia | — |
+| PA, RO | Amazônia | Cerrado |
+| MT | Amazônia | Cerrado, Pantanal |
+| TO, MA | Cerrado | Amazônia |
+| PI | Cerrado | Caatinga |
+| GO | Cerrado | Mata Atlântica |
+| DF | Cerrado | — |
+| MS | Cerrado | Pantanal, Mata Atlântica |
+| MG | Cerrado | Mata Atlântica, Caatinga |
+| CE | Caatinga | — |
+| RN, PB, PE, SE | Caatinga | Mata Atlântica |
+| BA | Caatinga | Mata Atlântica, Cerrado |
+| AL | Mata Atlântica | Caatinga |
+| ES, RJ, SC | Mata Atlântica | — |
+| SP, PR | Mata Atlântica | Cerrado |
+| RS | Pampa | Mata Atlântica |
+
+### Árvores sugeridas (RF13)
+
+A lista de espécies fica gravada no app, para funcionar sem internet. Ela é montada uma única vez, durante o desenvolvimento, a partir da **Flora e Funga do Brasil** (Jardim Botânico do Rio de Janeiro), a lista oficial da flora brasileira:
+
+1. A equipe escolhe espécies candidatas: árvores nativas conhecidas pelo nome popular e usadas em restauração.
+2. Para cada uma, a Flora e Funga do Brasil informa o nome aceito, se a espécie é árvore, em quais estados é **nativa** e em quais biomas ocorre. Para o estado e o bioma escolhidos, o app mostra as espécies nativas daquele estado que ocorrem naquele bioma.
+3. O arquivo de dados guarda, para cada espécie, o identificador da Flora e Funga do Brasil e a data da consulta, para que qualquer pessoa possa conferir.
+
+Essa consulta já evitou erros. A goiabeira não consta como nativa em nenhum estado, e alguns nomes mudaram: a aroeira-do-sertão hoje é *Astronium urundeuva*, e a oiticica, *Microdesmia rigida*. Num teste com 64 candidatas, todos os 27 estados ficaram com 15 ou mais espécies. Os nomes populares precisam de revisão da equipe, porque variam de região para região.
+
+A taxa de sequestro é a do bioma, não a da espécie. O app não promete que uma espécie sequestra mais que outra.
 
 O arredondamento é sempre para cima, porque arredondar para baixo deixaria parte das emissões sem compensação.
 
@@ -63,15 +221,21 @@ Um valor positivo indica que o plantio simulado remove mais carbono do que o per
 
 ### Linguagem ao usuário
 
-Pela ISO 14068-1, declarar neutralidade de carbono exige ter reduzido emissões antes de compensar. Por isso o app usa expressões como "árvores que neutralizariam este mês" e nunca exibe selos do tipo "carbono neutro".
+Pela ISO 14068-1, declarar neutralidade de carbono exige ter reduzido emissões antes de compensar e usar créditos certificados. Por isso o app usa expressões como "árvores que neutralizariam este mês" e nunca exibe selos do tipo "carbono neutro".
+
+## Limitações conhecidas
+
+- Fatores médios nacionais: não refletem o veículo, o fogão ou a distribuidora de energia de cada usuário.
+- O app não calcula incerteza. O IPCC indica faixas de confiança para cada fator, e o CH₄ e o N₂O de veículos são os mais incertos (até um terço do valor central para cima ou para baixo). Como juntos pesam menos de 3% do fator, o efeito no total é pequeno.
+- Escopo restrito às cinco fontes acima. Para residências e pequenos comércios, ficam de fora, por exemplo, o gás de ar-condicionado, os resíduos e as compras.
 
 ## Versionamento dos fatores
 
-Cada fator em `src/calculo/fatores.ts` tem um identificador, valor, unidade, fonte, ano e versão. Ao atualizar um fator:
+Cada fator em `src/calculo/fatores.ts` tem um identificador, valor, unidade, fonte, ano, versão e data de início de vigência. Ao atualizar um fator:
 
 1. Não altere o registro existente. Crie um novo com a versão incrementada.
 2. Períodos já registrados continuam usando a versão gravada no momento do registro.
-3. Períodos novos usam a versão mais recente.
+3. Períodos novos usam a versão vigente na data do período: a mistura em vigor naquele mês e o fator elétrico anual mais recente já publicado.
 4. Atualize a tabela deste documento na mesma alteração.
 
 ## Arredondamento e exibição
@@ -79,3 +243,20 @@ Cada fator em `src/calculo/fatores.ts` tem um identificador, valor, unidade, fon
 - Cálculos usam precisão total; nada é arredondado em `src/calculo/` exceto a contagem de árvores.
 - Na exibição, valores abaixo de 1.000 kg aparecem em quilos sem casas decimais; a partir disso, em toneladas com duas casas.
 - Separador decimal brasileiro (vírgula), via `Intl.NumberFormat('pt-BR')`.
+
+## Referências
+
+- ISO 14064-1:2018. *Greenhouse gases — Part 1: Specification with guidance at the organization level for quantification and reporting of greenhouse gas emissions and removals.*
+- ISO 14064-2:2019. *Greenhouse gases — Part 2: Specification with guidance at the project level…*
+- ISO 14068-1:2023. *Climate change management — Transition to net zero — Part 1: Carbon neutrality.*
+- ABNT; Sebrae. *Guia de implementação: gestão de emissões e remoções de gases de efeito estufa — ABNT NBR ISO 14064.* Rio de Janeiro, 2015.
+- MCTI. *Fatores de emissão de CO₂ pela geração de energia elétrica no SIN — fator médio para inventários* (planilha "Inventários Corporativos – 2026", série 2006–2026). https://www.gov.br/mcti/pt-br/acompanhe-o-mcti/sirene/dados-e-ferramentas/fatores-de-emissao
+- IPCC. *2006 IPCC Guidelines for National Greenhouse Gas Inventories*, Vol. 2, cap. 1 (Tab. 1.4), cap. 2 (Tab. 2.5) e cap. 3 (Tab. 3.2.2). https://www.ipcc-nggip.iges.or.jp/public/2006gl/vol2.html
+- IPCC. *AR6 WGI*, cap. 7, Tabela 7.15 (2021). https://www.ipcc.ch/report/ar6/wg1/chapter/chapter-7/
+- EPE. *Balanço Energético Nacional 2025, ano-base 2024*, Tabela VIII.9.
+- IPCC. *2019 Refinement to the 2006 IPCC Guidelines*, Vol. 4, cap. 4 (Forest Land), Tabelas 4.4 e 4.9; *2006 IPCC Guidelines*, Vol. 4, cap. 4, Tabela 4.3. https://www.ipcc-nggip.iges.or.jp/public/2019rf/vol4.html
+- Bernal, B.; Murray, L. T.; Pearson, T. R. H. *Global carbon dioxide removal rates from forest landscape restoration activities.* Carbon Balance and Management 13:22, 2018. https://doi.org/10.1186/s13021-018-0110-8
+- Instituto Totum; ESALQ/USP; Fundação SOS Mata Atlântica. Estudo de absorção de CO₂ por árvores de restauração da Mata Atlântica, 2013. https://www.sosma.org.br/noticias/cada-arvore-da-mata-atlantica-chega-a-retirar-163-kg-de-gas-carbonico-da-atmosfera/
+- IBGE. *Biomas e Sistema Costeiro-Marinho do Brasil*, 2019, Tabela 1. https://www.ibge.gov.br/apps/biomas/pdf/Lim08_BiomSist.pdf
+- Flora e Funga do Brasil. Jardim Botânico do Rio de Janeiro. https://floradobrasil.jbrj.gov.br
+- CNPE. Resoluções de mistura obrigatória: E30 e B15 a partir de 01/08/2025; E32 a partir de 01/08/2026. Lei 14.993/2024 (Combustível do Futuro).
