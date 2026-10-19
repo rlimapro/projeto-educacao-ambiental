@@ -54,22 +54,34 @@ export const cores: Record<EsquemaCores, Cores> = {
 // Nomes registrados pelo useFonts no layout raiz.
 export const familias = {
   numeros: 'SpaceGrotesk_600SemiBold',
+  numerosNegrito: 'SpaceGrotesk_700Bold',
+  numerosMedio: 'SpaceGrotesk_500Medium',
   texto: 'IBMPlexSans_400Regular',
   textoMedio: 'IBMPlexSans_500Medium',
+  textoSemiNegrito: 'IBMPlexSans_600SemiBold',
 } as const;
 
-function estilo(fontFamily: string, fontSize: number, alturaLinha: number): TextStyle {
-  return { fontFamily, fontSize, lineHeight: Math.round(fontSize * alturaLinha) };
+function estilo(
+  fontFamily: string,
+  fontSize: number,
+  alturaLinha: number,
+  letterSpacing?: number,
+): TextStyle {
+  return { fontFamily, fontSize, lineHeight: Math.round(fontSize * alturaLinha), letterSpacing };
 }
 
 export const tipografia = {
   numeroDestaque: estilo(familias.numeros, 52, 1.0),
-  titulo: estilo(familias.numeros, 34, 1.08),
+  titulo: estilo(familias.numerosNegrito, 34, 1.08, -0.68),
   numeroCartao: estilo(familias.numeros, 32, 1.0),
   subtitulo: estilo(familias.numeros, 18, 1.2),
-  botao: estilo(familias.numeros, 17, 1.2),
+  botao: estilo(familias.numerosNegrito, 17, 1.2),
+  contador: estilo(familias.numerosMedio, 14, 1.3),
   corpo: estilo(familias.texto, 16, 1.5),
+  opcao: estilo(familias.textoSemiNegrito, 16, 1.3),
   item: estilo(familias.textoMedio, 15, 1.4),
+  itemForte: estilo(familias.textoSemiNegrito, 15, 1.4),
+  rotulo: estilo(familias.textoSemiNegrito, 13, 1.3),
   legenda: estilo(familias.texto, 13, 1.4),
   mini: estilo(familias.textoMedio, 12, 1.3),
 } satisfies Record<string, TextStyle>;
@@ -88,6 +100,7 @@ export const margemTela = espacamento.g;
 
 export const raios = {
   marcador: 4,
+  segmento: 10,
   linha: 14,
   cartao: 16,
   pilula: 999,
@@ -97,5 +110,7 @@ export const medidas = {
   areaToqueMinima: 44,
   alturaBotao: 56,
   bordaCartao: 1,
+  bordaSelecionada: 2,
+  tamanhoIlustracao: 200,
   opacidadePressionado: 0.8,
 } as const;

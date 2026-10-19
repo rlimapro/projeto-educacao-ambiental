@@ -26,7 +26,11 @@ jest.mock('expo-sqlite/kv-store', () => {
 });
 
 const { Storage } = jest.requireMock<{
-  Storage: { clearSync: () => boolean; setItemSync: (chave: string, valor: string) => void };
+  Storage: {
+    clearSync: () => boolean;
+    getItemSync: (chave: string) => string | null;
+    setItemSync: (chave: string, valor: string) => void;
+  };
 }>('expo-sqlite/kv-store');
 
 function LayoutDeTeste() {
@@ -52,39 +56,48 @@ describe('primeiro uso', () => {
     const app = await renderRouter(rotas, { initialUrl: '/' });
 
     expect(app.getPathname()).toBe('/boas-vindas');
-    expect(screen.getByText('Quanto você emite?')).toBeTruthy();
-    expect(screen.getByLabelText('Tela 1 de 5')).toBeTruthy();
+    expect(screen.getByText('Descubra quanto você emite.')).toBeTruthy();
+    expect(screen.getByLabelText('Tela 1 de 4')).toBeTruthy();
   });
 
-  it('avança uma tela por vez com o botão Próximo', async () => {
+  it('avança uma tela por vez com o botão Continuar', async () => {
     await renderRouter(rotas, { initialUrl: '/' });
 
-    await fireEvent.press(screen.getByRole('button', { name: 'Próximo' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Continuar' }));
 
-    expect(screen.getByLabelText('Tela 2 de 5')).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'Voltar' })).toBeTruthy();
+    expect(screen.getByLabelText('Tela 2 de 4')).toBeTruthy();
   });
 
-  it('Pular leva à escolha de tema, e não direto ao início', async () => {
+  it('Pular leva à escolha do perfil, e não direto ao início', async () => {
     const app = await renderRouter(rotas, { initialUrl: '/' });
 
     await fireEvent.press(screen.getByRole('button', { name: 'Pular' }));
 
     expect(app.getPathname()).toBe('/boas-vindas');
-    expect(screen.getByLabelText('Tela 5 de 5')).toBeTruthy();
+    expect(screen.getByLabelText('Tela 4 de 4')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Começar' })).toBeTruthy();
     expect(screen.queryByRole('button', { name: 'Pular' })).toBeNull();
   });
 
-  it('Começar guarda a escolha de tema e vai ao início', async () => {
+  it('vem com Minha residência e Mês já marcados', async () => {
+    await renderRouter(rotas, { initialUrl: '/' });
+
+    expect(screen.getByRole('radio', { name: /Minha residência/ })).toBeChecked();
+    expect(screen.getByRole('radio', { name: 'Mês' })).toBeChecked();
+  });
+
+  it('Começar guarda o perfil e o período escolhidos e vai ao início', async () => {
     const app = await renderRouter(rotas, { initialUrl: '/' });
 
     await fireEvent.press(screen.getByRole('button', { name: 'Pular' }));
-    await fireEvent.press(screen.getByRole('radio', { name: 'Escuro' }));
+    await fireEvent.press(screen.getByRole('radio', { name: /Meu comércio/ }));
+    await fireEvent.press(screen.getByRole('radio', { name: 'Ano' }));
     await fireEvent.press(screen.getByRole('button', { name: 'Começar' }));
 
     expect(app.getPathname()).toBe('/');
     expect(screen.getByText('Início')).toBeTruthy();
+    expect(Storage.getItemSync('preferencias.perfil')).toBe('comercio');
+    expect(Storage.getItemSync('preferencias.periodo')).toBe('ano');
   });
 
   it('não mostra as boas-vindas de novo depois de concluídas', async () => {
@@ -93,6 +106,6 @@ describe('primeiro uso', () => {
     const app = await renderRouter(rotas, { initialUrl: '/' });
 
     expect(app.getPathname()).toBe('/');
-    expect(screen.queryByText('Quanto você emite?')).toBeNull();
+    expect(screen.queryByText('Descubra quanto você emite.')).toBeNull();
   });
 });

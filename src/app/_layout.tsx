@@ -1,5 +1,13 @@
-import { IBMPlexSans_400Regular, IBMPlexSans_500Medium } from '@expo-google-fonts/ibm-plex-sans';
-import { SpaceGrotesk_600SemiBold } from '@expo-google-fonts/space-grotesk';
+import {
+  IBMPlexSans_400Regular,
+  IBMPlexSans_500Medium,
+  IBMPlexSans_600SemiBold,
+} from '@expo-google-fonts/ibm-plex-sans';
+import {
+  SpaceGrotesk_500Medium,
+  SpaceGrotesk_600SemiBold,
+  SpaceGrotesk_700Bold,
+} from '@expo-google-fonts/space-grotesk';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -35,9 +43,12 @@ function Navegacao() {
 
 export default function RootLayout() {
   const [fontesCarregadas, erroFontes] = useFonts({
+    SpaceGrotesk_500Medium,
     SpaceGrotesk_600SemiBold,
+    SpaceGrotesk_700Bold,
     IBMPlexSans_400Regular,
     IBMPlexSans_500Medium,
+    IBMPlexSans_600SemiBold,
   });
   const pronto = fontesCarregadas || erroFontes !== null;
 

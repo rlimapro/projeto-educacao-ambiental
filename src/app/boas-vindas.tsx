@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { useRef, useState } from 'react';
+import { useRef, useState, type ReactNode } from 'react';
 import {
   FlatList,
   ScrollView,
@@ -12,62 +12,90 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { marcarBoasVindasConcluidas } from '@/dados/preferencias';
+import type { PeriodoReferencia, Perfil } from '@/calculo/tipos';
+import {
+  PERFIL_PADRAO,
+  PERIODO_PADRAO,
+  marcarBoasVindasConcluidas,
+  salvarPerfil,
+  salvarPeriodo,
+} from '@/dados/preferencias';
 import { BotaoPrimario } from '@/ui/BotaoPrimario';
 import { BotaoTexto } from '@/ui/BotaoTexto';
-import { Icone, type NomeIcone } from '@/ui/Icone';
-import { SeletorTema } from '@/ui/SeletorTema';
+import { Icone } from '@/ui/Icone';
+import { Ilustracao, type NomeIlustracao } from '@/ui/Ilustracao';
+import { LinhaLista } from '@/ui/LinhaLista';
+import { OpcaoCartao } from '@/ui/OpcaoCartao';
+import { SeletorSegmentado } from '@/ui/SeletorSegmentado';
 import { margemTela, medidas, useTema } from '@/ui/tema';
 import { useReduzirMovimento } from '@/ui/useReduzirMovimento';
 
-// Textos revisados em docs/boas-vindas.md (RF12).
+// Textos e regras revisados em docs/boas-vindas.md (RF12). Layout segue o
+// protótipo no Figma ("Boas-vindas · O app", "Privacidade" e "Perfil").
+
 type Pagina = {
-  icone: NomeIcone;
+  chave: string;
+  ilustracao?: NomeIlustracao;
   titulo: string;
   texto: string;
 };
 
 const paginas: Pagina[] = [
   {
-    icone: 'nuvem',
-    titulo: 'Quanto você emite?',
+    chave: 'o-app',
+    ilustracao: 'anel',
+    titulo: 'Descubra quanto você emite.',
     texto:
-      'Registre o que você consome, como energia, combustível e gás de cozinha, e descubra as emissões que vêm disso. Vale para você, para sua casa ou para seu comércio.',
+      'Registre seus consumos de energia, combustível e gás. O app calcula suas emissões e mostra quantas árvores as neutralizariam.',
   },
   {
-    icone: 'calculadora',
-    titulo: 'Uma conta que você pode conferir',
+    chave: 'conta',
+    ilustracao: 'conta',
+    titulo: 'Uma conta que você pode conferir.',
     texto:
-      'Cada consumo é multiplicado por um fator de emissão, como manda a norma ISO 14064. O app mostra a conta inteira: quanto você usou, o fator aplicado e de onde ele veio.',
+      'Cada consumo é multiplicado por um fator de emissão de fonte oficial. O app mostra a conta inteira: quanto você usou, o fator e de onde ele veio.',
   },
   {
-    icone: 'queda',
-    titulo: 'Primeiro reduzir, depois compensar',
-    texto:
-      'O app mostra de onde vem a maior parte das suas emissões e sugere como diminuí-las. Só depois estima quantas árvores neutralizariam o que sobrar.',
+    chave: 'privacidade',
+    ilustracao: 'cadeado',
+    titulo: 'Seus dados ficam neste aparelho.',
+    texto: 'Nada é enviado a servidores. Sem conta, sem login, sem compartilhamento.',
   },
   {
-    icone: 'cadeado',
-    titulo: 'Seus dados ficam com você',
-    texto:
-      'Funciona sem internet, sem conta e sem cadastro. Nada sai do seu celular, a não ser um backup que você mesmo decida exportar.',
-  },
-  {
-    icone: 'contraste',
-    titulo: 'Como prefere ver o app?',
-    texto: 'Você pode mudar isso depois em Ajustes.',
+    chave: 'perfil',
+    titulo: 'Para quem é o cálculo?',
+    texto: 'Isso define quais consumos aparecem para preencher. Você pode mudar depois em Ajustes.',
   },
 ];
 
 const ultima = paginas.length - 1;
-const TAMANHO_ICONE = 64;
+
+const opcoesPerfil: { valor: Perfil; titulo: string; descricao: string }[] = [
+  { valor: 'pessoa', titulo: 'Para mim', descricao: 'Deslocamentos e consumo pessoal' },
+  { valor: 'residencia', titulo: 'Minha residência', descricao: 'Energia, gás e veículos da casa' },
+  { valor: 'comercio', titulo: 'Meu comércio', descricao: 'Energia, gás, combustível e entregas' },
+];
+
+const opcoesPeriodo: { valor: PeriodoReferencia; rotulo: string }[] = [
+  { valor: 'mes', rotulo: 'Mês' },
+  { valor: 'ano', rotulo: 'Ano' },
+];
+
+function doisDigitos(numero: number): string {
+  return String(numero).padStart(2, '0');
+}
 
 export default function BoasVindas() {
-  const { cores, tipografia, espacamento, raios } = useTema();
+  const { cores, tipografia, espacamento } = useTema();
   const { width: largura } = useWindowDimensions();
   const reduzirMovimento = useReduzirMovimento();
   const lista = useRef<FlatList<Pagina>>(null);
   const [atual, setAtual] = useState(0);
+  // Altura medida da lista: cada página ocupa toda ela, para a ilustração
+  // ficar centralizada no espaço livre acima do texto, como no protótipo.
+  const [alturaLista, setAlturaLista] = useState(0);
+  const [perfil, setPerfil] = useState<Perfil>(PERFIL_PADRAO);
+  const [periodo, setPeriodo] = useState<PeriodoReferencia>(PERIODO_PADRAO);
 
   function irPara(indice: number) {
     lista.current?.scrollToIndex({ index: indice, animated: !reduzirMovimento });
@@ -79,8 +107,47 @@ export default function BoasVindas() {
   }
 
   function comecar() {
+    salvarPerfil(perfil);
+    salvarPeriodo(periodo);
     marcarBoasVindasConcluidas();
     router.replace('/');
+  }
+
+  function conteudoExtra(pagina: Pagina): ReactNode {
+    if (pagina.chave === 'privacidade') {
+      return (
+        <View style={{ gap: espacamento.pp }}>
+          <LinhaLista icone={<Icone nome="semInternet" />} rotulo="Funciona sem internet" />
+          <LinhaLista icone={<Icone nome="semCadastro" />} rotulo="Sem cadastro nem login" />
+          <LinhaLista icone={<Icone nome="backup" />} rotulo="Backup só quando você pedir" />
+        </View>
+      );
+    }
+    if (pagina.chave === 'perfil') {
+      return (
+        <>
+          <View accessibilityRole="radiogroup" style={{ gap: espacamento.p }}>
+            {opcoesPerfil.map((opcao) => (
+              <OpcaoCartao
+                key={opcao.valor}
+                icone={opcao.valor}
+                titulo={opcao.titulo}
+                descricao={opcao.descricao}
+                selecionada={perfil === opcao.valor}
+                onPress={() => setPerfil(opcao.valor)}
+              />
+            ))}
+          </View>
+          <SeletorSegmentado
+            rotulo="Período de referência"
+            opcoes={opcoesPeriodo}
+            valor={periodo}
+            aoMudar={setPeriodo}
+          />
+        </>
+      );
+    }
+    return null;
   }
 
   return (
@@ -88,75 +155,75 @@ export default function BoasVindas() {
       <View
         style={[
           estilos.topo,
-          { paddingHorizontal: margemTela - espacamento.p, minHeight: medidas.areaToqueMinima },
+          {
+            minHeight: medidas.areaToqueMinima,
+            marginTop: espacamento.m,
+            paddingLeft: margemTela,
+            paddingRight: margemTela - espacamento.p,
+          },
         ]}
       >
+        <Text
+          accessibilityLabel={`Tela ${atual + 1} de ${paginas.length}`}
+          style={[tipografia.contador, { color: cores.textoSuave }]}
+        >
+          {`${doisDigitos(atual + 1)} / ${doisDigitos(paginas.length)}`}
+        </Text>
         {atual < ultima && <BotaoTexto rotulo="Pular" onPress={() => irPara(ultima)} />}
       </View>
 
       <FlatList
         ref={lista}
+        style={estilos.lista}
+        onLayout={(evento) => setAlturaLista(evento.nativeEvent.layout.height)}
         data={paginas}
-        keyExtractor={(pagina) => pagina.icone}
+        keyExtractor={(pagina) => pagina.chave}
         horizontal
         pagingEnabled
         bounces={false}
         showsHorizontalScrollIndicator={false}
         onMomentumScrollEnd={aoTerminarRolagem}
         getItemLayout={(_, indice) => ({ length: largura, offset: largura * indice, index: indice })}
-        renderItem={({ item, index }) => (
+        renderItem={({ item }) => (
           <ScrollView
-            style={{ width: largura }}
+            style={{ width: largura, height: alturaLista || undefined }}
             contentContainerStyle={[
               estilos.pagina,
-              { paddingHorizontal: margemTela, gap: espacamento.m },
+              {
+                paddingHorizontal: margemTela,
+                paddingTop: espacamento.m,
+                gap: item.ilustracao ? espacamento.m : espacamento.g,
+              },
             ]}
           >
-            <Icone nome={item.icone} tamanho={TAMANHO_ICONE} />
-            <Text accessibilityRole="header" style={[tipografia.titulo, { color: cores.texto }]}>
-              {item.titulo}
-            </Text>
-            <Text style={[tipografia.corpo, { color: cores.textoSuave }]}>{item.texto}</Text>
-            {index === ultima && (
-              <View style={{ marginTop: espacamento.pp }}>
-                <SeletorTema />
+            {item.ilustracao && (
+              <View style={estilos.areaIlustracao}>
+                <Ilustracao nome={item.ilustracao} />
               </View>
             )}
+            <View style={{ gap: espacamento.pp }}>
+              <Text accessibilityRole="header" style={[tipografia.titulo, { color: cores.texto }]}>
+                {item.titulo}
+              </Text>
+              <Text style={[tipografia.corpo, { color: cores.textoSuave }]}>{item.texto}</Text>
+            </View>
+            {conteudoExtra(item)}
           </ScrollView>
         )}
       />
 
-      <View style={{ paddingHorizontal: margemTela, paddingBottom: espacamento.m, gap: espacamento.m }}>
-        <View
-          accessible
-          accessibilityLabel={`Tela ${atual + 1} de ${paginas.length}`}
-          style={[estilos.indicador, { gap: espacamento.pp }]}
-        >
-          {paginas.map((pagina, indice) => (
-            <View
-              key={pagina.icone}
-              style={{
-                height: espacamento.pp,
-                width: indice === atual ? espacamento.gg : espacamento.pp,
-                borderRadius: raios.pilula,
-                backgroundColor: indice === atual ? cores.marcaForte : cores.borda,
-              }}
-            />
-          ))}
-        </View>
-
-        <View style={[estilos.botoes, { gap: espacamento.p }]}>
-          <View style={estilos.voltar}>
-            {atual > 0 && <BotaoTexto rotulo="Voltar" onPress={() => irPara(atual - 1)} />}
-          </View>
-          <View style={estilos.avancar}>
-            {atual < ultima ? (
-              <BotaoPrimario rotulo="Próximo" onPress={() => irPara(atual + 1)} />
-            ) : (
-              <BotaoPrimario rotulo="Começar" onPress={comecar} />
-            )}
-          </View>
-        </View>
+      <View
+        style={{
+          paddingHorizontal: margemTela,
+          paddingTop: espacamento.m,
+          paddingBottom: espacamento.xg,
+        }}
+      >
+        {atual < ultima ? (
+          <BotaoPrimario rotulo="Continuar" onPress={() => irPara(atual + 1)} />
+        ) : (
+          <BotaoPrimario rotulo="Começar" onPress={comecar} />
+        )}
       </View>
     </SafeAreaView>
   );
@@ -168,25 +235,18 @@ const estilos = StyleSheet.create({
   },
   topo: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
+    justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  lista: {
+    flex: 1,
   },
   pagina: {
     flexGrow: 1,
-    justifyContent: 'center',
   },
-  indicador: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
-  botoes: {
-    flexDirection: 'row',
+  areaIlustracao: {
+    flexGrow: 1,
     alignItems: 'center',
-  },
-  voltar: {
-    flexShrink: 0,
-  },
-  avancar: {
-    flex: 1,
+    justifyContent: 'center',
   },
 });

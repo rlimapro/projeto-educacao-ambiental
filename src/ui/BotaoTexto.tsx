@@ -26,7 +26,7 @@ export function BotaoTexto({ rotulo, onPress, dica }: Props) {
         },
       ]}
     >
-      <Text style={[tipografia.item, { color: cores.marcaForte }]}>{rotulo}</Text>
+      <Text style={[tipografia.itemForte, { color: cores.texto }]}>{rotulo}</Text>
     </Pressable>
   );
 }

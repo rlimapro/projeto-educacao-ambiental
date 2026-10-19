@@ -1,8 +1,14 @@
 import {
   boasVindasConcluidas,
+  interpretarPerfil,
+  interpretarPeriodo,
   interpretarPreferenciaTema,
+  lerPerfil,
+  lerPeriodo,
   lerPreferenciaTema,
   marcarBoasVindasConcluidas,
+  salvarPerfil,
+  salvarPeriodo,
   salvarPreferenciaTema,
 } from './preferencias';
 
@@ -66,5 +72,35 @@ describe('boas-vindas', () => {
   it('ficam concluídas depois de marcadas', () => {
     marcarBoasVindasConcluidas();
     expect(boasVindasConcluidas()).toBe(true);
+  });
+});
+
+describe('perfil', () => {
+  it('aceita os três perfis', () => {
+    expect(interpretarPerfil('pessoa')).toBe('pessoa');
+    expect(interpretarPerfil('residencia')).toBe('residencia');
+    expect(interpretarPerfil('comercio')).toBe('comercio');
+  });
+
+  it('usa residência quando não há valor salvo ou ele é desconhecido', () => {
+    expect(interpretarPerfil(null)).toBe('residencia');
+    expect(interpretarPerfil('empresa')).toBe('residencia');
+  });
+
+  it('lê de volta o perfil salvo', () => {
+    salvarPerfil('comercio');
+    expect(lerPerfil()).toBe('comercio');
+  });
+});
+
+describe('período de referência', () => {
+  it('usa o mês quando não há valor salvo ou ele é desconhecido', () => {
+    expect(interpretarPeriodo(null)).toBe('mes');
+    expect(interpretarPeriodo('semana')).toBe('mes');
+  });
+
+  it('lê de volta o período salvo', () => {
+    salvarPeriodo('ano');
+    expect(lerPeriodo()).toBe('ano');
   });
 });
