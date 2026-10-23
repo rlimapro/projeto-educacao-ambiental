@@ -26,6 +26,7 @@ montage figma.png .previa/boas-vindas-claro-1.png -tile 2x1 -geometry 390x844+8+
 
 ## Cuidados
 
+- **Saída web `single`** no `app.json`: sem renderização no servidor. Com `server`, o SDK 58 acusa erro de hidratação na barra de abas (a largura da janela só existe no navegador). O app não é publicado na web, então não há o que perder.
 - **Não use `CI=1`** no servidor: nesse modo o Metro não recarrega quando o código muda, e as capturas mostram a versão antiga.
 - Na prévia, o armazenamento é uma simulação em memória (`armazenamento-memoria.js`): toda abertura é um primeiro uso. `?tema=escuro` na URL abre no tema escuro.
 - A prévia é aproximada: fontes e sombras podem variar alguns pixels em relação ao celular. Antes do pull request, confira também no Expo Go.
