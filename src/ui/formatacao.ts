@@ -24,6 +24,12 @@ export function formatarEmissao(emissaoKgCo2e: number): EmissaoFormatada {
   return { valor: quilos.format(emissaoKgCo2e), unidade: 'kg' };
 }
 
+// Formata numa unidade já escolhida. Usado na contagem animada do total, para
+// a unidade não mudar no meio da animação.
+export function formatarEmissaoNaUnidade(emissaoKgCo2e: number, unidade: 'kg' | 't'): string {
+  return unidade === 't' ? toneladas.format(emissaoKgCo2e / 1000) : quilos.format(emissaoKgCo2e);
+}
+
 export function formatarEmissaoComUnidade(emissaoKgCo2e: number): string {
   const { valor, unidade } = formatarEmissao(emissaoKgCo2e);
   return `${valor} ${unidade}`;
@@ -61,4 +67,9 @@ const nomesDosMeses = [
 export function nomeDoMes(mes: number, maiuscula = false): string {
   const nome = nomesDosMeses[mes - 1] ?? '';
   return maiuscula ? nome.charAt(0).toUpperCase() + nome.slice(1) : nome;
+}
+
+// Três primeiras letras, com maiúscula: 3 vira "Mar".
+export function abreviacaoDoMes(mes: number): string {
+  return nomeDoMes(mes, true).slice(0, 3);
 }
