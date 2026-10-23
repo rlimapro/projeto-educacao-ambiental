@@ -71,7 +71,11 @@ async function capturarTema(esquema) {
         pendentes.delete(msg.id);
       }
       if (msg.method === 'Runtime.consoleAPICalled' && ['error', 'warning'].includes(msg.params.type)) {
-        avisos.push(msg.params.args.map((a) => a.value ?? a.description).join(' ').slice(0, 200));
+        // Encaixa os argumentos nos %s da mensagem, como o console do navegador faz.
+        const [modelo, ...valores] = msg.params.args.map((a) => String(a.value ?? a.description));
+        let texto = modelo ?? '';
+        for (const valor of valores) texto = texto.replace(/%[sdo]/, valor);
+        avisos.push(texto.split('\n')[0].slice(0, 300));
       }
     });
     const cdp = (metodo, parametros = {}) =>
@@ -83,19 +87,21 @@ async function capturarTema(esquema) {
 
     await cdp('Runtime.enable');
     await cdp('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 2, mobile: true });
-    await cdp('Page.navigate', { url: `${ENDERECO}${rota}?tema=${esquema}` });
-    // Espera o título da tela aparecer: o primeiro carregamento depois de
+    // Fora das boas-vindas, abre como se elas já tivessem sido vistas.
+    const pularBoasVindas = rota.startsWith('/boas-vindas') ? '' : '&boas-vindas=vistas';
+    await cdp('Page.navigate', { url: `${ENDERECO}${rota}?tema=${esquema}${pularBoasVindas}` });
+    // Espera o título da tela ou a barra de abas aparecer: o primeiro carregamento depois de
     // subir o servidor compila o app e pode levar bem mais que alguns segundos.
     let pronta = false;
     for (let i = 0; i < 120 && !pronta; i++) {
       await espera(500);
       const r = await cdp('Runtime.evaluate', {
-        expression: "!!document.querySelector('[role=heading]')",
+        expression: "!!document.querySelector('[role=heading],[role=tablist]')",
         returnByValue: true,
       });
       pronta = r?.result?.value === true;
     }
-    if (!pronta) console.warn(`A tela ${rota} não mostrou nenhum título em 60 s (${esquema}).`);
+    if (!pronta) console.warn(`A tela ${rota} não terminou de carregar em 60 s (${esquema}).`);
     await espera(1500);
 
     const nomeBase = rota.replace(/^\//, '').replace(/\//g, '-') || 'inicio';
