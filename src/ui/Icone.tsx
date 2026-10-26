@@ -15,12 +15,21 @@ export type NomeIcone =
   | 'residencia'
   | 'comercio'
   | 'radioVazio'
-  | 'radioMarcado';
+  | 'radioMarcado'
+  | 'abrirPeriodo'
+  | 'abrir'
+  | 'anterior'
+  | 'sugestao'
+  | 'navInicio'
+  | 'navRegistrar'
+  | 'navHistorico'
+  | 'navAjustes';
 
 type Desenho = {
   tamanho: number;
   traco: number;
-  render: (cor: string) => ReactNode;
+  // fundo: cor do que está atrás do ícone, para preencher partes vazadas.
+  render: (cor: string, fundo: string) => ReactNode;
 };
 
 const desenhos: Record<NomeIcone, Desenho> = {
@@ -108,14 +117,96 @@ const desenhos: Record<NomeIcone, Desenho> = {
       </>
     ),
   },
+  abrirPeriodo: {
+    tamanho: 18,
+    traco: 1.5,
+    render: () => <Path d="M4.5 6.75L9 11.25L13.5 6.75" />,
+  },
+  abrir: {
+    tamanho: 18,
+    traco: 1.5,
+    render: () => <Path d="M6.75 4.5L11.25 9L6.75 13.5" />,
+  },
+  // Espelho de "abrir"; não existe no protótipo.
+  anterior: {
+    tamanho: 18,
+    traco: 1.5,
+    render: () => <Path d="M11.25 4.5L6.75 9L11.25 13.5" />,
+  },
+  sugestao: {
+    tamanho: 22,
+    traco: 1.83333,
+    render: () => (
+      <>
+        <Path d="M8.25 16.5H13.75" />
+        <Path d="M9.16667 20.1667H12.8333" />
+        <Path d="M11 1.83333C9.64493 1.8455 8.32849 2.28636 7.23939 3.09273C6.15029 3.89909 5.34444 5.02956 4.93734 6.3221C4.53024 7.61463 4.5428 9.00286 4.97322 10.2878C5.40364 11.5728 6.22982 12.6885 7.33333 13.475V14.6667H14.6667V13.475C15.7702 12.6885 16.5964 11.5728 17.0268 10.2878C17.4572 9.00286 17.4698 7.61463 17.0627 6.3221C16.6556 5.02956 15.8497 3.89909 14.7606 3.09273C13.6715 2.28636 12.3551 1.8455 11 1.83333Z" />
+      </>
+    ),
+  },
+  navInicio: {
+    tamanho: 22,
+    traco: 1.83333,
+    render: () => (
+      <Path d="M2.75 10.0833L11 3.66667L19.25 10.0833V18.3333C19.25 18.5764 19.1534 18.8096 18.9815 18.9815C18.8096 19.1534 18.5764 19.25 18.3333 19.25H13.75V13.75H8.25V19.25H3.66667C3.42355 19.25 3.19039 19.1534 3.01849 18.9815C2.84658 18.8096 2.75 18.5764 2.75 18.3333V10.0833Z" />
+    ),
+  },
+  navRegistrar: {
+    tamanho: 22,
+    traco: 1.83333,
+    render: () => (
+      <>
+        <Path d="M19.25 11C19.25 15.5563 15.5563 19.25 11 19.25C6.44365 19.25 2.75 15.5563 2.75 11C2.75 6.44365 6.44365 2.75 11 2.75C15.5563 2.75 19.25 6.44365 19.25 11Z" />
+        <Path d="M11 7.33333V14.6667" />
+        <Path d="M7.33333 11H14.6667" />
+      </>
+    ),
+  },
+  navHistorico: {
+    tamanho: 22,
+    traco: 1.83333,
+    render: () => (
+      <>
+        <Path d="M3.66667 18.3333V9.16667" />
+        <Path d="M9.16667 18.3333V3.66667" />
+        <Path d="M14.6667 18.3333V11.9167" />
+        <Path d="M20.1667 18.3333H1.83333" />
+      </>
+    ),
+  },
+  navAjustes: {
+    tamanho: 22,
+    traco: 1.83333,
+    render: (_cor, fundo) => (
+      <>
+        <Path d="M3.66667 5.5H18.3333" />
+        <Path d="M3.66667 11H18.3333" />
+        <Path d="M3.66667 16.5H18.3333" />
+        <Path
+          d="M8.25 7.33333C9.26252 7.33333 10.0833 6.51252 10.0833 5.5C10.0833 4.48748 9.26252 3.66667 8.25 3.66667C7.23748 3.66667 6.41667 4.48748 6.41667 5.5C6.41667 6.51252 7.23748 7.33333 8.25 7.33333Z"
+          fill={fundo}
+        />
+        <Path
+          d="M13.75 12.8333C14.7625 12.8333 15.5833 12.0125 15.5833 11C15.5833 9.98748 14.7625 9.16667 13.75 9.16667C12.7375 9.16667 11.9167 9.98748 11.9167 11C11.9167 12.0125 12.7375 12.8333 13.75 12.8333Z"
+          fill={fundo}
+        />
+        <Path
+          d="M6.41667 18.3333C7.42919 18.3333 8.25 17.5125 8.25 16.5C8.25 15.4875 7.42919 14.6667 6.41667 14.6667C5.40414 14.6667 4.58333 15.4875 4.58333 16.5C4.58333 17.5125 5.40414 18.3333 6.41667 18.3333Z"
+          fill={fundo}
+        />
+      </>
+    ),
+  },
 };
 
 type Props = {
   nome: NomeIcone;
   cor?: keyof Cores;
+  // Cor sobre a qual o ícone é desenhado.
+  fundo?: keyof Cores;
 };
 
-export function Icone({ nome, cor = 'marcaForte' }: Props) {
+export function Icone({ nome, cor = 'marcaForte', fundo = 'superficie' }: Props) {
   const { cores } = useTema();
   const { tamanho, traco, render } = desenhos[nome];
   const corTraco = cores[cor];
@@ -132,7 +223,7 @@ export function Icone({ nome, cor = 'marcaForte' }: Props) {
       strokeLinejoin="round"
       aria-hidden
     >
-      {render(corTraco)}
+      {render(corTraco, cores[fundo])}
     </Svg>
   );
 }

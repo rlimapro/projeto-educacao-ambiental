@@ -61,6 +61,8 @@ Compare cada captura com a imagem do protótipo e corrija até ficarem iguais, n
 
 - **Listas horizontais em páginas** (`FlatList` com `pagingEnabled`): a célula não estica até a altura da lista. Meça a altura com `onLayout` e aplique-a em cada página, ou o conteúdo gruda no topo.
 - **Servidor iniciado com `CI=1`**: ele não recarrega, e as capturas mostram código antigo.
+- **Animações**: a captura mostra só o estado final. Para conferir o meio da animação, fotografe quadros logo depois de disparar a troca (na Início: tocar no período).
+- **Rotas novas**: o Expo Router só gera os tipos das rotas (`.expo/types`) quando o servidor sobe. Se o `tsc` reclamar de uma rota que existe, rode `npm run previa:web` uma vez.
 
 Depois, confira no Expo Go, com a fonte do sistema no tamanho máximo.
 
@@ -93,7 +95,7 @@ Depois, confira no Expo Go, com a fonte do sistema no tamanho máximo.
 
 ## Gráfico em anel
 
-Use o componente `AnelEmissoes` de `src/ui/`. Se ainda não existir, construa-o com `react-native-svg` (um `Circle` por segmento, usando `strokeDasharray` e `strokeDashoffset`) e anime o `strokeDashoffset` com `useAnimatedProps` do Reanimated. Detalhes de tamanho, ordem de cores e animação estão em `docs/design.md`.
+Use o componente `AnelEmissoes` de `src/ui/`, que já existe e é animado. Para outros gráficos animados, siga a mesma técnica, descrita em `docs/design.md` (seção "Movimento"): progresso da `Animated` do React Native, geometria recalculada a cada quadro e nada de Reanimated, `createAnimatedComponent` ou `rotation`/`origin` em elementos SVG. A geometria fica numa função pura testável (como `src/ui/geometriaAnel.ts`).
 
 ## Navegação
 

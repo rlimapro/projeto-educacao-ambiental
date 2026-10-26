@@ -2,7 +2,11 @@ import { Slot } from 'expo-router';
 import { fireEvent, renderRouter, screen } from 'expo-router/testing-library';
 
 import BoasVindas from '@/app/boas-vindas';
-import Inicio from '@/app/index';
+import LayoutAbas from '@/app/(abas)/_layout';
+import Ajustes from '@/app/(abas)/ajustes';
+import Historico from '@/app/(abas)/historico';
+import Registrar from '@/app/(abas)/registrar';
+import Inicio from '@/app/(abas)/index';
 import { TemaProvider } from '@/ui/tema';
 
 // Fluxo de primeiro uso (RF12). Fica fora de src/app porque o Expo Router
@@ -43,7 +47,11 @@ function LayoutDeTeste() {
 
 const rotas = {
   _layout: LayoutDeTeste,
-  index: Inicio,
+  '(abas)/_layout': LayoutAbas,
+  '(abas)/index': Inicio,
+  '(abas)/registrar': Registrar,
+  '(abas)/historico': Historico,
+  '(abas)/ajustes': Ajustes,
   'boas-vindas': BoasVindas,
 };
 
@@ -95,7 +103,7 @@ describe('primeiro uso', () => {
     await fireEvent.press(screen.getByRole('button', { name: 'Começar' }));
 
     expect(app.getPathname()).toBe('/');
-    expect(screen.getByText('Início')).toBeTruthy();
+    expect(screen.getByRole('tab', { name: 'Início', selected: true })).toBeTruthy();
     expect(Storage.getItemSync('preferencias.perfil')).toBe('comercio');
     expect(Storage.getItemSync('preferencias.periodo')).toBe('ano');
   });
