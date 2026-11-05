@@ -14,7 +14,7 @@ Identificadores dos nós no Figma (arquivo `HlJaNtDhNHMXjLkzh4tK47`), usados par
 | 02 Boas-vindas · Privacidade | `4:21` | `7:21` | Sim |
 | 03 Boas-vindas · Perfil | `4:59` | `7:59` | Sim |
 | 04 Início | `2:2` | `7:109` | Sim (`src/app/(abas)/index.tsx`) |
-| 05 Registrar consumo | `5:2` | `7:188` | Não |
+| 05 Registrar consumo | `5:2` | `7:188` | Sim (`src/app/(abas)/registrar.tsx`) |
 | 06 Memória de cálculo | `5:83` | `7:269` | Não |
 | 07 Sugestões de redução | `5:150` | `7:336` | Não |
 | 08 Simular plantio | `6:2` | `7:407` | Não |
@@ -53,6 +53,7 @@ As três cores do gráfico diferem em luminosidade, não só em tom, para contin
 | --- | --- | --- | --- | --- | --- |
 | `numeroDestaque` | Space Grotesk | 52 | 700 | 1.0 | Total no centro do anel; espaçamento entre letras −1,56 |
 | `titulo` | Space Grotesk | 34 | 700 | 1.08 | Títulos das telas de boas-vindas; espaçamento entre letras −0,68 |
+| `tituloTela` | Space Grotesk | 24 | 700 | 1.2 | Título de tela interna, como “Registrar consumo” |
 | `numeroCartao` | Space Grotesk | 32 | 700 | 1.0 | Números em cartões |
 | `subtitulo` | Space Grotesk | 18 | 700 | 1.2 | Seletor de período, títulos de seção |
 | `numeroLinha` | Space Grotesk | 15 | 700 | 1.3 | Valor na legenda do anel |
@@ -85,6 +86,7 @@ Números com unidade usam Space Grotesk para o valor e IBM Plex Sans para a unid
 Construa e revise estes antes de qualquer tela:
 
 - **BotaoPrimario:** altura 56, raio 16, fundo `marca`, texto `sobreMarca` em `botao` (Space Grotesk 17/700), largura total.
+- **Campo de consumo:** campo editável com altura 52, raio 14, borda `borda`, valor em Space Grotesk e unidade em `textoSuave`.
 - **BotaoTexto:** ação secundária sem fundo, texto `texto` em `itemForte`, área de toque de 44.
 - **Cartao:** padding 16, raio 16, `superficie` com `borda`.
 - **LinhaLista:** altura mínima 56, raio 14, `superficie` com `borda`, ícone de 20 em `marcaForte` e texto em `item`.
