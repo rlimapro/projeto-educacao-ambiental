@@ -100,6 +100,16 @@ describe('Início', () => {
     expect(screen.getByText('−8%')).toBeTruthy();
   });
 
+  it('mostra a tela de ajustes com perfil e tema configuráveis', async () => {
+    await renderRouter(rotas, { initialUrl: '/ajustes' });
+
+    expect(screen.getByRole('header', { name: 'Ajustes' })).toBeTruthy();
+    expect(screen.getByText('Perfil')).toBeTruthy();
+    expect(screen.getByText('Aparência')).toBeTruthy();
+    expect(screen.getByRole('radio', { name: /Claro/i })).toBeTruthy();
+    expect(screen.getByRole('radio', { name: /Escuro/i })).toBeTruthy();
+  });
+
   it('mostra a barra de navegação com o Início selecionado', async () => {
     await renderRouter(rotas, { initialUrl: '/' });
 
