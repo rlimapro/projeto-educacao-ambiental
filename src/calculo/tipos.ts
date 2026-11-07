@@ -13,6 +13,41 @@ export type EmissaoFonte = {
   emissaoKgCo2e: number;
 };
 
+export type FonteEmissaoId = 'energia' | 'gasolina' | 'etanol' | 'diesel' | 'glp';
+
+export type FatorEmissao = {
+  id: FonteEmissaoId | 'gasolina-e30' | 'gasolina-e32';
+  nome: string;
+  unidadeEntrada: 'kWh' | 'L' | 'kg';
+  valor: number;
+  unidadeFator: string;
+  fonte: string;
+  ano: number;
+  versao: number;
+  perfis: Perfil[];
+};
+
+export type ConsumosInformados = {
+  energiaKwh: number;
+  gasolinaLitros: number;
+  etanolLitros: number;
+  dieselLitros: number;
+  glpBotoes13Kg: number;
+};
+
+export type MemoriaCalculoFonte = EmissaoFonte & {
+  consumoInformado: number;
+  unidadeInformada: string;
+  consumoAplicado: number;
+  fator: FatorEmissao;
+  conversao?: { multiplicador: number; unidadeResultado: string };
+};
+
+export type ResultadoEmissoes = {
+  totalKgCo2e: number;
+  fontes: MemoriaCalculoFonte[];
+};
+
 // Fonte com sua participação no total do período, em fração de 0 a 1.
 export type ParticipacaoFonte = EmissaoFonte & {
   fracao: number;

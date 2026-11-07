@@ -76,6 +76,7 @@ function estilo(
 export const tipografia = {
   numeroDestaque: estilo(familias.numerosNegrito, 52, 1.0, -1.56),
   titulo: estilo(familias.numerosNegrito, 34, 1.08, -0.68),
+  tituloTela: estilo(familias.numerosNegrito, 24, 1.2),
   numeroCartao: estilo(familias.numerosNegrito, 32, 1.0),
   subtitulo: estilo(familias.numerosNegrito, 18, 1.2),
   numeroLinha: estilo(familias.numerosNegrito, 15, 1.3),
@@ -117,6 +118,7 @@ export const raios = {
 export const medidas = {
   areaToqueMinima: 44,
   alturaBotao: 56,
+  alturaCampo: 52,
   bordaCartao: 1,
   bordaSelecionada: 2,
   tamanhoIlustracao: 200,

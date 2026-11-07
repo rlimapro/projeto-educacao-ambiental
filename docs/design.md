@@ -14,7 +14,7 @@ Identificadores dos nós no Figma (arquivo `HlJaNtDhNHMXjLkzh4tK47`), usados par
 | 02 Boas-vindas · Privacidade | `4:21` | `7:21` | Sim |
 | 03 Boas-vindas · Perfil | `4:59` | `7:59` | Sim |
 | 04 Início | `2:2` | `7:109` | Sim (`src/app/(abas)/index.tsx`) |
-| 05 Registrar consumo | `5:2` | `7:188` | Não |
+| 05 Registrar consumo | `5:2` | `7:188` | Sim (`src/app/(abas)/registrar.tsx`) |
 | 06 Memória de cálculo | `5:83` | `7:269` | Não |
 | 07 Sugestões de redução | `5:150` | `7:336` | Não |
 | 08 Simular plantio | `6:2` | `7:407` | Não |
@@ -53,6 +53,7 @@ As três cores do gráfico diferem em luminosidade, não só em tom, para contin
 | --- | --- | --- | --- | --- | --- |
 | `numeroDestaque` | Space Grotesk | 52 | 700 | 1.0 | Total no centro do anel; espaçamento entre letras −1,56 |
 | `titulo` | Space Grotesk | 34 | 700 | 1.08 | Títulos das telas de boas-vindas; espaçamento entre letras −0,68 |
+| `tituloTela` | Space Grotesk | 24 | 700 | 1.2 | Título de tela interna, como “Registrar consumo” |
 | `numeroCartao` | Space Grotesk | 32 | 700 | 1.0 | Números em cartões |
 | `subtitulo` | Space Grotesk | 18 | 700 | 1.2 | Seletor de período, títulos de seção |
 | `numeroLinha` | Space Grotesk | 15 | 700 | 1.3 | Valor na legenda do anel |
@@ -85,6 +86,7 @@ Números com unidade usam Space Grotesk para o valor e IBM Plex Sans para a unid
 Construa e revise estes antes de qualquer tela:
 
 - **BotaoPrimario:** altura 56, raio 16, fundo `marca`, texto `sobreMarca` em `botao` (Space Grotesk 17/700), largura total.
+- **Campo de consumo:** campo editável com altura 52, raio 14, borda `borda`, valor em Space Grotesk e unidade em `textoSuave`.
 - **BotaoTexto:** ação secundária sem fundo, texto `texto` em `itemForte`, área de toque de 44.
 - **Cartao:** padding 16, raio 16, `superficie` com `borda`.
 - **LinhaLista:** altura mínima 56, raio 14, `superficie` com `borda`, ícone de 20 em `marcaForte` e texto em `item`.
@@ -95,6 +97,7 @@ Construa e revise estes antes de qualquer tela:
 - **AnelEmissoes:** área de 210 com anel de 190 de diâmetro externo e 19 de espessura, trilha em `trilhaAnel`, segmentos por fonte da maior para a menor nas cores `grafico1`, `grafico2`, `grafico3`, pontas retas, começando no topo no sentido horário, com 4 pontos de espaço entre segmentos (nenhum quando há uma fonte só) e o total no centro em `numeroDestaque`. Construído com `react-native-svg`; ver "Movimento".
 - **BarraNavegacao:** quatro itens (Início, Registrar, Histórico, Ajustes), ícone de 22 e rótulo em `mini`. O ativo tem o ícone em `sobreMarca` sobre uma pílula `marca` de 56 × 32 e o rótulo em `marcaForte` com `miniForte`; só a cor do rótulo era sutil demais. A pílula é uma só e desliza entre as abas (ver "Movimento"). Fundo `superficie` com borda superior; é a barra das abas em `src/app/(abas)/_layout.tsx`.
 - **SeletorPeriodo:** folha inferior aberta ao tocar no mês da Início. Fundo `superficie` com cantos superiores de raio 16 sobre o `veu`; título "Escolha o mês" em `subtitulo` e "Fechar"; o ano entre setas (ícones `anterior` e `abrir`, em `borda` quando não há outro ano registrado); grade de 3 × 4 meses abreviados em `item`, raio 10 e altura mínima de 44. Mês com registro: borda `borda` e texto `texto`. Mês escolhido: fundo `marca`, texto `sobreMarca` em `itemForte`. Mês sem registro: texto `textoSuave`, sem borda e desativado. Abre com esmaecimento, ou sem animação se o movimento estiver reduzido. O protótipo não desenha o seletor; este é o padrão até a equipe decidir outro.
+- **SeletorMesConsumo:** folha inferior no registro, com a mesma grade e o mesmo tema do `SeletorPeriodo`. Permite o mês atual e meses anteriores a partir de agosto de 2025; meses futuros e anteriores à vigência dos fatores ficam desativados. Meses já registrados são identificados e podem ser editados.
 - **CartaoNumero:** `Cartao` com rótulo em `legenda`, número em `numeroCartao` (opcionalmente seguido de unidade em `item`) e nota em `nota`.
 - **LinhaAcao:** cartão em linha que leva a outra tela: ícone de 22, título em `itemForte`, descrição em `legenda` e seta em `textoSuave`. Sem destino, aparece desativada.
 - **Etiqueta:** pílula `superficie` com `borda` e texto em `etiqueta`.

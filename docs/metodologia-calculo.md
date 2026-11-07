@@ -27,6 +27,8 @@ A emissão de cada fonte é o produto do dado de atividade pelo fator de emissã
 emissaoKgCo2e = consumo × fatorEmissao
 ```
 
+Na tela de registro, o GLP é informado em botijões de 13 kg e convertido em uma etapa explícita antes do fator: `quantidadeDeBotoes × 13 kg/botijão = massaGlpKg`. A memória de cálculo guarda o consumo informado, a conversão, o fator, sua fonte, ano e versão. Os fatores ficam associados ao registro, para que uma atualização futura não altere um cálculo já salvo.
+
 O consumo é informado pelo usuário (kWh, litros, quilos). O fator converte essa quantidade em quilos de CO₂ equivalente. A emissão total do período é a soma das emissões de todas as fontes registradas.
 
 Essa é a estrutura de quantificação da ISO 14064-1 (cláusula 6.2.3, modelo "dado de atividade × fator de emissão"). O app aplica essa lógica de forma simplificada a pessoas e pequenos comércios, sem a pretensão de produzir um inventário organizacional auditável.

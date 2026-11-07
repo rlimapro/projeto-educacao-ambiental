@@ -1,5 +1,5 @@
-import { router } from 'expo-router';
-import { useState } from 'react';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -30,7 +30,7 @@ import { SeletorPeriodo } from '@/ui/SeletorPeriodo';
 import { margemTela, medidas, useTema, type Cores } from '@/ui/tema';
 
 // Tela inicial (RF03, RF05, RF07, RF08). Layout segue o protótipo no Figma
-// ("04 Início"). Os períodos ainda são de exemplo (ver src/dados/periodos.ts).
+// ("04 Início") e usa apenas períodos registrados no aparelho.
 
 const nomesPerfil: Record<Perfil, string> = {
   pessoa: 'Pessoal',
@@ -42,9 +42,43 @@ const CORES_FONTES: (keyof Cores)[] = ['grafico1', 'grafico2', 'grafico3'];
 
 export default function Inicio() {
   const { cores, tipografia, espacamento } = useTema();
-  const periodos = listarPeriodos();
+  const [estadoPeriodos, setEstadoPeriodos] = useState(() => {
+    try {
+      return { periodos: listarPeriodos(), erro: false };
+    } catch {
+      return { periodos: [], erro: true };
+    }
+  });
+  const { periodos, erro } = estadoPeriodos;
   const [indice, setIndice] = useState(0);
   const [escolhendoPeriodo, setEscolhendoPeriodo] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      try {
+        setEstadoPeriodos({ periodos: listarPeriodos(), erro: false });
+        setIndice(0);
+      } catch {
+        setEstadoPeriodos({ periodos: [], erro: true });
+      }
+    }, []),
+  );
+
+  if (erro) {
+    return (
+      <SafeAreaView edges={['top']} style={[estilos.vazio, { backgroundColor: cores.fundo, paddingHorizontal: margemTela }]}>
+        <Cartao style={{ gap: espacamento.m }}>
+          <Text accessibilityRole="header" style={[tipografia.subtitulo, { color: cores.texto }]}>
+            Não foi possível abrir seus registros
+          </Text>
+          <Text style={[tipografia.corpo, { color: cores.textoSuave }]}>
+            Os dados salvos não foram alterados. Tente novamente ao registrar um consumo.
+          </Text>
+          <BotaoPrimario rotulo="Registrar consumo" onPress={() => router.navigate('/registrar')} />
+        </Cartao>
+      </SafeAreaView>
+    );
+  }
 
   if (periodos.length === 0) {
     return (
@@ -157,7 +191,7 @@ export default function Inicio() {
           )}
         </View>
 
-        {maiorFonte && maiorFonte.emissaoKgCo2e > 0 && (
+        {periodo.quantidadeSugestoes > 0 && maiorFonte && maiorFonte.emissaoKgCo2e > 0 && (
           <LinhaAcao
             icone="sugestao"
             titulo="Reduzir antes de compensar"
