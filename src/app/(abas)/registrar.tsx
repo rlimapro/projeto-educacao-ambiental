@@ -358,6 +358,7 @@ export default function Registrar() {
       </ScrollView>
 
       <SeletorMesConsumo
+        key={`${seletorVisivel}-${idPeriodo}`}
         visivel={seletorVisivel}
         selecionado={idPeriodo}
         periodosRegistrados={periodosRegistrados}

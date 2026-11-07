@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -27,10 +27,6 @@ export function SeletorMesConsumo({ visivel, selecionado, periodosRegistrados, a
   const anoAtual = new Date().getFullYear();
   const anoSelecionado = Number(selecionado.slice(0, 4));
   const [anoExibido, setAnoExibido] = useState(anoSelecionado);
-
-  useEffect(() => {
-    if (visivel) setAnoExibido(anoSelecionado);
-  }, [visivel, anoSelecionado]);
 
   const mesesPorLinha: number[][] = [];
   for (let i = 0; i < MESES.length; i += MESES_POR_LINHA) {
