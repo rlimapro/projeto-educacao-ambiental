@@ -1,4 +1,4 @@
-import { router, useFocusEffect } from 'expo-router';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -30,7 +30,9 @@ import { SeletorPeriodo } from '@/ui/SeletorPeriodo';
 import { margemTela, medidas, useTema, type Cores } from '@/ui/tema';
 
 // Tela inicial (RF03, RF05, RF07, RF08). Layout segue o protótipo no Figma
-// ("04 Início") e usa apenas períodos registrados no aparelho.
+// ("04 Início") e usa apenas períodos registrados no aparelho. Tocar numa fonte
+// da legenda abre a memória de cálculo dela (RF04). O parâmetro `periodo`
+// (AAAA-MM) abre a tela num mês, como depois de registrar um consumo.
 
 const nomesPerfil: Record<Perfil, string> = {
   pessoa: 'Pessoal',
@@ -50,18 +52,25 @@ export default function Inicio() {
     }
   });
   const { periodos, erro } = estadoPeriodos;
-  const [indice, setIndice] = useState(0);
+  const { periodo: periodoPedido } = useLocalSearchParams<{ periodo?: string }>();
+  // Sem escolha, ou se o mês escolhido deixar de existir, mostra o mais recente.
+  const [idSelecionado, setIdSelecionado] = useState(periodoPedido ?? null);
   const [escolhendoPeriodo, setEscolhendoPeriodo] = useState(false);
 
+  // Relê os registros a cada volta à tela. O mês escolhido é mantido, para quem
+  // abriu a memória de cálculo voltar ao mesmo mês.
   useFocusEffect(
     useCallback(() => {
       try {
         setEstadoPeriodos({ periodos: listarPeriodos(), erro: false });
-        setIndice(0);
       } catch {
         setEstadoPeriodos({ periodos: [], erro: true });
       }
-    }, []),
+      if (periodoPedido) {
+        setIdSelecionado(periodoPedido);
+        router.setParams({ periodo: undefined });
+      }
+    }, [periodoPedido]),
   );
 
   if (erro) {
@@ -99,6 +108,10 @@ export default function Inicio() {
     );
   }
 
+  const indice = Math.max(
+    0,
+    periodos.findIndex((p) => p.id === idSelecionado),
+  );
   const periodo = periodos[indice];
   const anterior = periodos[indice + 1];
   const resumo = resumirEmissoes(periodo.fontes);
@@ -117,8 +130,7 @@ export default function Inicio() {
     '.';
 
   function escolherPeriodo(id: string) {
-    const escolhido = periodos.findIndex((p) => p.id === id);
-    if (escolhido >= 0) setIndice(escolhido);
+    setIdSelecionado(id);
     setEscolhendoPeriodo(false);
   }
 
@@ -155,13 +167,20 @@ export default function Inicio() {
           />
         </View>
 
-        <View style={{ gap: espacamento.pp }}>
+        {/* Sem espaço entre as linhas: cada uma já tem a altura mínima de toque. */}
+        <View>
           {resumo.fontes.map((fonte, i) => (
             <LinhaLegenda
               key={fonte.id}
               cor={CORES_FONTES[i] ?? 'grafico3'}
               nome={fonte.nome}
               valor={formatarEmissaoComUnidade(fonte.emissaoKgCo2e)}
+              onPress={() =>
+                router.push({
+                  pathname: '/memoria/[periodo]/[fonte]',
+                  params: { periodo: periodo.id, fonte: fonte.id },
+                })
+              }
             />
           ))}
         </View>

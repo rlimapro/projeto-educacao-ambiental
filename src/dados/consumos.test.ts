@@ -1,6 +1,6 @@
 import { calcularEmissoes } from '@/calculo/emissoes';
 
-import { lerRegistrosConsumo, salvarRegistroConsumo, validarRegistroConsumo, type RegistroConsumo } from './consumos';
+import { buscarRegistroConsumo, lerRegistrosConsumo, salvarRegistroConsumo, validarRegistroConsumo, type RegistroConsumo } from './consumos';
 
 jest.mock('expo-sqlite/kv-store', () => {
   const valores = new Map<string, string>();
@@ -74,5 +74,15 @@ describe('salvarRegistroConsumo', () => {
   it('não grava um registro inválido', () => {
     expect(() => salvarRegistroConsumo({ ...criarRegistro(11), consumos: { ...criarRegistro(11).consumos, energiaKwh: -1 } })).toThrow();
     expect(lerRegistrosConsumo()).toEqual([]);
+  });
+});
+
+describe('buscarRegistroConsumo', () => {
+  it('devolve o registro do mês pedido ou nulo quando não existe', () => {
+    salvarRegistroConsumo(criarRegistro(10));
+    salvarRegistroConsumo(criarRegistro(11));
+
+    expect(buscarRegistroConsumo('2026-10')?.mes).toBe(10);
+    expect(buscarRegistroConsumo('2026-09')).toBeNull();
   });
 });

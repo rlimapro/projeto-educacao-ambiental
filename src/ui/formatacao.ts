@@ -73,3 +73,37 @@ export function nomeDoMes(mes: number, maiuscula = false): string {
 export function abreviacaoDoMes(mes: number): string {
   return nomeDoMes(mes, true).slice(0, 3);
 }
+
+// Consumos e fatores com até quatro casas, sem arredondar o que o usuário
+// informou: 1.6187 vira "1,6187"; 90 vira "90".
+const decimal = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 4 });
+
+export function formatarDecimal(valor: number): string {
+  return decimal.format(valor);
+}
+
+// Consumo informado em linguagem simples, na memória de cálculo (RF04):
+// "90 litros de gasolina", "180 kWh de energia elétrica", "2 botijões de 13 kg".
+export function descreverConsumo(consumo: number, unidadeInformada: string, nomeFonte: string): string {
+  const numero = formatarDecimal(consumo);
+  const fonte = nomeFonte.toLowerCase();
+  switch (unidadeInformada) {
+    case 'L':
+      return `${numero} ${consumo === 1 ? 'litro' : 'litros'} de ${fonte}`;
+    case 'kWh':
+      return `${numero} kWh de ${fonte}`;
+    case 'botijão de 13 kg':
+      return `${numero} ${consumo === 1 ? 'botijão' : 'botijões'} de 13 kg`;
+    default:
+      return `${numero} ${unidadeInformada}`;
+  }
+}
+
+const denominadores: Record<string, string> = { L: 'litro', kWh: 'kWh', kg: 'kg' };
+
+// Unidade do fator por extenso: "kg CO₂e/L" vira "kg CO₂e por litro".
+export function descreverUnidadeFator(unidadeFator: string): string {
+  const [numerador, denominador] = unidadeFator.split('/');
+  if (!denominador) return unidadeFator;
+  return `${numerador} por ${denominadores[denominador] ?? denominador}`;
+}

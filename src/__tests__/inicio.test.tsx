@@ -6,7 +6,9 @@ import type { RegistroConsumo } from '@/dados/consumos';
 import LayoutAbas from '@/app/(abas)/_layout';
 import Ajustes from '@/app/(abas)/ajustes';
 import Historico from '@/app/(abas)/historico';
-import Inicio from '@/app/(abas)/index';
+import LayoutInicio from '@/app/(abas)/(inicio)/_layout';
+import Inicio from '@/app/(abas)/(inicio)/index';
+import MemoriaCalculo from '@/app/(abas)/(inicio)/memoria/[periodo]/[fonte]';
 import Registrar from '@/app/(abas)/registrar';
 import BoasVindas from '@/app/boas-vindas';
 import { TemaProvider } from '@/ui/tema';
@@ -59,7 +61,9 @@ function LayoutDeTeste() {
 const rotas = {
   _layout: LayoutDeTeste,
   '(abas)/_layout': LayoutAbas,
-  '(abas)/index': Inicio,
+  '(abas)/(inicio)/_layout': LayoutInicio,
+  '(abas)/(inicio)/index': Inicio,
+  '(abas)/(inicio)/memoria/[periodo]/[fonte]': MemoriaCalculo,
   '(abas)/registrar': Registrar,
   '(abas)/historico': Historico,
   '(abas)/ajustes': Ajustes,

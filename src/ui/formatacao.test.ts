@@ -1,5 +1,8 @@
 import {
   abreviacaoDoMes,
+  descreverConsumo,
+  descreverUnidadeFator,
+  formatarDecimal,
   formatarEmissao,
   formatarEmissaoComUnidade,
   formatarEmissaoNaUnidade,
@@ -63,5 +66,34 @@ describe('abreviacaoDoMes', () => {
     expect(abreviacaoDoMes(1)).toBe('Jan');
     expect(abreviacaoDoMes(3)).toBe('Mar');
     expect(abreviacaoDoMes(12)).toBe('Dez');
+  });
+});
+
+describe('formatarDecimal', () => {
+  it('mostra até quatro casas com vírgula, sem zeros à direita', () => {
+    expect(formatarDecimal(1.6187)).toBe('1,6187');
+    expect(formatarDecimal(0.0461)).toBe('0,0461');
+    expect(formatarDecimal(90)).toBe('90');
+  });
+});
+
+describe('descreverConsumo', () => {
+  it('escreve o consumo com a unidade por extenso e o nome da fonte', () => {
+    expect(descreverConsumo(90, 'L', 'Gasolina')).toBe('90 litros de gasolina');
+    expect(descreverConsumo(1, 'L', 'Etanol')).toBe('1 litro de etanol');
+    expect(descreverConsumo(180.5, 'kWh', 'Energia elétrica')).toBe('180,5 kWh de energia elétrica');
+  });
+
+  it('conta botijões no singular e no plural', () => {
+    expect(descreverConsumo(1, 'botijão de 13 kg', 'Gás de cozinha')).toBe('1 botijão de 13 kg');
+    expect(descreverConsumo(2, 'botijão de 13 kg', 'Gás de cozinha')).toBe('2 botijões de 13 kg');
+  });
+});
+
+describe('descreverUnidadeFator', () => {
+  it('troca a barra por "por" e escreve litro por extenso', () => {
+    expect(descreverUnidadeFator('kg CO₂e/L')).toBe('kg CO₂e por litro');
+    expect(descreverUnidadeFator('kg CO₂/kWh')).toBe('kg CO₂ por kWh');
+    expect(descreverUnidadeFator('kg CO₂e/kg')).toBe('kg CO₂e por kg');
   });
 });

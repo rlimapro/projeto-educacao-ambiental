@@ -1,15 +1,17 @@
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { calcularEmissoes } from '@/calculo/emissoes';
-import type { ConsumosInformados, Perfil, ResultadoEmissoes } from '@/calculo/tipos';
+import type { ConsumosInformados, Perfil } from '@/calculo/tipos';
 import { lerRegistrosConsumo, salvarRegistroConsumo, type RegistroConsumo } from '@/dados/consumos';
 import { lerPerfil } from '@/dados/preferencias';
 import { BotaoPrimario } from '@/ui/BotaoPrimario';
+import { AJUDA_CONSUMO, type CampoComAjuda } from '@/ui/ajudaConsumo';
 import { BotaoTexto } from '@/ui/BotaoTexto';
 import { Cartao } from '@/ui/Cartao';
-import { formatarEmissaoComUnidade } from '@/ui/formatacao';
+import { FolhaAjuda } from '@/ui/FolhaAjuda';
 import { Icone } from '@/ui/Icone';
 import { IconeConsumo } from '@/ui/IconeConsumo';
 import { SeletorMesConsumo } from '@/ui/SeletorMesConsumo';
@@ -38,8 +40,8 @@ type CampoConsumoProps = {
   unidade: string;
   icone: 'energia' | 'combustivel' | 'gas';
   valor: string;
-  dica?: string;
   aoAlterar: (valor: string) => void;
+  aoPedirAjuda: () => void;
 };
 
 const nomesPerfil: Record<Perfil, string> = {
@@ -49,7 +51,6 @@ const nomesPerfil: Record<Perfil, string> = {
 };
 
 const consumosVazios: CamposConsumo = { energia: '', gasolina: '', gas: '', etanol: '', diesel: '' };
-const formatarNumero = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 4 });
 
 function periodoPorId(id: string): Periodo {
   const [ano, mes] = id.split('-').map(Number);
@@ -85,14 +86,23 @@ function lerEstadoInicial(): EstadoInicial {
   }
 }
 
-function CampoConsumo({ nome, unidade, icone, valor, dica, aoAlterar }: CampoConsumoProps) {
+function CampoConsumo({ nome, unidade, icone, valor, aoAlterar, aoPedirAjuda }: CampoConsumoProps) {
   const { cores, tipografia, espacamento, raios } = useTema();
 
   return (
     <View style={{ gap: espacamento.pp }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: espacamento.pp }}>
         <IconeConsumo nome={icone} />
-        <Text style={[tipografia.rotulo, { color: cores.texto }]}>{nome}</Text>
+        <Text style={[estilos.nomeCampo, tipografia.rotulo, { color: cores.texto }]}>{nome}</Text>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={`Como preencher ${nome.toLowerCase()}`}
+          hitSlop={espacamento.p}
+          onPress={aoPedirAjuda}
+          style={({ pressed }) => ({ opacity: pressed ? medidas.opacidadePressionado : 1 })}
+        >
+          <Icone nome="ajuda" cor="textoSuave" />
+        </Pressable>
       </View>
       <View
         style={{
@@ -119,7 +129,6 @@ function CampoConsumo({ nome, unidade, icone, valor, dica, aoAlterar }: CampoCon
         />
         <Text style={[tipografia.linha, { color: cores.textoSuave }]}>{unidade}</Text>
       </View>
-      {dica ? <Text style={[tipografia.legenda, { color: cores.textoSuave }]}>{dica}</Text> : null}
     </View>
   );
 }
@@ -141,9 +150,9 @@ export default function Registrar() {
   const [rascunhos, setRascunhos] = useState<Record<string, CamposConsumo>>({});
   const [dieselVisivel, setDieselVisivel] = useState((estadoInicial.registro?.consumos.dieselLitros ?? 0) > 0);
   const [mensagem, setMensagem] = useState(estadoInicial.erro);
-  const [resultado, setResultado] = useState<ResultadoEmissoes | null>(estadoInicial.registro?.calculo ?? null);
   const [seletorVisivel, setSeletorVisivel] = useState(false);
   const [confirmarSubstituicao, setConfirmarSubstituicao] = useState(false);
+  const [campoAjuda, setCampoAjuda] = useState<CampoComAjuda | null>(null);
   const idPeriodo = periodo.id;
   const referencia = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' }).format(
     new Date(periodo.ano, periodo.mes - 1, 1),
@@ -162,7 +171,6 @@ export default function Registrar() {
       setPeriodosRegistrados(registros.map((item) => item.id));
       setConsumos(valores);
       setDieselVisivel((Number(valores.diesel) || 0) > 0);
-      setResultado(rascunho ? null : registro?.calculo ?? null);
       setMensagem(registro ? 'Este mês já tem um registro. Ao calcular, você poderá confirmar a substituição.' : '');
       setSeletorVisivel(false);
     } catch {
@@ -176,7 +184,6 @@ export default function Registrar() {
     setConsumos(novosConsumos);
     setRascunhos((atuais) => ({ ...atuais, [idPeriodo]: novosConsumos }));
     setMensagem('');
-    setResultado(null);
   }
 
   function validarFormulario(): boolean {
@@ -218,13 +225,15 @@ export default function Registrar() {
       salvarRegistroConsumo(registro);
       setRegistroAtual(registro);
       setPeriodosRegistrados((atuais) => atuais.includes(idPeriodo) ? atuais : [...atuais, idPeriodo]);
-      setResultado(calculo);
-      setMensagem('Consumos registrados neste aparelho.');
+      setMensagem('');
       setRascunhos((atuais) => {
         const novos = { ...atuais };
         delete novos[idPeriodo];
         return novos;
       });
+      // O resultado aparece na Início, já no mês registrado; de lá, cada fonte
+      // abre a memória de cálculo (RF04).
+      router.navigate({ pathname: '/', params: { periodo: idPeriodo } });
     } catch {
       setMensagem('Não foi possível calcular e salvar. Seus registros anteriores foram mantidos.');
     }
@@ -274,8 +283,8 @@ export default function Registrar() {
           unidade="kWh"
           icone="energia"
           valor={consumos.energia}
-          dica="Está na conta de luz, como consumo do mês."
           aoAlterar={(valor) => alterar('energia', valor)}
+          aoPedirAjuda={() => setCampoAjuda('energia')}
         />
         <CampoConsumo
           nome="Gasolina"
@@ -283,6 +292,7 @@ export default function Registrar() {
           icone="combustivel"
           valor={consumos.gasolina}
           aoAlterar={(valor) => alterar('gasolina', valor)}
+          aoPedirAjuda={() => setCampoAjuda('gasolina')}
         />
         <CampoConsumo
           nome="Gás de cozinha"
@@ -290,6 +300,7 @@ export default function Registrar() {
           icone="gas"
           valor={consumos.gas}
           aoAlterar={(valor) => alterar('gas', valor)}
+          aoPedirAjuda={() => setCampoAjuda('gas')}
         />
         <CampoConsumo
           nome="Etanol"
@@ -297,6 +308,7 @@ export default function Registrar() {
           icone="combustivel"
           valor={consumos.etanol}
           aoAlterar={(valor) => alterar('etanol', valor)}
+          aoPedirAjuda={() => setCampoAjuda('etanol')}
         />
 
         {dieselVisivel ? (
@@ -306,6 +318,7 @@ export default function Registrar() {
             icone="combustivel"
             valor={consumos.diesel}
             aoAlterar={(valor) => alterar('diesel', valor)}
+            aoPedirAjuda={() => setCampoAjuda('diesel')}
           />
         ) : (
           <Pressable
@@ -324,35 +337,6 @@ export default function Registrar() {
           </Text>
         ) : null}
 
-        {resultado ? (
-          <Cartao style={{ gap: espacamento.p }}>
-            <Text accessibilityRole="header" style={[tipografia.subtitulo, { color: cores.texto }]}>
-              Emissões calculadas
-            </Text>
-            <Text style={[tipografia.numeroCartao, { color: cores.marcaForte }]}>
-              {formatarEmissaoComUnidade(resultado.totalKgCo2e)} CO₂e
-            </Text>
-            {resultado.fontes.map((fonte) => (
-              <View key={fonte.id} style={{ gap: espacamento.mini }}>
-                <Text style={[tipografia.itemForte, { color: cores.texto }]}>
-                  {fonte.nome}: {formatarNumero.format(fonte.consumoInformado)} {fonte.unidadeInformada}
-                </Text>
-                {fonte.conversao ? (
-                  <Text style={[tipografia.nota, { color: cores.textoSuave }]}>
-                    {formatarNumero.format(fonte.consumoInformado)} × {formatarNumero.format(fonte.conversao.multiplicador)} kg = {formatarNumero.format(fonte.consumoAplicado)} {fonte.conversao.unidadeResultado}
-                  </Text>
-                ) : null}
-                <Text style={[tipografia.nota, { color: cores.textoSuave }]}>
-                  {formatarNumero.format(fonte.consumoAplicado)} × {formatarNumero.format(fonte.fator.valor)} {fonte.fator.unidadeFator} = {formatarEmissaoComUnidade(fonte.emissaoKgCo2e)} CO₂e
-                </Text>
-                <Text style={[tipografia.nota, { color: cores.textoSuave }]}>
-                  {fonte.fator.fonte} · {fonte.fator.ano} · versão {fonte.fator.versao}
-                </Text>
-              </View>
-            ))}
-          </Cartao>
-        ) : null}
-
         <View style={estilos.espaco} />
         <BotaoPrimario rotulo="Calcular emissões" onPress={solicitarCalculo} />
       </ScrollView>
@@ -364,6 +348,11 @@ export default function Registrar() {
         periodosRegistrados={periodosRegistrados}
         aoEscolher={escolherPeriodo}
         aoFechar={() => setSeletorVisivel(false)}
+      />
+
+      <FolhaAjuda
+        ajuda={campoAjuda ? AJUDA_CONSUMO[campoAjuda] : null}
+        aoFechar={() => setCampoAjuda(null)}
       />
 
       <Modal visible={confirmarSubstituicao} transparent animationType="fade" onRequestClose={() => setConfirmarSubstituicao(false)}>
@@ -389,6 +378,7 @@ export default function Registrar() {
 const estilos = StyleSheet.create({
   tela: { flex: 1 },
   entrada: { flex: 1, paddingVertical: 0, minWidth: 0 },
+  nomeCampo: { flex: 1 },
   periodo: { flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-start' },
   adicionar: { flexDirection: 'row', alignItems: 'center' },
   espaco: { flexGrow: 1, minHeight: 0 },

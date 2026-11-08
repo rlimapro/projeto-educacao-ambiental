@@ -1,5 +1,6 @@
 // Tira capturas de uma tela da prévia web, no tamanho do protótipo (390 × 844),
-// nos temas claro e escuro, tocando em botões entre uma captura e outra.
+// nos temas claro e escuro, tocando em botões entre uma captura e outra. O
+// botão é achado pelo texto ou, se só tiver ícone, pelo rótulo de acessibilidade.
 //
 // Uso (com `npm run previa:web` rodando em outro terminal):
 //   npm run previa:capturar -- /boas-vindas Continuar Continuar Continuar
@@ -14,6 +15,8 @@ import { join } from 'node:path';
 const ENDERECO = process.env.PREVIA_ENDERECO ?? 'http://localhost:8099';
 const PORTA_DEPURACAO = 9333;
 const [rota = '/', ...toques] = process.argv.slice(2);
+// A rota pode trazer parâmetros próprios, como /?consumos=exemplo.
+const [caminho, consulta] = rota.split('?');
 const pasta = '.previa';
 mkdirSync(pasta, { recursive: true });
 
@@ -21,7 +24,7 @@ const espera = (ms) => new Promise((resolver) => setTimeout(resolver, ms));
 
 // Confere antes se a prévia está no ar, para não fotografar uma página de erro.
 try {
-  const resposta = await fetch(`${ENDERECO}${rota}`);
+  const resposta = await fetch(`${ENDERECO}${caminho}`);
   if (!resposta.ok) {
     console.error(`A prévia respondeu ${resposta.status} em ${ENDERECO}${rota}. Veja o terminal do npm run previa:web.`);
     process.exit(1);
@@ -88,8 +91,9 @@ async function capturarTema(esquema) {
     await cdp('Runtime.enable');
     await cdp('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 2, mobile: true });
     // Fora das boas-vindas, abre como se elas já tivessem sido vistas.
-    const pularBoasVindas = rota.startsWith('/boas-vindas') ? '' : '&boas-vindas=vistas';
-    await cdp('Page.navigate', { url: `${ENDERECO}${rota}?tema=${esquema}${pularBoasVindas}` });
+    const pularBoasVindas = caminho.startsWith('/boas-vindas') ? '' : '&boas-vindas=vistas';
+    const extras = consulta ? `&${consulta}` : '';
+    await cdp('Page.navigate', { url: `${ENDERECO}${caminho}?tema=${esquema}${pularBoasVindas}${extras}` });
     // Espera o título da tela ou a barra de abas aparecer: o primeiro carregamento depois de
     // subir o servidor compila o app e pode levar bem mais que alguns segundos.
     let pronta = false;
@@ -104,7 +108,7 @@ async function capturarTema(esquema) {
     if (!pronta) console.warn(`A tela ${rota} não terminou de carregar em 60 s (${esquema}).`);
     await espera(1500);
 
-    const nomeBase = rota.replace(/^\//, '').replace(/\//g, '-') || 'inicio';
+    const nomeBase = caminho.replace(/^\//, '').replace(/\//g, '-') || 'inicio';
     const fotografar = async (n) => {
       const r = await cdp('Page.captureScreenshot', { format: 'png' });
       const arquivo = join(pasta, `${nomeBase}-${esquema}-${n}.png`);
@@ -115,7 +119,7 @@ async function capturarTema(esquema) {
       cdp('Runtime.evaluate', {
         expression: `(() => {
           const el = [...document.querySelectorAll('[role=button],[role=radio],[role=link]')]
-            .find((e) => e.textContent.trim() === ${JSON.stringify(texto)});
+            .find((e) => [e.textContent.trim(), e.getAttribute('aria-label')].includes(${JSON.stringify(texto)}));
           if (el) { el.click(); return true; }
           return false;
         })()`,
