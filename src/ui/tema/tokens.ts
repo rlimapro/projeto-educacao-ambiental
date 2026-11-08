@@ -134,6 +134,9 @@ export const medidas = {
   espacoEntreSegmentos: 4,
   marcadorLegenda: 10,
   raioMarcadorLegenda: 3,
+  // Ponto das dicas na folha de ajuda, centrado na 1ª linha de tipografia.linha (altura 20).
+  marcadorDica: 6,
+  margemMarcadorDica: 7,
   // Pílula atrás do ícone da aba ativa na barra de navegação.
   larguraIndicadorAba: 56,
   alturaIndicadorAba: 32,

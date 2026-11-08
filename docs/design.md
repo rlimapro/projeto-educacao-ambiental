@@ -91,7 +91,8 @@ Números com unidade usam Space Grotesk para o valor e IBM Plex Sans para a unid
 Construa e revise estes antes de qualquer tela:
 
 - **BotaoPrimario:** altura 56, raio 16, fundo `marca`, texto `sobreMarca` em `botao` (Space Grotesk 17/700), largura total.
-- **Campo de consumo:** campo editável com altura 52, raio 14, borda `borda`, valor em Space Grotesk e unidade em `textoSuave`.
+- **Campo de consumo:** campo editável com altura 52, raio 14, borda `borda`, valor em Space Grotesk e unidade em `textoSuave`. Acima dele, ícone da fonte, nome em `rotulo` e, à direita, o botão de ajuda: ícone `ajuda` de 20 em `textoSuave`, com área de toque ampliada.
+- **FolhaAjuda:** folha inferior aberta pelo botão de ajuda de um campo, com o mesmo véu e os mesmos cantos das folhas de escolha de mês. "Como preencher" em `rotulo` e `marcaForte`, nome do campo em `tituloDetalhe`, resumo em `corpo`, dicas em `linha` e `textoSuave` com ponto de 6 em `marcaForte`, exemplo em bloco `fundo` de raio 14 e botão "Entendi". Rola quando o texto não cabe (fonte grande). Os textos ficam em `src/ui/ajudaConsumo.ts`: dizem onde achar o número e como chegar a ele, sem fatores nem médias de consumo.
 - **BotaoTexto:** ação secundária sem fundo, texto `texto` em `itemForte`, área de toque de 44.
 - **Cartao:** padding 16, raio 16, `superficie` com `borda`.
 - **LinhaLista:** altura mínima 56, raio 14, `superficie` com `borda`, ícone de 20 em `marcaForte` e texto em `item`.

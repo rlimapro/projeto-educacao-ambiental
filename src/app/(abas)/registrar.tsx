@@ -8,8 +8,10 @@ import type { ConsumosInformados, Perfil } from '@/calculo/tipos';
 import { lerRegistrosConsumo, salvarRegistroConsumo, type RegistroConsumo } from '@/dados/consumos';
 import { lerPerfil } from '@/dados/preferencias';
 import { BotaoPrimario } from '@/ui/BotaoPrimario';
+import { AJUDA_CONSUMO, type CampoComAjuda } from '@/ui/ajudaConsumo';
 import { BotaoTexto } from '@/ui/BotaoTexto';
 import { Cartao } from '@/ui/Cartao';
+import { FolhaAjuda } from '@/ui/FolhaAjuda';
 import { Icone } from '@/ui/Icone';
 import { IconeConsumo } from '@/ui/IconeConsumo';
 import { SeletorMesConsumo } from '@/ui/SeletorMesConsumo';
@@ -38,8 +40,8 @@ type CampoConsumoProps = {
   unidade: string;
   icone: 'energia' | 'combustivel' | 'gas';
   valor: string;
-  dica?: string;
   aoAlterar: (valor: string) => void;
+  aoPedirAjuda: () => void;
 };
 
 const nomesPerfil: Record<Perfil, string> = {
@@ -84,14 +86,23 @@ function lerEstadoInicial(): EstadoInicial {
   }
 }
 
-function CampoConsumo({ nome, unidade, icone, valor, dica, aoAlterar }: CampoConsumoProps) {
+function CampoConsumo({ nome, unidade, icone, valor, aoAlterar, aoPedirAjuda }: CampoConsumoProps) {
   const { cores, tipografia, espacamento, raios } = useTema();
 
   return (
     <View style={{ gap: espacamento.pp }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: espacamento.pp }}>
         <IconeConsumo nome={icone} />
-        <Text style={[tipografia.rotulo, { color: cores.texto }]}>{nome}</Text>
+        <Text style={[estilos.nomeCampo, tipografia.rotulo, { color: cores.texto }]}>{nome}</Text>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={`Como preencher ${nome.toLowerCase()}`}
+          hitSlop={espacamento.p}
+          onPress={aoPedirAjuda}
+          style={({ pressed }) => ({ opacity: pressed ? medidas.opacidadePressionado : 1 })}
+        >
+          <Icone nome="ajuda" cor="textoSuave" />
+        </Pressable>
       </View>
       <View
         style={{
@@ -118,7 +129,6 @@ function CampoConsumo({ nome, unidade, icone, valor, dica, aoAlterar }: CampoCon
         />
         <Text style={[tipografia.linha, { color: cores.textoSuave }]}>{unidade}</Text>
       </View>
-      {dica ? <Text style={[tipografia.legenda, { color: cores.textoSuave }]}>{dica}</Text> : null}
     </View>
   );
 }
@@ -142,6 +152,7 @@ export default function Registrar() {
   const [mensagem, setMensagem] = useState(estadoInicial.erro);
   const [seletorVisivel, setSeletorVisivel] = useState(false);
   const [confirmarSubstituicao, setConfirmarSubstituicao] = useState(false);
+  const [campoAjuda, setCampoAjuda] = useState<CampoComAjuda | null>(null);
   const idPeriodo = periodo.id;
   const referencia = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' }).format(
     new Date(periodo.ano, periodo.mes - 1, 1),
@@ -272,8 +283,8 @@ export default function Registrar() {
           unidade="kWh"
           icone="energia"
           valor={consumos.energia}
-          dica="Está na conta de luz, como consumo do mês."
           aoAlterar={(valor) => alterar('energia', valor)}
+          aoPedirAjuda={() => setCampoAjuda('energia')}
         />
         <CampoConsumo
           nome="Gasolina"
@@ -281,6 +292,7 @@ export default function Registrar() {
           icone="combustivel"
           valor={consumos.gasolina}
           aoAlterar={(valor) => alterar('gasolina', valor)}
+          aoPedirAjuda={() => setCampoAjuda('gasolina')}
         />
         <CampoConsumo
           nome="Gás de cozinha"
@@ -288,6 +300,7 @@ export default function Registrar() {
           icone="gas"
           valor={consumos.gas}
           aoAlterar={(valor) => alterar('gas', valor)}
+          aoPedirAjuda={() => setCampoAjuda('gas')}
         />
         <CampoConsumo
           nome="Etanol"
@@ -295,6 +308,7 @@ export default function Registrar() {
           icone="combustivel"
           valor={consumos.etanol}
           aoAlterar={(valor) => alterar('etanol', valor)}
+          aoPedirAjuda={() => setCampoAjuda('etanol')}
         />
 
         {dieselVisivel ? (
@@ -304,6 +318,7 @@ export default function Registrar() {
             icone="combustivel"
             valor={consumos.diesel}
             aoAlterar={(valor) => alterar('diesel', valor)}
+            aoPedirAjuda={() => setCampoAjuda('diesel')}
           />
         ) : (
           <Pressable
@@ -335,6 +350,11 @@ export default function Registrar() {
         aoFechar={() => setSeletorVisivel(false)}
       />
 
+      <FolhaAjuda
+        ajuda={campoAjuda ? AJUDA_CONSUMO[campoAjuda] : null}
+        aoFechar={() => setCampoAjuda(null)}
+      />
+
       <Modal visible={confirmarSubstituicao} transparent animationType="fade" onRequestClose={() => setConfirmarSubstituicao(false)}>
         <View style={[estilos.fundoConfirmacao, { backgroundColor: cores.veu, paddingHorizontal: margemTela }]}>
           <Cartao style={{ gap: espacamento.m }}>
@@ -358,6 +378,7 @@ export default function Registrar() {
 const estilos = StyleSheet.create({
   tela: { flex: 1 },
   entrada: { flex: 1, paddingVertical: 0, minWidth: 0 },
+  nomeCampo: { flex: 1 },
   periodo: { flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-start' },
   adicionar: { flexDirection: 'row', alignItems: 'center' },
   espaco: { flexGrow: 1, minHeight: 0 },

@@ -1,5 +1,6 @@
 // Tira capturas de uma tela da prévia web, no tamanho do protótipo (390 × 844),
-// nos temas claro e escuro, tocando em botões entre uma captura e outra.
+// nos temas claro e escuro, tocando em botões entre uma captura e outra. O
+// botão é achado pelo texto ou, se só tiver ícone, pelo rótulo de acessibilidade.
 //
 // Uso (com `npm run previa:web` rodando em outro terminal):
 //   npm run previa:capturar -- /boas-vindas Continuar Continuar Continuar
@@ -118,7 +119,7 @@ async function capturarTema(esquema) {
       cdp('Runtime.evaluate', {
         expression: `(() => {
           const el = [...document.querySelectorAll('[role=button],[role=radio],[role=link]')]
-            .find((e) => e.textContent.trim() === ${JSON.stringify(texto)});
+            .find((e) => [e.textContent.trim(), e.getAttribute('aria-label')].includes(${JSON.stringify(texto)}));
           if (el) { el.click(); return true; }
           return false;
         })()`,

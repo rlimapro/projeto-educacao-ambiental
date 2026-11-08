@@ -20,6 +20,7 @@ export type NomeIcone =
   | 'abrir'
   | 'anterior'
   | 'voltar'
+  | 'ajuda'
   | 'sugestao'
   | 'navInicio'
   | 'navRegistrar'
@@ -138,6 +139,18 @@ const desenhos: Record<NomeIcone, Desenho> = {
     tamanho: 24,
     traco: 2,
     render: () => <Path d="M15 18L9 12L15 6" />,
+  },
+  // Não existe no protótipo; segue o traço e o tamanho do ícone "adicionar".
+  ajuda: {
+    tamanho: 20,
+    traco: 1.66667,
+    render: () => (
+      <>
+        <Path d="M10 18.3333C14.6024 18.3333 18.3333 14.6024 18.3333 10C18.3333 5.39763 14.6024 1.66667 10 1.66667C5.39763 1.66667 1.66667 5.39763 1.66667 10C1.66667 14.6024 5.39763 18.3333 10 18.3333Z" />
+        <Path d="M7.575 7.5C7.77093 6.94306 8.15764 6.47342 8.66664 6.17428C9.17564 5.87513 9.77409 5.76578 10.356 5.86559C10.9379 5.96541 11.4657 6.26795 11.8459 6.71963C12.2261 7.17131 12.4342 7.74296 12.4333 8.33333C12.4333 10 9.93333 10.8333 9.93333 10.8333" />
+        <Path d="M10 14.1667H10.0083" />
+      </>
+    ),
   },
   sugestao: {
     tamanho: 22,

@@ -159,4 +159,21 @@ describe('registro de consumo', () => {
   });
 
 
+  it('explica como preencher cada campo numa folha de ajuda', async () => {
+    await renderRouter(rotas, { initialUrl: '/registrar' });
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Como preencher gás de cozinha' }));
+
+    expect(screen.getByText('Como preencher')).toBeTruthy();
+    expect(screen.getByRole('header', { name: 'Gás de cozinha' })).toBeTruthy();
+    expect(screen.getByText('Um botijão a cada dois meses: digite 0,5 em cada mês.')).toBeTruthy();
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Entendi' }));
+
+    expect(screen.queryByText('Como preencher')).toBeNull();
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Como preencher energia elétrica' }));
+
+    expect(screen.getByText('A conta mostra “Consumo: 180 kWh”: digite 180.')).toBeTruthy();
+  });
 });
