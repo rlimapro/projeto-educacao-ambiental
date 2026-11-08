@@ -4,8 +4,12 @@ import { cleanup, fireEvent, renderRouter, screen } from 'expo-router/testing-li
 import { calcularEmissoes } from '@/calculo/emissoes';
 import type { RegistroConsumo } from '@/dados/consumos';
 import LayoutAbas from '@/app/(abas)/_layout';
-import Inicio from '@/app/(abas)/index';
+import LayoutInicio from '@/app/(abas)/(inicio)/_layout';
+import Inicio from '@/app/(abas)/(inicio)/index';
+import MemoriaCalculo from '@/app/(abas)/(inicio)/memoria/[periodo]/[fonte]';
 import Registrar from '@/app/(abas)/registrar';
+import Ajustes from '@/app/(abas)/ajustes';
+import Historico from '@/app/(abas)/historico';
 import { TemaProvider } from '@/ui/tema';
 
 jest.mock('expo-sqlite/kv-store', () => {
@@ -34,8 +38,12 @@ function LayoutDeTeste() {
 const rotas = {
   _layout: LayoutDeTeste,
   '(abas)/_layout': LayoutAbas,
-  '(abas)/index': Inicio,
+  '(abas)/(inicio)/_layout': LayoutInicio,
+  '(abas)/(inicio)/index': Inicio,
+  '(abas)/(inicio)/memoria/[periodo]/[fonte]': MemoriaCalculo,
   '(abas)/registrar': Registrar,
+  '(abas)/historico': Historico,
+  '(abas)/ajustes': Ajustes,
 };
 
 function criarRegistro(ano: number, mes: number, energiaKwh: number): RegistroConsumo {
@@ -65,8 +73,8 @@ afterEach(() => {
 });
 
 describe('registro de consumo', () => {
-  it('calcula e salva as emissões no aparelho com a memória do fator usado', async () => {
-    await renderRouter(rotas, { initialUrl: '/registrar' });
+  it('calcula, salva e abre a Início no mês registrado, com a memória do fator usado', async () => {
+    const app = await renderRouter(rotas, { initialUrl: '/registrar' });
     await fireEvent.press(screen.getByRole('button', { name: 'Calcular emissões' }));
     expect(screen.getByText('Informe ao menos um consumo para continuar.')).toBeTruthy();
     expect(Storage.getItemSync('consumos.registrados.v1')).toBeNull();
@@ -74,9 +82,13 @@ describe('registro de consumo', () => {
     await fireEvent.changeText(screen.getByLabelText('Energia elétrica, consumo em kWh'), '100');
     await fireEvent.press(screen.getByRole('button', { name: 'Calcular emissões' }));
 
-    expect(screen.getByText('Consumos registrados neste aparelho.')).toBeTruthy();
-    expect(screen.getByText('5 kg CO₂e')).toBeTruthy();
-    expect(screen.getByText(/MCTI, Fator médio anual do SIN.*2025.*versão 1/)).toBeTruthy();
+    expect(app.getPathname()).toBe('/');
+    expect(screen.getByRole('button', { name: 'Período: Novembro 2026' })).toBeTruthy();
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Energia elétrica: 5 kg' }));
+
+    expect(app.getPathname()).toBe('/memoria/2026-11/energia');
+    expect(screen.getByText('MCTI, Fator médio anual do SIN para inventários, ano-base 2025')).toBeTruthy();
 
     const salvo = Storage.getItemSync('consumos.registrados.v1');
     expect(salvo).not.toBeNull();
@@ -91,11 +103,12 @@ describe('registro de consumo', () => {
     await renderRouter(rotas, { initialUrl: '/registrar' });
     await fireEvent.changeText(screen.getByLabelText('Energia elétrica, consumo em kWh'), '100');
     await fireEvent.press(screen.getByRole('button', { name: 'Calcular emissões' }));
+    await fireEvent.press(screen.getByRole('tab', { name: 'Registrar' }));
     await fireEvent.press(screen.getByRole('button', { name: 'Mês do consumo: Novembro de 2026' }));
     await fireEvent.press(screen.getByRole('radio', { name: 'Novembro de 2026, já registrado' }));
 
     expect(screen.getByLabelText('Energia elétrica, consumo em kWh').props.value).toBe('100');
-    expect(screen.getByText('Emissões calculadas')).toBeTruthy();
+    expect(screen.queryByText('Emissões calculadas')).toBeNull();
   });
 
   it('permite escolher um mês passado sem registro e usa os fatores vigentes naquela data', async () => {
@@ -144,5 +157,6 @@ describe('registro de consumo', () => {
     // 75 kWh × 0,0461 kg CO₂/kWh = 3,4575 kg CO₂e
     expect(registros[0].calculo.totalKgCo2e).toBeCloseTo(3.4575, 6);
   });
+
 
 });

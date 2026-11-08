@@ -6,14 +6,14 @@ import { BarraNavegacao, type ItemNavegacao } from '@/ui/BarraNavegacao';
 import { useTema } from '@/ui/tema';
 
 const itens: ItemNavegacao[] = [
-  { nome: 'index', rotulo: 'Início', icone: 'navInicio' },
+  { nome: '(inicio)', rotulo: 'Início', icone: 'navInicio' },
   { nome: 'registrar', rotulo: 'Registrar', icone: 'navRegistrar' },
   { nome: 'historico', rotulo: 'Histórico', icone: 'navHistorico' },
   { nome: 'ajustes', rotulo: 'Ajustes', icone: 'navAjustes' },
 ];
 
 function Barra({ state, emitter, navigateToTab, insets }: BottomTabBarProps) {
-  const ativo = state.routes[state.index]?.name ?? 'index';
+  const ativo = state.routes[state.index]?.name ?? '(inicio)';
 
   function aoTocar(nome: string) {
     const rota = state.routes.find((r) => r.name === nome);

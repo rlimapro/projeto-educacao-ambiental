@@ -1,15 +1,15 @@
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { calcularEmissoes } from '@/calculo/emissoes';
-import type { ConsumosInformados, Perfil, ResultadoEmissoes } from '@/calculo/tipos';
+import type { ConsumosInformados, Perfil } from '@/calculo/tipos';
 import { lerRegistrosConsumo, salvarRegistroConsumo, type RegistroConsumo } from '@/dados/consumos';
 import { lerPerfil } from '@/dados/preferencias';
 import { BotaoPrimario } from '@/ui/BotaoPrimario';
 import { BotaoTexto } from '@/ui/BotaoTexto';
 import { Cartao } from '@/ui/Cartao';
-import { formatarEmissaoComUnidade } from '@/ui/formatacao';
 import { Icone } from '@/ui/Icone';
 import { IconeConsumo } from '@/ui/IconeConsumo';
 import { SeletorMesConsumo } from '@/ui/SeletorMesConsumo';
@@ -49,7 +49,6 @@ const nomesPerfil: Record<Perfil, string> = {
 };
 
 const consumosVazios: CamposConsumo = { energia: '', gasolina: '', gas: '', etanol: '', diesel: '' };
-const formatarNumero = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 4 });
 
 function periodoPorId(id: string): Periodo {
   const [ano, mes] = id.split('-').map(Number);
@@ -141,7 +140,6 @@ export default function Registrar() {
   const [rascunhos, setRascunhos] = useState<Record<string, CamposConsumo>>({});
   const [dieselVisivel, setDieselVisivel] = useState((estadoInicial.registro?.consumos.dieselLitros ?? 0) > 0);
   const [mensagem, setMensagem] = useState(estadoInicial.erro);
-  const [resultado, setResultado] = useState<ResultadoEmissoes | null>(estadoInicial.registro?.calculo ?? null);
   const [seletorVisivel, setSeletorVisivel] = useState(false);
   const [confirmarSubstituicao, setConfirmarSubstituicao] = useState(false);
   const idPeriodo = periodo.id;
@@ -162,7 +160,6 @@ export default function Registrar() {
       setPeriodosRegistrados(registros.map((item) => item.id));
       setConsumos(valores);
       setDieselVisivel((Number(valores.diesel) || 0) > 0);
-      setResultado(rascunho ? null : registro?.calculo ?? null);
       setMensagem(registro ? 'Este mês já tem um registro. Ao calcular, você poderá confirmar a substituição.' : '');
       setSeletorVisivel(false);
     } catch {
@@ -176,7 +173,6 @@ export default function Registrar() {
     setConsumos(novosConsumos);
     setRascunhos((atuais) => ({ ...atuais, [idPeriodo]: novosConsumos }));
     setMensagem('');
-    setResultado(null);
   }
 
   function validarFormulario(): boolean {
@@ -218,13 +214,15 @@ export default function Registrar() {
       salvarRegistroConsumo(registro);
       setRegistroAtual(registro);
       setPeriodosRegistrados((atuais) => atuais.includes(idPeriodo) ? atuais : [...atuais, idPeriodo]);
-      setResultado(calculo);
-      setMensagem('Consumos registrados neste aparelho.');
+      setMensagem('');
       setRascunhos((atuais) => {
         const novos = { ...atuais };
         delete novos[idPeriodo];
         return novos;
       });
+      // O resultado aparece na Início, já no mês registrado; de lá, cada fonte
+      // abre a memória de cálculo (RF04).
+      router.navigate({ pathname: '/', params: { periodo: idPeriodo } });
     } catch {
       setMensagem('Não foi possível calcular e salvar. Seus registros anteriores foram mantidos.');
     }
@@ -322,35 +320,6 @@ export default function Registrar() {
           <Text accessibilityLiveRegion="polite" style={[tipografia.legenda, { color: mensagem.startsWith('Não foi') || mensagem.startsWith('Confira') || mensagem.startsWith('Informe') ? cores.textoSuave : cores.marcaForte }]}>
             {mensagem}
           </Text>
-        ) : null}
-
-        {resultado ? (
-          <Cartao style={{ gap: espacamento.p }}>
-            <Text accessibilityRole="header" style={[tipografia.subtitulo, { color: cores.texto }]}>
-              Emissões calculadas
-            </Text>
-            <Text style={[tipografia.numeroCartao, { color: cores.marcaForte }]}>
-              {formatarEmissaoComUnidade(resultado.totalKgCo2e)} CO₂e
-            </Text>
-            {resultado.fontes.map((fonte) => (
-              <View key={fonte.id} style={{ gap: espacamento.mini }}>
-                <Text style={[tipografia.itemForte, { color: cores.texto }]}>
-                  {fonte.nome}: {formatarNumero.format(fonte.consumoInformado)} {fonte.unidadeInformada}
-                </Text>
-                {fonte.conversao ? (
-                  <Text style={[tipografia.nota, { color: cores.textoSuave }]}>
-                    {formatarNumero.format(fonte.consumoInformado)} × {formatarNumero.format(fonte.conversao.multiplicador)} kg = {formatarNumero.format(fonte.consumoAplicado)} {fonte.conversao.unidadeResultado}
-                  </Text>
-                ) : null}
-                <Text style={[tipografia.nota, { color: cores.textoSuave }]}>
-                  {formatarNumero.format(fonte.consumoAplicado)} × {formatarNumero.format(fonte.fator.valor)} {fonte.fator.unidadeFator} = {formatarEmissaoComUnidade(fonte.emissaoKgCo2e)} CO₂e
-                </Text>
-                <Text style={[tipografia.nota, { color: cores.textoSuave }]}>
-                  {fonte.fator.fonte} · {fonte.fator.ano} · versão {fonte.fator.versao}
-                </Text>
-              </View>
-            ))}
-          </Cartao>
         ) : null}
 
         <View style={estilos.espaco} />

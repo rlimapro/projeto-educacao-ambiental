@@ -15,7 +15,7 @@ Identificadores dos nós no Figma (arquivo `HlJaNtDhNHMXjLkzh4tK47`), usados par
 | 03 Boas-vindas · Perfil | `4:59` | `7:59` | Sim |
 | 04 Início | `2:2` | `7:109` | Sim (`src/app/(abas)/index.tsx`) |
 | 05 Registrar consumo | `5:2` | `7:188` | Sim (`src/app/(abas)/registrar.tsx`) |
-| 06 Memória de cálculo | `5:83` | `7:269` | Não |
+| 06 Memória de cálculo | `5:83` | `7:269` | Sim (`src/app/(abas)/(inicio)/memoria/[periodo]/[fonte].tsx`) |
 | 07 Sugestões de redução | `5:150` | `7:336` | Não |
 | 08 Simular plantio | `6:2` | `7:407` | Não |
 | 09 Histórico | `6:69` | `7:474` | Não |
@@ -55,17 +55,22 @@ As três cores do gráfico diferem em luminosidade, não só em tom, para contin
 | `titulo` | Space Grotesk | 34 | 700 | 1.08 | Títulos das telas de boas-vindas; espaçamento entre letras −0,68 |
 | `tituloTela` | Space Grotesk | 24 | 700 | 1.2 | Título de tela interna, como “Registrar consumo” |
 | `numeroCartao` | Space Grotesk | 32 | 700 | 1.0 | Números em cartões |
+| `numeroResultado` | Space Grotesk | 44 | 700 (−1,32) | 1.0 | Emissão da fonte no topo da memória de cálculo |
+| `tituloDetalhe` | Space Grotesk | 20 | 700 | 1.2 | Título de tela de detalhe com seta de voltar; emissão do mês na conta |
 | `subtitulo` | Space Grotesk | 18 | 700 | 1.2 | Seletor de período, títulos de seção |
 | `numeroLinha` | Space Grotesk | 15 | 700 | 1.3 | Valor na legenda do anel |
 | `botao` | Space Grotesk | 17 | 700 | 1.2 | Texto do BotaoPrimario |
 | `contador` | Space Grotesk | 14 | 500 | 1.3 | Contador de passos ("01 / 04") |
 | `corpo` | IBM Plex Sans | 16 | 400 | 1.5 | Parágrafos |
+| `unidadeResultado` | IBM Plex Sans | 18 | 500 | 1.3 | Unidade ao lado de `numeroResultado` |
 | `opcao` | IBM Plex Sans | 16 | 600 | 1.3 | Título de opção em cartão |
 | `linha` | IBM Plex Sans | 15 | 400 | 1.3 | Nome na legenda do anel |
 | `item` | IBM Plex Sans | 15 | 500 | 1.4 | Itens de lista, opção não marcada do seletor segmentado |
 | `itemForte` | IBM Plex Sans | 15 | 600 | 1.4 | Botões secundários ("Pular"), opção marcada do seletor segmentado |
 | `rotulo` | IBM Plex Sans | 13 | 600 | 1.3 | Rótulo acima de um campo ou seletor |
 | `legenda` | IBM Plex Sans | 13 | 400 | 1.4 | Rótulos de cartão, textos auxiliares |
+| `apoio` | IBM Plex Sans | 14 | 400 | 1.4 | Participação da fonte e rótulos de linhas de detalhe |
+| `apoioForte` | IBM Plex Sans | 14 | 600 | 1.4 | Valores de linhas de detalhe (fonte, ano, versão do fator) |
 | `etiqueta` | IBM Plex Sans | 13 | 500 | 1.3 | Texto de pílula (perfil no Início) |
 | `nota` | IBM Plex Sans | 12 | 400 | 1.3 | Nota abaixo do número de um cartão |
 | `mini` | IBM Plex Sans | 12 | 500 | 1.3 | Rótulos da barra de navegação |
@@ -93,7 +98,8 @@ Construa e revise estes antes de qualquer tela:
 - **OpcaoCartao:** escolha única em cartão: ícone de 22 num círculo de 44 com fundo `fundo`, título em `opcao`, descrição em `legenda`, e o marcador de seleção à direita. Marcada: borda de 2 em `marcaForte`.
 - **SeletorSegmentado:** trilho `superficie` com `borda`, raio 14 e respiro de 4; opção marcada com fundo `marca` e raio 10.
 - **Ilustração:** 200 × 200, desenhos de traço com as mesmas cores do tema; nas boas-vindas fica centralizada no espaço livre acima do título.
-- **LinhaLegenda:** marcador quadrado de 10 com raio 3, nome em `linha`, valor em `numeroLinha` alinhado à direita.
+- **LinhaLegenda:** marcador quadrado de 10 com raio 3, nome em `linha`, valor em `numeroLinha` alinhado à direita. Com ação (na Início), vira botão com altura mínima de 44 e seta `abrir` em `textoSuave`, e as linhas ficam sem espaço entre si.
+- **Cabeçalho de detalhe:** seta `voltar` (24, traço 2) com área de toque ampliada e título em `tituloDetalhe`. Usado na memória de cálculo.
 - **AnelEmissoes:** área de 210 com anel de 190 de diâmetro externo e 19 de espessura, trilha em `trilhaAnel`, segmentos por fonte da maior para a menor nas cores `grafico1`, `grafico2`, `grafico3`, pontas retas, começando no topo no sentido horário, com 4 pontos de espaço entre segmentos (nenhum quando há uma fonte só) e o total no centro em `numeroDestaque`. Construído com `react-native-svg`; ver "Movimento".
 - **BarraNavegacao:** quatro itens (Início, Registrar, Histórico, Ajustes), ícone de 22 e rótulo em `mini`. O ativo tem o ícone em `sobreMarca` sobre uma pílula `marca` de 56 × 32 e o rótulo em `marcaForte` com `miniForte`; só a cor do rótulo era sutil demais. A pílula é uma só e desliza entre as abas (ver "Movimento"). Fundo `superficie` com borda superior; é a barra das abas em `src/app/(abas)/_layout.tsx`.
 - **SeletorPeriodo:** folha inferior aberta ao tocar no mês da Início. Fundo `superficie` com cantos superiores de raio 16 sobre o `veu`; título "Escolha o mês" em `subtitulo` e "Fechar"; o ano entre setas (ícones `anterior` e `abrir`, em `borda` quando não há outro ano registrado); grade de 3 × 4 meses abreviados em `item`, raio 10 e altura mínima de 44. Mês com registro: borda `borda` e texto `texto`. Mês escolhido: fundo `marca`, texto `sobreMarca` em `itemForte`. Mês sem registro: texto `textoSuave`, sem borda e desativado. Abre com esmaecimento, ou sem animação se o movimento estiver reduzido. O protótipo não desenha o seletor; este é o padrão até a equipe decidir outro.

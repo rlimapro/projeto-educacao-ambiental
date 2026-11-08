@@ -10,11 +10,13 @@ Visual: protótipo no Figma, tela "04 Início" (nós `2:2` claro e `7:109` escur
 | --- | --- | --- |
 | Topo | Mês e ano do período (tocar abre o seletor de mês), e o perfil escolhido nas boas-vindas | `src/dados/periodos.ts`, `lerPerfil()` |
 | Anel | Total do período e participação de cada fonte, animados | `resumirEmissoes` (RF03) |
-| Legenda | Cada fonte com sua emissão, da maior para a menor | `resumirEmissoes` |
+| Legenda | Cada fonte com sua emissão, da maior para a menor; tocar abre a memória de cálculo da fonte (RF04, `docs/memoria-calculo.md`) | `resumirEmissoes` |
 | Para neutralizar | Árvores que neutralizariam o período em 20 anos, arredondadas para cima | `arvoresParaNeutralizar` (RF05) |
 | Comparado a… | Variação percentual e diferença em kg em relação ao período anterior | `compararPeriodos` (RF07) |
 | Reduzir antes de compensar | Quantidade de sugestões para a maior fonte | RF08 |
 | Barra de navegação | Início, Registrar, Histórico, Ajustes | `src/app/(abas)/_layout.tsx` |
+
+Depois de "Calcular emissões", o Registrar abre a Início no mês registrado (parâmetro `periodo`, no formato AAAA-MM). O mês escolhido continua o mesmo ao voltar da memória de cálculo.
 
 Sem nenhum período registrado, a tela mostra um cartão explicando o que fazer, com o botão "Registrar consumo".
 
@@ -27,7 +29,7 @@ Tocar no mês abre uma folha com os 12 meses do ano em grade e setas para trocar
 - **Dados de exemplo.** Os períodos vêm de `src/dados/periodos.ts`, fixos no código, com os totais do protótipo (outubro 245 kg; setembro 278; agosto 302; julho 280). Saem quando o registro de consumos (RF02) gravar no SQLite.
 - **Taxa de árvores.** Usa a menor taxa da metodologia (3,037 kg de CO₂ por árvore por ano), a que vale enquanto o usuário não escolhe o estado (RF13).
 - **"Reduzir antes de compensar"** aparece desativado: a tela de sugestões (RF08) ainda não existe.
-- **Registrar, Histórico e Ajustes** mostram "Em breve".
+- **Histórico e Ajustes** mostram "Em breve".
 
 ## Divergências do protótipo
 
@@ -36,6 +38,7 @@ Tocar no mês abre uma folha com os 12 meses do ano em grade e setas para trocar
 | "2 árvores" | "5 árvores" | O protótipo usava um valor provisório. 245 kg ÷ (3,037 kg × 20 anos) = 4,03, arredondado para cima. |
 | Espaços de 18, 10 e 6 entre elementos | 16, 12 e 4 | Escala de espaçamento do `docs/design.md`. |
 | Aba ativa só com ícone e rótulo em `marcaForte` | Ícone sobre pílula `marca` | O destaque só pela cor era sutil demais no aparelho. |
+| Legenda sem seta, linhas a 8 pontos uma da outra | Seta à direita, linhas de 44 pontos | A legenda abre a memória de cálculo: a seta mostra que dá para tocar e a altura é a área de toque mínima. |
 
 ## Acessibilidade
 

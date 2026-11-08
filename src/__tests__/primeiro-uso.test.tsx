@@ -6,7 +6,9 @@ import LayoutAbas from '@/app/(abas)/_layout';
 import Ajustes from '@/app/(abas)/ajustes';
 import Historico from '@/app/(abas)/historico';
 import Registrar from '@/app/(abas)/registrar';
-import Inicio from '@/app/(abas)/index';
+import LayoutInicio from '@/app/(abas)/(inicio)/_layout';
+import Inicio from '@/app/(abas)/(inicio)/index';
+import MemoriaCalculo from '@/app/(abas)/(inicio)/memoria/[periodo]/[fonte]';
 import { TemaProvider } from '@/ui/tema';
 
 // Fluxo de primeiro uso (RF12). Fica fora de src/app porque o Expo Router
@@ -48,7 +50,9 @@ function LayoutDeTeste() {
 const rotas = {
   _layout: LayoutDeTeste,
   '(abas)/_layout': LayoutAbas,
-  '(abas)/index': Inicio,
+  '(abas)/(inicio)/_layout': LayoutInicio,
+  '(abas)/(inicio)/index': Inicio,
+  '(abas)/(inicio)/memoria/[periodo]/[fonte]': MemoriaCalculo,
   '(abas)/registrar': Registrar,
   '(abas)/historico': Historico,
   '(abas)/ajustes': Ajustes,

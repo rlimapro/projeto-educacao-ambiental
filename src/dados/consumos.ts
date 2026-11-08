@@ -95,3 +95,8 @@ export function salvarRegistroConsumo(registro: RegistroConsumo): void {
   registros.sort((a, b) => b.ano - a.ano || b.mes - a.mes);
   Storage.setItemSync(CHAVE_REGISTROS, JSON.stringify(registros));
 }
+
+// Registro de um mês (AAAA-MM), com o cálculo salvo e os fatores daquela época.
+export function buscarRegistroConsumo(id: string): RegistroConsumo | null {
+  return lerRegistrosConsumo().find((registro) => registro.id === id) ?? null;
+}

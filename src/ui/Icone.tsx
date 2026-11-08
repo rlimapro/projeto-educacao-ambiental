@@ -19,6 +19,7 @@ export type NomeIcone =
   | 'abrirPeriodo'
   | 'abrir'
   | 'anterior'
+  | 'voltar'
   | 'sugestao'
   | 'navInicio'
   | 'navRegistrar'
@@ -132,6 +133,11 @@ const desenhos: Record<NomeIcone, Desenho> = {
     tamanho: 18,
     traco: 1.5,
     render: () => <Path d="M11.25 4.5L6.75 9L11.25 13.5" />,
+  },
+  voltar: {
+    tamanho: 24,
+    traco: 2,
+    render: () => <Path d="M15 18L9 12L15 6" />,
   },
   sugestao: {
     tamanho: 22,
