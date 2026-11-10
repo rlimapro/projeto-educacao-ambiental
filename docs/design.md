@@ -124,6 +124,17 @@ Os ícones de sugestão que o protótipo não desenha (bicicleta, folha, velocí
 - Transições entre telas: as padrão do Expo Router.
 - Com a opção de reduzir movimento ativada no sistema, os elementos aparecem já no estado final. Use o hook `useReduzirMovimento` de `src/ui`, que lê a configuração pelo `AccessibilityInfo` do React Native e, ao contrário do `useReducedMotion` do Reanimated, funciona nos testes do Jest.
 
+## Abertura
+
+Ao abrir o app, o anel das emissões se fecha, um broto cresce no meio e aparece a frase **"Meça. Reduza. Neutralize."**, a proposta do app na ordem em que ele pede para agir. Código em `src/ui/AberturaAnimada.tsx`, montado por `src/app/_layout.tsx`.
+
+- **Duas etapas.** A abertura nativa (plugin `expo-splash-screen` no `app.json`) mostra só a trilha do anel (`trilhaAnel`) sobre `fundo`, com uma versão para o tema escuro do sistema. Quando as fontes carregam, a `AberturaAnimada` desenha um primeiro quadro idêntico a ela, a nativa é escondida e a animação roda por cima do app, que já carrega embaixo. As imagens são `assets/images/splash-icon.png` e `splash-icon-dark.png` (1024 × 1024, fundo transparente, exibidas com 200), geradas do mesmo desenho do anel.
+- **Tempos.** O anel se desenha em 700 ms (`Easing.out(Easing.cubic)`), começando no topo no sentido horário; o broto cresce com mola a partir de 350 ms; a frase surge aos 700 ms, em 300 ms. Depois de uma pausa de 350 ms, tudo some em 350 ms. Total: 1,7 s.
+- **Movimento reduzido.** Tudo aparece pronto, fica 600 ms na tela e some sem animação.
+- **Cores.** Anel em `grafico1` sobre `trilhaAnel`, broto com traço `marcaForte` e folhas `marca`, frase em `subtitulo` e `texto`. A animação segue o tema escolhido no app; a abertura nativa só conhece o tema do sistema, então quem escolheu um tema diferente do sistema vê a troca de fundo no primeiro quadro.
+- **Expo Go.** Desde o SDK 52, o Expo Go mostra o ícone do app no lugar da abertura nativa ([documentação do expo-splash-screen](https://docs.expo.dev/versions/v58.0.0/sdk/splash-screen/)). A animação aparece normalmente, porque é uma tela do app; a abertura nativa só pode ser conferida num build de prévia ou de produção.
+- **Sem biblioteca.** A animação usa a `Animated` do React Native e o `react-native-svg`, já instalados. Lottie funcionaria, mas traria uma dependência e trabalho extra para o tema escuro e o movimento reduzido; o `react-native-bootsplash` não roda no Expo Go.
+
 ## Tema
 
 - Padrão: claro. Opções em Ajustes: Claro, Escuro e Seguir o sistema.
