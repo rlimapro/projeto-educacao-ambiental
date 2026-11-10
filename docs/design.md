@@ -135,6 +135,16 @@ Ao abrir o app, o anel das emissões se fecha, um broto cresce no meio e aparece
 - **Expo Go.** Desde o SDK 52, o Expo Go mostra o ícone do app no lugar da abertura nativa ([documentação do expo-splash-screen](https://docs.expo.dev/versions/v58.0.0/sdk/splash-screen/)). A animação aparece normalmente, porque é uma tela do app; a abertura nativa só pode ser conferida num build de prévia ou de produção.
 - **Sem biblioteca.** A animação usa a `Animated` do React Native e o `react-native-svg`, já instalados. Lottie funcionaria, mas traria uma dependência e trabalho extra para o tema escuro e o movimento reduzido; o `react-native-bootsplash` não roda no Expo Go.
 
+## Ícone do app
+
+O último quadro da abertura, simplificado para continuar legível a 29 px: um anel `marca` inteiro, sem trilha e sem segmentos, com o broto no meio, sobre fundo `#0D1210` (o `fundo` do tema escuro). O broto é 1,5 vez maior que na abertura, com folhas preenchidas sem contorno (a da esquerda em `grafico1` claro, `#6AA521`, para dar profundidade) e caule grosso. Sem texto, degradê, sombra ou cantos arredondados, que o sistema aplica.
+
+- **Por que fundo escuro.** Sobre o claro, o verde-limão some (contraste de 1,2:1); sobre o escuro, chega a 14,6:1, e o ícone fica igual à abertura no tema escuro.
+- **iOS.** `ios.icon` com três PNGs de 1024: `light` é o ícone completo e opaco (`icon.png`, também o ícone geral e o que o Expo Go mostra ao abrir); `dark` e `tinted` têm fundo transparente para o sistema pôr o dele, e o `tinted` é em tons de cinza. O anel ocupa 66% da tela. O pacote `.icon` do Icon Composer ficou de fora: só compila num Mac, e um erro nele só apareceria no build do EAS.
+- **Android.** Ícone adaptável com `foregroundImage` transparente, fundo só por `backgroundColor` e `monochromeImage` (silhueta branca, para os ícones temáticos do Android 13). O anel ocupa 59% da tela (64 dp de 108), dentro da zona segura de 66 dp que nenhuma máscara corta.
+- **Fontes.** Os SVGs ficam em `assets/icone/`, junto com os da abertura nativa. Depois de mudar um deles, `sh assets/icone/gerar.sh` (precisa do ImageMagick) gera de novo os PNGs de `assets/images/`.
+- **Conferir.** No Expo Go, o ícone aparece só por um instante, ao abrir; na tela inicial do celular fica sempre o ícone do Expo Go. O ícone de verdade, com máscaras e variantes, só aparece num build de prévia ou de produção.
+
 ## Tema
 
 - Padrão: claro. Opções em Ajustes: Claro, Escuro e Seguir o sistema.
