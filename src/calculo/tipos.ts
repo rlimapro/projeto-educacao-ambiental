@@ -74,3 +74,51 @@ export type TaxaSequestro = {
   ano: number;
   versao: number;
 };
+
+// Sugestões de redução (RF08). As fontes se agrupam como o usuário as vê:
+// gasolina, etanol e diesel são todos "combustível".
+export type GrupoFonte = 'combustivel' | 'energia' | 'gas';
+
+// Qualitativo: compara as sugestões de um mesmo grupo (critérios em
+// docs/sugestoes-reducao.md). Não é uma estimativa em kg.
+export type ImpactoSugestao = 'alto' | 'medio' | 'baixo';
+
+// Nomes dos desenhos em src/ui/Icone.tsx usados nas sugestões.
+export type IconeSugestao =
+  | 'rota'
+  | 'pessoas'
+  | 'alvo'
+  | 'bicicleta'
+  | 'folha'
+  | 'velocimetro'
+  | 'ferramenta'
+  | 'gota'
+  | 'termometro'
+  | 'geladeira'
+  | 'lampada'
+  | 'sol'
+  | 'tomada'
+  | 'panela'
+  | 'chama';
+
+export type SugestaoReducao = {
+  id: string;
+  grupo: GrupoFonte;
+  titulo: string;
+  descricao: string;
+  impacto: ImpactoSugestao;
+  icone: IconeSugestao;
+  perfis: Perfil[];
+  // Só aparece se uma destas fontes tiver emissão no mês.
+  exigeFonte?: FonteEmissaoId[];
+};
+
+export type GrupoComSugestoes = {
+  grupo: GrupoFonte;
+  nome: string;
+  emissaoKgCo2e: number;
+  // Fração do total do mês, de 0 a 1.
+  fracao: number;
+  // Da de maior impacto para a de menor.
+  sugestoes: SugestaoReducao[];
+};

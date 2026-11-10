@@ -1,11 +1,17 @@
 import type { ReactNode } from 'react';
 import Svg, { Path } from 'react-native-svg';
 
+import type { IconeSugestao } from '@/calculo/tipos';
+
 import { useTema, type Cores } from './tema';
 
 // Ícones exportados do protótipo no Figma (geometria original). A cor vem do
 // tema para que funcionem nos dois esquemas. São decorativos: o texto ao lado
 // já diz o que significam.
+//
+// Os ícones de sugestão que não existem no protótipo (marcados abaixo) seguem
+// o desenho do Lucide (https://lucide.dev, licença ISC, © Lucide Contributors),
+// a mesma família visual dos ícones do protótipo.
 
 export type NomeIcone =
   | 'semInternet'
@@ -25,10 +31,13 @@ export type NomeIcone =
   | 'navInicio'
   | 'navRegistrar'
   | 'navHistorico'
-  | 'navAjustes';
+  | 'navAjustes'
+  | IconeSugestao;
 
 type Desenho = {
   tamanho: number;
+  // Grade em que o desenho foi feito, quando difere do tamanho exibido.
+  caixa?: number;
   traco: number;
   // fundo: cor do que está atrás do ícone, para preencher partes vazadas.
   render: (cor: string, fundo: string) => ReactNode;
@@ -216,6 +225,184 @@ const desenhos: Record<NomeIcone, Desenho> = {
       </>
     ),
   },
+  // Sugestões de redução (RF08), do protótipo.
+  rota: {
+    tamanho: 20,
+    traco: 1.66667,
+    render: () => (
+      <>
+        <Path d="M6.66667 15C6.66667 15.9205 5.92047 16.6667 5 16.6667C4.07953 16.6667 3.33333 15.9205 3.33333 15C3.33333 14.0795 4.07953 13.3333 5 13.3333C5.92047 13.3333 6.66667 14.0795 6.66667 15Z" />
+        <Path d="M16.6667 5C16.6667 5.92047 15.9205 6.66667 15 6.66667C14.0795 6.66667 13.3333 5.92047 13.3333 5C13.3333 4.07953 14.0795 3.33333 15 3.33333C15.9205 3.33333 16.6667 4.07953 16.6667 5Z" />
+        <Path d="M6.66667 15H12.5C13.163 15 13.7989 14.7366 14.2678 14.2678C14.7366 13.7989 15 13.163 15 12.5C15 11.837 14.7366 11.2011 14.2678 10.7322C13.7989 10.2634 13.163 10 12.5 10H7.5C6.83696 10 6.20107 9.73661 5.73223 9.26777C5.26339 8.79893 5 8.16304 5 7.5C5 6.83696 5.26339 6.20107 5.73223 5.73223C6.20107 5.26339 6.83696 5 7.5 5H13.3333" />
+      </>
+    ),
+  },
+  pessoas: {
+    tamanho: 20,
+    traco: 1.66667,
+    render: () => (
+      <>
+        <Path d="M10 6.66667C10 8.04738 8.88071 9.16667 7.5 9.16667C6.11929 9.16667 5 8.04738 5 6.66667C5 5.28596 6.11929 4.16667 7.5 4.16667C8.88071 4.16667 10 5.28596 10 6.66667Z" />
+        <Path d="M2.5 16.6667V15.8333C2.5 14.7283 2.93899 13.6685 3.72039 12.8871C4.50179 12.1057 5.5616 11.6667 6.66667 11.6667H8.33333C9.4384 11.6667 10.4982 12.1057 11.2796 12.8871C12.061 13.6685 12.5 14.7283 12.5 15.8333V16.6667" />
+        <Path d="M13.3333 4.16667C13.9964 4.16667 14.6323 4.43006 15.1011 4.8989C15.5699 5.36774 15.8333 6.00363 15.8333 6.66667C15.8333 7.32971 15.5699 7.96559 15.1011 8.43443C14.6323 8.90328 13.9964 9.16667 13.3333 9.16667" />
+        <Path d="M15 11.6667C15.8002 12.0124 16.4718 12.6004 16.9203 13.3478C17.3687 14.0953 17.5715 14.9646 17.5 15.8333V16.6667" />
+      </>
+    ),
+  },
+  alvo: {
+    tamanho: 20,
+    traco: 1.66667,
+    render: () => (
+      <>
+        <Path d="M17.5 10C17.5 14.1421 14.1421 17.5 10 17.5C5.85786 17.5 2.5 14.1421 2.5 10C2.5 5.85786 5.85786 2.5 10 2.5C14.1421 2.5 17.5 5.85786 17.5 10Z" />
+        <Path d="M13.3333 10C13.3333 11.8409 11.8409 13.3333 10 13.3333C8.15905 13.3333 6.66667 11.8409 6.66667 10C6.66667 8.15905 8.15905 6.66667 10 6.66667C11.8409 6.66667 13.3333 8.15905 13.3333 10Z" />
+      </>
+    ),
+  },
+  // Sugestões de redução que não existem no protótipo (desenho do Lucide).
+  bicicleta: {
+    tamanho: 20,
+    caixa: 24,
+    traco: 2,
+    render: () => (
+      <>
+        <Path d="M5.5 21a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" />
+        <Path d="M18.5 21a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" />
+        <Path d="M15 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" />
+        <Path d="M12 17.5V14l-3-3 4-3 2 3h2" />
+      </>
+    ),
+  },
+  folha: {
+    tamanho: 20,
+    caixa: 24,
+    traco: 2,
+    render: () => (
+      <>
+        <Path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
+        <Path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
+      </>
+    ),
+  },
+  velocimetro: {
+    tamanho: 20,
+    caixa: 24,
+    traco: 2,
+    render: () => (
+      <>
+        <Path d="m12 14 4-4" />
+        <Path d="M3.34 19a10 10 0 1 1 17.32 0" />
+      </>
+    ),
+  },
+  ferramenta: {
+    tamanho: 20,
+    caixa: 24,
+    traco: 2,
+    render: () => (
+      <>
+        <Path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76Z" />
+      </>
+    ),
+  },
+  gota: {
+    tamanho: 20,
+    caixa: 24,
+    traco: 2,
+    render: () => (
+      <>
+        <Path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7Z" />
+      </>
+    ),
+  },
+  termometro: {
+    tamanho: 20,
+    caixa: 24,
+    traco: 2,
+    render: () => (
+      <>
+        <Path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z" />
+      </>
+    ),
+  },
+  geladeira: {
+    tamanho: 20,
+    caixa: 24,
+    traco: 2,
+    render: () => (
+      <>
+        <Path d="M5 6a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6Z" />
+        <Path d="M5 10h14" />
+        <Path d="M15 7v6" />
+      </>
+    ),
+  },
+  lampada: {
+    tamanho: 20,
+    caixa: 24,
+    traco: 2,
+    render: () => (
+      <>
+        <Path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5" />
+        <Path d="M9 18h6" />
+        <Path d="M10 22h4" />
+      </>
+    ),
+  },
+  sol: {
+    tamanho: 20,
+    caixa: 24,
+    traco: 2,
+    render: () => (
+      <>
+        <Path d="M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" />
+        <Path d="M12 2v2" />
+        <Path d="M12 20v2" />
+        <Path d="m4.93 4.93 1.41 1.41" />
+        <Path d="m17.66 17.66 1.41 1.41" />
+        <Path d="M2 12h2" />
+        <Path d="M20 12h2" />
+        <Path d="m6.34 17.66-1.41 1.41" />
+        <Path d="m19.07 4.93-1.41 1.41" />
+      </>
+    ),
+  },
+  tomada: {
+    tamanho: 20,
+    caixa: 24,
+    traco: 2,
+    render: () => (
+      <>
+        <Path d="M12 22v-5" />
+        <Path d="M9 8V2" />
+        <Path d="M15 8V2" />
+        <Path d="M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z" />
+      </>
+    ),
+  },
+  panela: {
+    tamanho: 20,
+    caixa: 24,
+    traco: 2,
+    render: () => (
+      <>
+        <Path d="M2 12h20" />
+        <Path d="M20 12v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8" />
+        <Path d="m4 8 16-4" />
+        <Path d="m8.86 6.78-.45-1.81a2 2 0 0 1 1.45-2.43l1.94-.48a2 2 0 0 1 2.43 1.46l.45 1.8" />
+      </>
+    ),
+  },
+  chama: {
+    tamanho: 20,
+    caixa: 24,
+    traco: 2,
+    render: () => (
+      <>
+        <Path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5Z" />
+      </>
+    ),
+  },
 };
 
 type Props = {
@@ -227,14 +414,14 @@ type Props = {
 
 export function Icone({ nome, cor = 'marcaForte', fundo = 'superficie' }: Props) {
   const { cores } = useTema();
-  const { tamanho, traco, render } = desenhos[nome];
+  const { tamanho, caixa = tamanho, traco, render } = desenhos[nome];
   const corTraco = cores[cor];
 
   return (
     <Svg
       width={tamanho}
       height={tamanho}
-      viewBox={`0 0 ${tamanho} ${tamanho}`}
+      viewBox={`0 0 ${caixa} ${caixa}`}
       fill="none"
       stroke={corTraco}
       strokeWidth={traco}

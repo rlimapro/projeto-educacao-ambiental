@@ -1,11 +1,14 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { resumirEmissoes } from '@/calculo/resumo';
+import { grupoDeFonte } from '@/calculo/sugestoes';
 import type { MemoriaCalculoFonte } from '@/calculo/tipos';
 import { buscarRegistroConsumo, type RegistroConsumo } from '@/dados/consumos';
+import { BotaoSecundario } from '@/ui/BotaoSecundario';
+import { CabecalhoDetalhe } from '@/ui/CabecalhoDetalhe';
 import { Cartao } from '@/ui/Cartao';
 import {
   descreverConsumo,
@@ -16,13 +19,13 @@ import {
   formatarParticipacao,
   nomeDoMes,
 } from '@/ui/formatacao';
-import { Icone } from '@/ui/Icone';
 import { margemTela, medidas, useTema } from '@/ui/tema';
 
 // Memória de cálculo de uma fonte num mês (RF04). Layout segue o protótipo no
 // Figma ("06 Memória de cálculo"). Mostra o cálculo salvo no registro, com o
 // fator da época, para que uma atualização de fator não mude o que já foi
-// mostrado ao usuário.
+// mostrado ao usuário. "Ver como reduzir" abre as sugestões (RF08) já no grupo
+// da fonte.
 
 type Leitura =
   | { tipo: 'pronta'; registro: RegistroConsumo; fonte: MemoriaCalculoFonte; fracao: number }
@@ -51,30 +54,15 @@ export default function MemoriaCalculo() {
     <SafeAreaView edges={['top']} style={[estilos.tela, { backgroundColor: cores.fundo }]}>
       <ScrollView
         contentContainerStyle={{
+          flexGrow: 1,
           paddingHorizontal: margemTela,
           paddingVertical: espacamento.m,
           gap: espacamento.m,
         }}
       >
-        <View
-          style={[estilos.cabecalho, { gap: espacamento.pp, minHeight: medidas.areaToqueMinima }]}
-        >
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Voltar"
-            hitSlop={espacamento.p}
-            onPress={() => (router.canGoBack() ? router.back() : router.navigate('/'))}
-            style={({ pressed }) => ({ opacity: pressed ? medidas.opacidadePressionado : 1 })}
-          >
-            <Icone nome="voltar" cor="texto" />
-          </Pressable>
-          <Text
-            accessibilityRole="header"
-            style={[estilos.titulo, tipografia.tituloDetalhe, { color: cores.texto }]}
-          >
-            {leitura.tipo === 'pronta' ? leitura.fonte.nome : 'Memória de cálculo'}
-          </Text>
-        </View>
+        <CabecalhoDetalhe
+          titulo={leitura.tipo === 'pronta' ? leitura.fonte.nome : 'Memória de cálculo'}
+        />
 
         {leitura.tipo === 'pronta' ? (
           <Conteudo {...leitura} />
@@ -165,6 +153,17 @@ function Conteudo({
         <Divisor />
         <LinhaDetalhe rotulo="Versão usada neste mês" valor={String(fator.versao)} />
       </Cartao>
+
+      <View style={estilos.espaco} />
+      <BotaoSecundario
+        rotulo="Ver como reduzir"
+        onPress={() =>
+          router.push({
+            pathname: '/sugestoes/[periodo]',
+            params: { periodo: registro.id, grupo: grupoDeFonte(fonte.id) },
+          })
+        }
+      />
     </>
   );
 }
@@ -218,12 +217,8 @@ const estilos = StyleSheet.create({
   tela: {
     flex: 1,
   },
-  cabecalho: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  titulo: {
-    flex: 1,
+  espaco: {
+    flexGrow: 1,
   },
   valor: {
     flexDirection: 'row',

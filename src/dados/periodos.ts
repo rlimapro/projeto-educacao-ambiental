@@ -1,4 +1,4 @@
-import type { EmissaoFonte } from '@/calculo/tipos';
+import type { EmissaoFonte, Perfil } from '@/calculo/tipos';
 
 import { lerRegistrosConsumo } from './consumos';
 
@@ -7,7 +7,8 @@ export type PeriodoRegistrado = {
   ano: number;
   mes: number;
   fontes: EmissaoFonte[];
-  quantidadeSugestoes: number;
+  // Perfil do registro, que escolhe as sugestões de redução (RF08).
+  perfil: Perfil;
 };
 
 // Lista somente dados informados e calculados no aparelho; períodos de exemplo
@@ -17,7 +18,11 @@ export function listarPeriodos(): PeriodoRegistrado[] {
     id: registro.id,
     ano: registro.ano,
     mes: registro.mes,
-    fontes: registro.calculo.fontes.map(({ id, nome, emissaoKgCo2e }) => ({ id, nome, emissaoKgCo2e })),
-    quantidadeSugestoes: 0,
+    fontes: registro.calculo.fontes.map(({ id, nome, emissaoKgCo2e }) => ({
+      id,
+      nome,
+      emissaoKgCo2e,
+    })),
+    perfil: registro.perfil,
   }));
 }

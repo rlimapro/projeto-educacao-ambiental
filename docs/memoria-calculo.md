@@ -25,9 +25,9 @@ Tudo vem do cálculo guardado no registro (`src/dados/consumos.ts`), e não de u
 
 Se o mês ou a fonte não existirem mais (registro substituído, por exemplo), a tela explica isso em vez do cálculo. Se os dados salvos não puderem ser lidos, mostra uma mensagem de erro sem alterar nada.
 
-## Provisório
+## Depois da memória
 
-- **"Ver como reduzir"** não aparece: a tela de sugestões (RF08) ainda não existe. A Início faz o mesmo com o atalho "Reduzir antes de compensar". Quando a RF08 existir, o botão entra no fim da tela, como no protótipo.
+"Ver como reduzir", no fim da tela, abre as sugestões de redução (RF08) já no grupo da fonte: gasolina, etanol e diesel abrem em combustível. Ver `docs/sugestoes-reducao.md`.
 
 ## Divergências do protótipo
 

@@ -225,6 +225,14 @@ Um valor positivo indica que o plantio simulado remove mais carbono do que o per
 
 Pela ISO 14068-1, declarar neutralidade de carbono exige ter reduzido emissões antes de compensar e usar créditos certificados. Por isso o app usa expressões como "árvores que neutralizariam este mês" e nunca exibe selos do tipo "carbono neutro".
 
+## Sugestões de redução (RF08)
+
+A tela de sugestões mostra um único número: quanto deixaria de ser emitido com 10% a menos de consumo no grupo de fontes escolhido (combustível, energia elétrica ou gás de cozinha). Como a emissão de cada fonte é `consumo × fator`, reduzir uma fração do consumo reduz a mesma fração da emissão:
+
+`emissaoEvitadaKgCo2e = emissaoDoGrupoKgCo2e × 0,10`
+
+A conta usa a emissão já calculada e salva no registro do mês, com os fatores daquela época (`emissaoEvitadaKgCo2e`, em `src/calculo/sugestoes.ts`). Nenhuma sugestão traz estimativa própria de economia em kg: o impacto de cada uma ("alto", "médio", "baixo") é qualitativo, com os critérios em `docs/sugestoes-reducao.md`.
+
 ## Limitações conhecidas
 
 - Fatores médios nacionais: não refletem o veículo, o fogão ou a distribuidora de energia de cada usuário.
