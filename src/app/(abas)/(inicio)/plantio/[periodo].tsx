@@ -17,6 +17,7 @@ import {
 import { lerRegistrosConsumo, type RegistroConsumo } from '@/dados/consumos';
 import { AJUDA_CUIDADOS_DO_PLANTIO, AJUDA_TIPOS_DE_ARVORE } from '@/ui/ajudaPlantio';
 import type { AjudaCampo } from '@/ui/ajudaConsumo';
+import { BotaoRedondo } from '@/ui/BotaoRedondo';
 import { BotaoTexto } from '@/ui/BotaoTexto';
 import { CabecalhoDetalhe } from '@/ui/CabecalhoDetalhe';
 import { Cartao } from '@/ui/Cartao';
@@ -341,42 +342,6 @@ function Conteudo({
   );
 }
 
-function BotaoRedondo({
-  icone,
-  rotulo,
-  desativado,
-  onPress,
-}: {
-  icone: 'menos' | 'mais';
-  rotulo: string;
-  desativado: boolean;
-  onPress: () => void;
-}) {
-  const { cores, raios } = useTema();
-
-  return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={rotulo}
-      accessibilityState={{ disabled: desativado }}
-      disabled={desativado}
-      onPress={onPress}
-      style={({ pressed }) => [
-        estilos.redondo,
-        {
-          borderRadius: raios.pilula,
-          borderWidth: medidas.bordaCartao,
-          borderColor: cores.borda,
-          backgroundColor: cores.superficie,
-          opacity: pressed ? medidas.opacidadePressionado : 1,
-        },
-      ]}
-    >
-      <Icone nome={icone} cor={desativado ? 'borda' : 'texto'} />
-    </Pressable>
-  );
-}
-
 const estilos = StyleSheet.create({
   tela: {
     flex: 1,
@@ -397,11 +362,5 @@ const estilos = StyleSheet.create({
   valor: {
     flexDirection: 'row',
     alignItems: 'baseline',
-  },
-  redondo: {
-    width: medidas.alturaBotao,
-    height: medidas.alturaBotao,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });

@@ -109,3 +109,81 @@ export function terrenoSugerido(quantidade: number): Terreno {
   const comFolga = Math.min(LADO_MAXIMO_M, lado + (lado > 6 ? folgaM : 0));
   return { larguraM: comFolga, comprimentoM: comFolga };
 }
+
+// Plano com mais de um terreno: as mudas da simulação são divididas entre
+// terrenos de medidas diferentes (por exemplo, 10 mudas em 3 terrenos).
+export type TerrenoPlanejado = Terreno & {
+  // Identifica o terreno enquanto outros são criados e tirados.
+  id: number;
+  mudas: PosicaoMuda[];
+};
+
+// Limite de terrenos num plano. Com o terreno máximo (1.650 mudas), 7 já
+// comportam as 9.999 mudas da simulação; o limite folgado serve a quem divide o
+// plantio em muitos terrenos pequenos (quintais, canteiros).
+export const MAXIMO_TERRENOS = 100;
+
+export function totalMudas(terrenos: TerrenoPlanejado[]): number {
+  return terrenos.reduce((soma, terreno) => soma + terreno.mudas.length, 0);
+}
+
+export function capacidadeTotal(terrenos: Terreno[]): number {
+  return terrenos.reduce((soma, terreno) => soma + capacidadeTerreno(terreno), 0);
+}
+
+// Novo terreno, com o próximo id, no tamanho sugerido para `quantidade` mudas.
+export function novoTerreno(terrenos: TerrenoPlanejado[], quantidade: number): TerrenoPlanejado {
+  const id = terrenos.reduce((maior, terreno) => Math.max(maior, terreno.id), 0) + 1;
+  return { id, ...terrenoSugerido(Math.max(1, quantidade)), mudas: [] };
+}
+
+// Mantém no plano no máximo `quantidade` mudas, tirando primeiro as últimas
+// colocadas, do último terreno para o primeiro. Serve para um plano salvo
+// quando a simulação passa a ter menos árvores.
+export function limitarAQuantidade(
+  terrenos: TerrenoPlanejado[],
+  quantidade: number,
+): { terrenos: TerrenoPlanejado[]; retiradas: number } {
+  let excesso = Math.max(0, totalMudas(terrenos) - quantidade);
+  const retiradas = excesso;
+  const ajustados = [...terrenos]
+    .reverse()
+    .map((terreno) => {
+      const tirar = Math.min(excesso, terreno.mudas.length);
+      excesso -= tirar;
+      return tirar > 0
+        ? { ...terreno, mudas: terreno.mudas.slice(0, terreno.mudas.length - tirar) }
+        : terreno;
+    })
+    .reverse();
+  return { terrenos: ajustados, retiradas };
+}
+
+// Primeira posição livre, varrendo a grade linha por linha. Usada quando a muda
+// é colocada sem apontar o lugar (leitor de tela). Devolve null se não houver.
+export function primeiraPosicaoLivre(
+  mudas: PosicaoMuda[],
+  terreno: Terreno,
+): PosicaoMuda | null {
+  for (let y = 0; y + ESPACO_MUDA.comprimentoM <= terreno.comprimentoM; y += 1) {
+    for (let x = 0; x + ESPACO_MUDA.larguraM <= terreno.larguraM; x += 1) {
+      if (posicaoValida({ x, y }, mudas, terreno)) return { x, y };
+    }
+  }
+  return null;
+}
+
+// Tira os terrenos de `ids` do plano. Um plano não fica vazio: se todos saírem,
+// sobra um terreno novo, no tamanho sugerido para `quantidade` mudas.
+export function tirarTerrenos(
+  terrenos: TerrenoPlanejado[],
+  ids: number[],
+  quantidade: number,
+): { terrenos: TerrenoPlanejado[]; mudasTiradas: number } {
+  const tirados = terrenos.filter((terreno) => ids.includes(terreno.id));
+  const restantes = terrenos.filter((terreno) => !ids.includes(terreno.id));
+  return {
+    terrenos: restantes.length > 0 ? restantes : [novoTerreno([], quantidade)],
+    mudasTiradas: totalMudas(tirados),
+  };
+}

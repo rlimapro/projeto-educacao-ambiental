@@ -1,5 +1,12 @@
 import {
   capacidadeTerreno,
+  capacidadeTotal,
+  limitarAQuantidade,
+  novoTerreno,
+  primeiraPosicaoLivre,
+  tirarTerrenos,
+  totalMudas,
+  type TerrenoPlanejado,
   cabeNoTerreno,
   distribuirEmLinhas,
   encaixarNaGrade,
@@ -117,5 +124,64 @@ describe('terrenoSugerido', () => {
   it('começa num quadrado de 6 m para poucas mudas', () => {
     // 6 m: ⌊6/3⌋ × ⌊6/2⌋ = 2 × 3 = 6 mudas
     expect(terrenoSugerido(5)).toEqual({ larguraM: 6, comprimentoM: 6 });
+  });
+});
+
+describe('vários terrenos', () => {
+  const plano: TerrenoPlanejado[] = [
+    { id: 1, larguraM: 6, comprimentoM: 6, mudas: [{ x: 0, y: 0 }, { x: 3, y: 0 }] },
+    { id: 4, larguraM: 9, comprimentoM: 2, mudas: [{ x: 0, y: 0 }, { x: 3, y: 0 }, { x: 6, y: 0 }] },
+  ];
+
+  it('soma as mudas e a capacidade dos terrenos', () => {
+    // 2 + 3 mudas
+    expect(totalMudas(plano)).toBe(5);
+    // ⌊6/3⌋ × ⌊6/2⌋ = 6, mais ⌊9/3⌋ × ⌊2/2⌋ = 3
+    expect(capacidadeTotal(plano)).toBe(9);
+    expect(totalMudas([])).toBe(0);
+  });
+
+  it('cria um terreno vazio com o próximo id e o tamanho sugerido', () => {
+    // maior id é 4; 20 mudas pedem o mesmo terreno de terrenoSugerido(20)
+    expect(novoTerreno(plano, 20)).toEqual({ id: 5, ...terrenoSugerido(20), mudas: [] });
+    // sem mudas faltando, o terreno novo é o mínimo de 6 m
+    expect(novoTerreno([], 0)).toEqual({ id: 1, larguraM: 6, comprimentoM: 6, mudas: [] });
+  });
+
+  it('tira o excesso a partir das últimas mudas do último terreno', () => {
+    // 5 mudas, simulação com 1: tira 3 do 2º terreno e 1 do 1º
+    const { terrenos, retiradas } = limitarAQuantidade(plano, 1);
+    expect(retiradas).toBe(4);
+    expect(terrenos[0].mudas).toEqual([{ x: 0, y: 0 }]);
+    expect(terrenos[1].mudas).toEqual([]);
+    // dentro do limite, nada muda
+    expect(limitarAQuantidade(plano, 5)).toEqual({ terrenos: plano, retiradas: 0 });
+  });
+
+  it('acha a primeira posição livre linha por linha', () => {
+    // em 6 × 6 com (0,0) e (3,0) ocupados, a próxima linha começa em y = 2
+    expect(primeiraPosicaoLivre(plano[0].mudas, plano[0])).toEqual({ x: 0, y: 2 });
+    // terreno 9 × 2 cheio
+    expect(primeiraPosicaoLivre(plano[1].mudas, plano[1])).toBeNull();
+    // (1,0) ocupado: x 0 a 3 se cruzam com ele; a primeira livre na linha 0 é x 4
+    expect(primeiraPosicaoLivre([{ x: 1, y: 0 }], { larguraM: 7, comprimentoM: 2 })).toEqual({
+      x: 4,
+      y: 0,
+    });
+  });
+
+  it('tira vários terrenos de uma vez e conta as mudas que saíram', () => {
+    // tirar o de id 4, com 3 mudas
+    expect(tirarTerrenos(plano, [4], 5)).toEqual({ terrenos: [plano[0]], mudasTiradas: 3 });
+    // id desconhecido não tira nada
+    expect(tirarTerrenos(plano, [99], 5)).toEqual({ terrenos: plano, mudasTiradas: 0 });
+  });
+
+  it('deixa um terreno novo quando todos saem', () => {
+    // 2 + 3 mudas saem; o terreno novo é o sugerido para 20 mudas, com id 1
+    expect(tirarTerrenos(plano, [1, 4], 20)).toEqual({
+      terrenos: [{ id: 1, ...terrenoSugerido(20), mudas: [] }],
+      mudasTiradas: 5,
+    });
   });
 });

@@ -24,6 +24,8 @@ export type Cores = {
   perigoFundo: string;
   // Espaço reservado por uma muda na distribuição.
   areaMuda: string;
+  // Linhas de metro da grade do terreno.
+  gradeTerreno: string;
 };
 
 export const cores: Record<EsquemaCores, Cores> = {
@@ -44,6 +46,7 @@ export const cores: Record<EsquemaCores, Cores> = {
     perigo: '#B3261E',
     perigoFundo: 'rgba(179, 38, 30, 0.14)',
     areaMuda: 'rgba(106, 165, 33, 0.16)',
+    gradeTerreno: '#E6ECE8',
   },
   escuro: {
     fundo: '#0D1210',
@@ -62,6 +65,7 @@ export const cores: Record<EsquemaCores, Cores> = {
     perigo: '#F2B8B5',
     perigoFundo: 'rgba(242, 184, 181, 0.18)',
     areaMuda: 'rgba(197, 240, 106, 0.14)',
+    gradeTerreno: '#26302C',
   },
 };
 
@@ -138,6 +142,13 @@ export const medidas = {
   alturaCampo: 52,
   // Altura máxima do terreno desenhado na distribuição de mudas.
   alturaMaximaTerreno: 440,
+  // Zoom máximo do terreno: uma muda (3 m × 2 m) chega a 96 × 64.
+  pontosPorMetroMaximo: 32,
+  // Lixeira que surge ao segurar um terreno, e quanto em volta dela ainda conta
+  // como acerto. Com o terreno por cima, ela cresce para mostrar que vai tirar.
+  lixeira: 72,
+  folgaLixeira: 16,
+  escalaLixeiraAtiva: 1.15,
   // Copa a partir da qual cabe o número da muda dentro dela.
   copaMinimaComNumero: 18,
   // Muda arrastada, apagada no lugar de onde saiu.

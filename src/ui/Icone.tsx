@@ -32,6 +32,7 @@ export type NomeIcone =
   | 'mais'
   | 'marcado'
   | 'sugestao'
+  | 'lixeira'
   | 'navInicio'
   | 'navRegistrar'
   | 'navHistorico'
@@ -428,6 +429,21 @@ const desenhos: Record<NomeIcone, Desenho> = {
         <Path d="M20 12v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8" />
         <Path d="m4 8 16-4" />
         <Path d="m8.86 6.78-.45-1.81a2 2 0 0 1 1.45-2.43l1.94-.48a2 2 0 0 1 2.43 1.46l.45 1.8" />
+      </>
+    ),
+  },
+  // Lixeira que surge ao segurar um terreno. Não existe no protótipo (Lucide, "trash-2").
+  lixeira: {
+    tamanho: 28,
+    caixa: 24,
+    traco: 2,
+    render: () => (
+      <>
+        <Path d="M3 6h18" />
+        <Path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+        <Path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+        <Path d="M10 11v6" />
+        <Path d="M14 11v6" />
       </>
     ),
   },
