@@ -5,6 +5,14 @@
 // Uso (com `npm run previa:web` rodando em outro terminal):
 //   npm run previa:capturar -- /boas-vindas Continuar Continuar Continuar
 //
+// Um toque com o prefixo "segurar:" toca e segura o elemento por 700 ms, com
+// eventos de mouse de verdade (como o dedo), para abrir menus de toque longo:
+//   npm run previa:capturar -- "/distribuir?arvores=6" "Distribuir automaticamente" "segurar:Muda 2, a 3 m da esquerda e 0 m do topo"
+//
+// "arrastar:Rótulo@x,y" segura o elemento, arrasta até o ponto (x, y) da
+// tela de 390 × 844, fotografa ainda arrastando (<n>a.png) e solta:
+//   npm run previa:capturar -- "/distribuir?arvores=6" "+ Terreno" "arrastar:Terreno 2, 6 por 6 metros, 0 mudas@195,770"
+//
 // Gera .previa/<rota>-<tema>-<n>.png. Precisa do Google Chrome instalado.
 // Só acessa o servidor local de desenvolvimento; não faz parte do app.
 import { spawn } from 'node:child_process';
@@ -119,7 +127,7 @@ async function capturarTema(esquema) {
     const tocar = (texto) =>
       cdp('Runtime.evaluate', {
         expression: `(() => {
-          const el = [...document.querySelectorAll('[role=button],[role=radio],[role=link]')]
+          const el = [...document.querySelectorAll('[role=button],[role=radio],[role=checkbox],[role=link]')]
             .find((e) => [e.textContent.trim(), e.getAttribute('aria-label')].includes(${JSON.stringify(texto)}));
           if (el) { el.click(); return true; }
           return false;
@@ -127,9 +135,53 @@ async function capturarTema(esquema) {
         returnByValue: true,
       });
 
+    // Toque e segure no centro do elemento, pelos eventos de mouse do Chrome.
+    const segurar = async (texto, destino, n) => {
+      const r = await cdp('Runtime.evaluate', {
+        expression: `(() => {
+          const el = [...document.querySelectorAll('[role=button],[role=radio],[role=checkbox],[role=link]')]
+            .find((e) => [e.textContent.trim(), e.getAttribute('aria-label')].includes(${JSON.stringify(texto)}));
+          if (!el) return null;
+          const caixa = el.getBoundingClientRect();
+          return { x: caixa.left + caixa.width / 2, y: caixa.top + caixa.height / 2 };
+        })()`,
+        returnByValue: true,
+      });
+      const ponto = r?.result?.value;
+      if (!ponto) return { result: { value: false } };
+      const mouse = { x: ponto.x, y: ponto.y, button: 'left', clickCount: 1 };
+      await cdp('Input.dispatchMouseEvent', { type: 'mouseMoved', x: ponto.x, y: ponto.y });
+      await cdp('Input.dispatchMouseEvent', { type: 'mousePressed', ...mouse });
+      await espera(700);
+      let fim = mouse;
+      if (destino) {
+        // Anda em passos, como o dedo, para o app ver o movimento.
+        for (let passo = 1; passo <= 12; passo++) {
+          const x = ponto.x + ((destino.x - ponto.x) * passo) / 12;
+          const y = ponto.y + ((destino.y - ponto.y) * passo) / 12;
+          await cdp('Input.dispatchMouseEvent', { type: 'mouseMoved', x, y, button: 'left', buttons: 1 });
+          await espera(30);
+        }
+        await espera(300);
+        await fotografar(`${n}a`);
+        fim = { ...mouse, x: destino.x, y: destino.y };
+      }
+      await cdp('Input.dispatchMouseEvent', { type: 'mouseReleased', ...fim });
+      return { result: { value: true } };
+    };
+
     await fotografar(1);
     for (const [i, texto] of toques.entries()) {
-      const r = await tocar(texto);
+      let r;
+      if (texto.startsWith('segurar:')) {
+        r = await segurar(texto.slice('segurar:'.length));
+      } else if (texto.startsWith('arrastar:')) {
+        const [rotulo, alvo] = texto.slice('arrastar:'.length).split('@');
+        const [x, y] = alvo.split(',').map(Number);
+        r = await segurar(rotulo, { x, y }, i + 2);
+      } else {
+        r = await tocar(texto);
+      }
       if (!r?.result?.value) console.warn(`Botão "${texto}" não encontrado.`);
       await espera(1500);
       await fotografar(i + 2);
