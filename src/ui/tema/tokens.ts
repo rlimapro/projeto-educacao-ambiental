@@ -124,6 +124,8 @@ export const medidas = {
   areaToqueMinima: 44,
   alturaBotao: 56,
   alturaCampo: 52,
+  // Círculo atrás do ícone de uma sugestão de redução.
+  circuloIcone: 40,
   bordaCartao: 1,
   bordaSelecionada: 2,
   tamanhoIlustracao: 200,

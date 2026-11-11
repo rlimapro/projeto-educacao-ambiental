@@ -9,6 +9,7 @@ import {
   arvoresParaNeutralizar,
 } from '@/calculo/arvores';
 import { compararPeriodos, resumirEmissoes } from '@/calculo/resumo';
+import { agruparSugestoes } from '@/calculo/sugestoes';
 import type { Perfil } from '@/calculo/tipos';
 import { listarPeriodos } from '@/dados/periodos';
 import { lerPerfil } from '@/dados/preferencias';
@@ -75,7 +76,10 @@ export default function Inicio() {
 
   if (erro) {
     return (
-      <SafeAreaView edges={['top']} style={[estilos.vazio, { backgroundColor: cores.fundo, paddingHorizontal: margemTela }]}>
+      <SafeAreaView
+        edges={['top']}
+        style={[estilos.vazio, { backgroundColor: cores.fundo, paddingHorizontal: margemTela }]}
+      >
         <Cartao style={{ gap: espacamento.m }}>
           <Text accessibilityRole="header" style={[tipografia.subtitulo, { color: cores.texto }]}>
             Não foi possível abrir seus registros
@@ -119,7 +123,8 @@ export default function Inicio() {
     ? compararPeriodos(resumo.totalKgCo2e, resumirEmissoes(anterior.fontes).totalKgCo2e)
     : null;
   const arvores = arvoresParaNeutralizar(resumo.totalKgCo2e, TAXA_SEQUESTRO_SEM_ESTADO);
-  const maiorFonte = resumo.fontes[0];
+  // Grupo de fontes que mais emitiu, com suas sugestões (RF08).
+  const focoReducao = agruparSugestoes(periodo.fontes, periodo.perfil)[0];
   const mesAtual = indice === 0;
   const nomeMes = nomeDoMes(periodo.mes);
   const titulo = `${nomeDoMes(periodo.mes, true)} ${periodo.ano}`;
@@ -210,13 +215,16 @@ export default function Inicio() {
           )}
         </View>
 
-        {periodo.quantidadeSugestoes > 0 && maiorFonte && maiorFonte.emissaoKgCo2e > 0 && (
+        {focoReducao && focoReducao.sugestoes.length > 0 && (
           <LinhaAcao
             icone="sugestao"
             titulo="Reduzir antes de compensar"
-            descricao={`${periodo.quantidadeSugestoes} ${
-              periodo.quantidadeSugestoes === 1 ? 'sugestão' : 'sugestões'
-            } para ${maiorFonte.nome.toLowerCase()}`}
+            descricao={`${focoReducao.sugestoes.length} ${
+              focoReducao.sugestoes.length === 1 ? 'sugestão' : 'sugestões'
+            } para ${focoReducao.nome.toLowerCase()}`}
+            onPress={() =>
+              router.push({ pathname: '/sugestoes/[periodo]', params: { periodo: periodo.id } })
+            }
           />
         )}
       </ScrollView>

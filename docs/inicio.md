@@ -13,7 +13,7 @@ Visual: protótipo no Figma, tela "04 Início" (nós `2:2` claro e `7:109` escur
 | Legenda | Cada fonte com sua emissão, da maior para a menor; tocar abre a memória de cálculo da fonte (RF04, `docs/memoria-calculo.md`) | `resumirEmissoes` |
 | Para neutralizar | Árvores que neutralizariam o período em 20 anos, arredondadas para cima | `arvoresParaNeutralizar` (RF05) |
 | Comparado a… | Variação percentual e diferença em kg em relação ao período anterior | `compararPeriodos` (RF07) |
-| Reduzir antes de compensar | Quantidade de sugestões para a maior fonte | RF08 |
+| Reduzir antes de compensar | Quantidade de sugestões para o grupo de fontes que mais emitiu; abre as sugestões (`docs/sugestoes-reducao.md`) | `agruparSugestoes` (RF08) |
 | Barra de navegação | Início, Registrar, Histórico, Ajustes | `src/app/(abas)/_layout.tsx` |
 
 Depois de "Calcular emissões", o Registrar abre a Início no mês registrado (parâmetro `periodo`, no formato AAAA-MM). O mês escolhido continua o mesmo ao voltar da memória de cálculo.
@@ -28,7 +28,6 @@ Tocar no mês abre uma folha com os 12 meses do ano em grade e setas para trocar
 
 - **Dados de exemplo.** Os períodos vêm de `src/dados/periodos.ts`, fixos no código, com os totais do protótipo (outubro 245 kg; setembro 278; agosto 302; julho 280). Saem quando o registro de consumos (RF02) gravar no SQLite.
 - **Taxa de árvores.** Usa a menor taxa da metodologia (3,037 kg de CO₂ por árvore por ano), a que vale enquanto o usuário não escolhe o estado (RF13).
-- **"Reduzir antes de compensar"** aparece desativado: a tela de sugestões (RF08) ainda não existe.
 - **Histórico e Ajustes** mostram "Em breve".
 
 ## Divergências do protótipo

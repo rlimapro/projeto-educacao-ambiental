@@ -16,7 +16,7 @@ Identificadores dos nós no Figma (arquivo `HlJaNtDhNHMXjLkzh4tK47`), usados par
 | 04 Início | `2:2` | `7:109` | Sim (`src/app/(abas)/index.tsx`) |
 | 05 Registrar consumo | `5:2` | `7:188` | Sim (`src/app/(abas)/registrar.tsx`) |
 | 06 Memória de cálculo | `5:83` | `7:269` | Sim (`src/app/(abas)/(inicio)/memoria/[periodo]/[fonte].tsx`) |
-| 07 Sugestões de redução | `5:150` | `7:336` | Não |
+| 07 Sugestões de redução | `5:150` | `7:336` | Sim (`src/app/(abas)/(inicio)/sugestoes/[periodo].tsx`) |
 | 08 Simular plantio | `6:2` | `7:407` | Não |
 | 09 Histórico | `6:69` | `7:474` | Não |
 | 10 Ajustes | `6:154` | `7:559` | Não |
@@ -94,13 +94,15 @@ Construa e revise estes antes de qualquer tela:
 - **Campo de consumo:** campo editável com altura 52, raio 14, borda `borda`, valor em Space Grotesk e unidade em `textoSuave`. Acima dele, ícone da fonte, nome em `rotulo` e, à direita, o botão de ajuda: ícone `ajuda` de 20 em `textoSuave`, com área de toque ampliada.
 - **FolhaAjuda:** folha inferior aberta pelo botão de ajuda de um campo, com o mesmo véu e os mesmos cantos das folhas de escolha de mês. "Como preencher" em `rotulo` e `marcaForte`, nome do campo em `tituloDetalhe`, resumo em `corpo`, dicas em `linha` e `textoSuave` com ponto de 6 em `marcaForte`, exemplo em bloco `fundo` de raio 14 e botão "Entendi". Rola quando o texto não cabe (fonte grande). Os textos ficam em `src/ui/ajudaConsumo.ts`: dizem onde achar o número e como chegar a ele, sem fatores nem médias de consumo.
 - **BotaoTexto:** ação secundária sem fundo, texto `texto` em `itemForte`, área de toque de 44.
+- **BotaoSecundario:** ação secundária em destaque ("Ver como reduzir", "Simular plantio"): altura 52, raio 16, `superficie` com `borda`, texto `texto` em `itemForte`.
 - **Cartao:** padding 16, raio 16, `superficie` com `borda`.
 - **LinhaLista:** altura mínima 56, raio 14, `superficie` com `borda`, ícone de 20 em `marcaForte` e texto em `item`.
 - **OpcaoCartao:** escolha única em cartão: ícone de 22 num círculo de 44 com fundo `fundo`, título em `opcao`, descrição em `legenda`, e o marcador de seleção à direita. Marcada: borda de 2 em `marcaForte`.
 - **SeletorSegmentado:** trilho `superficie` com `borda`, raio 14 e respiro de 4; opção marcada com fundo `marca` e raio 10.
 - **Ilustração:** 200 × 200, desenhos de traço com as mesmas cores do tema; nas boas-vindas fica centralizada no espaço livre acima do título.
 - **LinhaLegenda:** marcador quadrado de 10 com raio 3, nome em `linha`, valor em `numeroLinha` alinhado à direita. Com ação (na Início), vira botão com altura mínima de 44 e seta `abrir` em `textoSuave`, e as linhas ficam sem espaço entre si.
-- **Cabeçalho de detalhe:** seta `voltar` (24, traço 2) com área de toque ampliada e título em `tituloDetalhe`. Usado na memória de cálculo.
+- **CabecalhoDetalhe:** seta `voltar` (24, traço 2) com área de toque ampliada e título em `tituloDetalhe`. Usado na memória de cálculo e nas sugestões de redução.
+- **CartaoSugestao:** `Cartao` em linha com ícone de 20 num círculo de 40 com fundo `fundo`, título em `opcao`, descrição em `apoio` e etiqueta de impacto em `miniForte`: "Impacto alto" com fundo `marca` e texto `sobreMarca`; médio e baixo só com borda `borda` e texto `textoSuave`.
 - **AnelEmissoes:** área de 210 com anel de 190 de diâmetro externo e 19 de espessura, trilha em `trilhaAnel`, segmentos por fonte da maior para a menor nas cores `grafico1`, `grafico2`, `grafico3`, pontas retas, começando no topo no sentido horário, com 4 pontos de espaço entre segmentos (nenhum quando há uma fonte só) e o total no centro em `numeroDestaque`. Construído com `react-native-svg`; ver "Movimento".
 - **BarraNavegacao:** quatro itens (Início, Registrar, Histórico, Ajustes), ícone de 22 e rótulo em `mini`. O ativo tem o ícone em `sobreMarca` sobre uma pílula `marca` de 56 × 32 e o rótulo em `marcaForte` com `miniForte`; só a cor do rótulo era sutil demais. A pílula é uma só e desliza entre as abas (ver "Movimento"). Fundo `superficie` com borda superior; é a barra das abas em `src/app/(abas)/_layout.tsx`.
 - **SeletorPeriodo:** folha inferior aberta ao tocar no mês da Início. Fundo `superficie` com cantos superiores de raio 16 sobre o `veu`; título "Escolha o mês" em `subtitulo` e "Fechar"; o ano entre setas (ícones `anterior` e `abrir`, em `borda` quando não há outro ano registrado); grade de 3 × 4 meses abreviados em `item`, raio 10 e altura mínima de 44. Mês com registro: borda `borda` e texto `texto`. Mês escolhido: fundo `marca`, texto `sobreMarca` em `itemForte`. Mês sem registro: texto `textoSuave`, sem borda e desativado. Abre com esmaecimento, ou sem animação se o movimento estiver reduzido. O protótipo não desenha o seletor; este é o padrão até a equipe decidir outro.
@@ -111,6 +113,8 @@ Construa e revise estes antes de qualquer tela:
 
 Ícones: traço de 2 pontos, cantos arredondados, sem preenchimento. Nada de emoji na interface.
 
+Os ícones de sugestão que o protótipo não desenha (bicicleta, folha, velocímetro, ferramenta, gota, termômetro, geladeira, lâmpada, sol, tomada, panela e chama) seguem o desenho do [Lucide](https://lucide.dev) (licença ISC, © Lucide Contributors), a mesma família visual dos ícones do protótipo. São feitos na grade de 24 do Lucide e exibidos com 20 (campo `caixa` em `src/ui/Icone.tsx`), o que dá o mesmo traço visual de 1,67 dos ícones do protótipo.
+
 ## Movimento
 
 - O anel se desenha de zero até o valor ao abrir a tela e ao trocar de período: 700 ms, curva de saída suave (`Easing.out(Easing.cubic)`), segmentos em sequência.
@@ -119,6 +123,27 @@ Construa e revise estes antes de qualquer tela:
 - **Pílula da aba ativa.** Ao trocar de aba, a pílula desliza na horizontal até a aba tocada, com mola de rigidez 260 e amortecimento 28 (quase sem repique, como no iOS). É um `Animated.spring` do React Native com `translateX` na thread nativa (`useNativeDriver`, desligado só na web), então roda igual no iOS e no Android. A pílula funciona como lente: dentro dela há uma cópia dos ícones em `sobreMarca` que anda no sentido contrário, de modo que o trecho de ícone sob a pílula fica escuro durante todo o trajeto. O rótulo muda de cor no toque, sem esperar a pílula.
 - Transições entre telas: as padrão do Expo Router.
 - Com a opção de reduzir movimento ativada no sistema, os elementos aparecem já no estado final. Use o hook `useReduzirMovimento` de `src/ui`, que lê a configuração pelo `AccessibilityInfo` do React Native e, ao contrário do `useReducedMotion` do Reanimated, funciona nos testes do Jest.
+
+## Abertura
+
+Ao abrir o app, o anel das emissões se fecha, um broto cresce no meio e aparece a frase **"Meça. Reduza. Neutralize."**, a proposta do app na ordem em que ele pede para agir. Código em `src/ui/AberturaAnimada.tsx`, montado por `src/app/_layout.tsx`.
+
+- **Duas etapas.** A abertura nativa (plugin `expo-splash-screen` no `app.json`) mostra só a trilha do anel (`trilhaAnel`) sobre `fundo`, com uma versão para o tema escuro do sistema. Quando as fontes carregam, a `AberturaAnimada` desenha um primeiro quadro idêntico a ela, a nativa é escondida e a animação roda por cima do app, que já carrega embaixo. As imagens são `assets/images/splash-icon.png` e `splash-icon-dark.png` (1024 × 1024, fundo transparente, exibidas com 200), geradas do mesmo desenho do anel.
+- **Tempos.** O anel se desenha em 700 ms (`Easing.out(Easing.cubic)`), começando no topo no sentido horário; o broto cresce com mola a partir de 350 ms; a frase surge aos 700 ms, em 300 ms. Depois de uma pausa de 350 ms, tudo some em 350 ms. Total: 1,7 s.
+- **Movimento reduzido.** Tudo aparece pronto, fica 600 ms na tela e some sem animação.
+- **Cores.** Anel em `grafico1` sobre `trilhaAnel`, broto com traço `marcaForte` e folhas `marca`, frase em `subtitulo` e `texto`. A animação segue o tema escolhido no app; a abertura nativa só conhece o tema do sistema, então quem escolheu um tema diferente do sistema vê a troca de fundo no primeiro quadro.
+- **Expo Go.** Desde o SDK 52, o Expo Go mostra o ícone do app no lugar da abertura nativa ([documentação do expo-splash-screen](https://docs.expo.dev/versions/v58.0.0/sdk/splash-screen/)). A animação aparece normalmente, porque é uma tela do app; a abertura nativa só pode ser conferida num build de prévia ou de produção.
+- **Sem biblioteca.** A animação usa a `Animated` do React Native e o `react-native-svg`, já instalados. Lottie funcionaria, mas traria uma dependência e trabalho extra para o tema escuro e o movimento reduzido; o `react-native-bootsplash` não roda no Expo Go.
+
+## Ícone do app
+
+O último quadro da abertura, simplificado para continuar legível a 29 px: um anel `marca` inteiro, sem trilha e sem segmentos, com o broto no meio, sobre fundo `#0D1210` (o `fundo` do tema escuro). O broto é 1,5 vez maior que na abertura, com folhas preenchidas sem contorno (a da esquerda em `grafico1` claro, `#6AA521`, para dar profundidade) e caule grosso. Sem texto, degradê, sombra ou cantos arredondados, que o sistema aplica.
+
+- **Por que fundo escuro.** Sobre o claro, o verde-limão some (contraste de 1,2:1); sobre o escuro, chega a 14,6:1, e o ícone fica igual à abertura no tema escuro.
+- **iOS.** `ios.icon` com três PNGs de 1024: `light` é o ícone completo e opaco (`icon.png`, também o ícone geral e o que o Expo Go mostra ao abrir); `dark` e `tinted` têm fundo transparente para o sistema pôr o dele, e o `tinted` é em tons de cinza. O anel ocupa 66% da tela. O pacote `.icon` do Icon Composer ficou de fora: só compila num Mac, e um erro nele só apareceria no build do EAS.
+- **Android.** Ícone adaptável com `foregroundImage` transparente, fundo só por `backgroundColor` e `monochromeImage` (silhueta branca, para os ícones temáticos do Android 13). O anel ocupa 59% da tela (64 dp de 108), dentro da zona segura de 66 dp que nenhuma máscara corta.
+- **Fontes.** Os SVGs ficam em `assets/icone/`, junto com os da abertura nativa. Depois de mudar um deles, `sh assets/icone/gerar.sh` (precisa do ImageMagick) gera de novo os PNGs de `assets/images/`.
+- **Conferir.** No Expo Go, o ícone aparece só por um instante, ao abrir; na tela inicial do celular fica sempre o ícone do Expo Go. O ícone de verdade, com máscaras e variantes, só aparece num build de prévia ou de produção.
 
 ## Tema
 
