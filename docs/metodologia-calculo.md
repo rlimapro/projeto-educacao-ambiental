@@ -149,7 +149,20 @@ arvores = arredondarParaCima( emissaoKgCo2e / (sequestroKgPorArvorePorAno × hor
 | Floresta tropical seca | Cerrado, Caatinga, Pantanal | 8,966 | **5,379** | 107,6 |
 | Floresta subtropical úmida | Pampa; Mata Atlântica no PR, em SC e no RS | 5,062 | **3,037** | 60,7 |
 
-Sem estado escolhido, o app usa a menor taxa da tabela (3,037 kg por árvore por ano). Assim, o número de árvores nunca é subestimado.
+Sem estado escolhido, o app usa a menor taxa da tabela (3,037 kg por árvore por ano). Assim, o número de árvores nunca é subestimado. Na simulação de plantio (RF06), o usuário escolhe um dos quatro grupos de biomas; a escolha não é salva até existir a escolha de estado (RF13).
+
+#### Variação em torno da média
+
+Quanto o resultado costuma variar: o desvio-padrão dividido pela média do crescimento na Tabela 4.9 do IPCC 2019, arredondado para o múltiplo de 5 mais próximo. Não muda o cálculo. Os valores ficam em `TAXAS_SEQUESTRO_POR_BIOMA` (`variacaoRelativa`); a simulação de plantio deixou de mostrá-los, por serem técnicos demais para a tela, mas continuam disponíveis para uma futura tela de detalhes.
+
+| Grupo de biomas | Desvio-padrão ÷ média | Mostrado |
+| --- | --- | --- |
+| Amazônia | 2,5 ÷ 5,9 = 42% | 40% |
+| Mata Atlântica | 2,3 ÷ 5,2 = 44% | 45% |
+| Cerrado, Caatinga e Pantanal | 2,4 ÷ 3,9 = 62% | 60% |
+| Pampa e Mata Atlântica do Sul | incerteza padrão do IPCC para a zona subtropical | 90% |
+
+O desvio-padrão descreve quanto as áreas medidas pelo IPCC diferem entre si, não a precisão para um plantio específico. Por isso, se for mostrado, o texto deve dizer "costuma ficar cerca de X% acima ou abaixo, e às vezes mais". O cuidado com o plantio pesa muito: num experimento de 12 anos da ESALQ (Brancalion et al., 2019), o plantio com manejo tradicional acumulou cerca de um terço da biomassa do plantio com manejo intensivo. Sem cuidado, o resultado tende a ficar abaixo da média; com cuidado, não há base para dizer que fica acima: no manejo intensivo, o resultado ficou dentro da faixa do IPCC.
 
 ### Como a taxa foi obtida
 
@@ -170,7 +183,7 @@ kgCo2PorArvorePorAno = tCo2PorHaPorAno × 1000 / arvoresPorHa
 Decisões e verificações:
 
 - **Bioma → zona ecológica.** A Caatinga tem zona própria no IPCC (arbustiva tropical, 9,651 t CO₂/ha/ano), mas usamos a da floresta tropical seca, que é menor. Estudos da Caatinga indicam produtividade mais baixa que a média tropical, e a ISO 14064-2 manda não superestimar remoções (seção 4.7). O Pantanal também usa a zona seca, pelo mesmo motivo. Na Mata Atlântica do Sul vale a zona subtropical.
-- **Dividir pelas mudas plantadas, e não pelas sobreviventes.** A taxa por hectare é a de uma floresta já formada. Dividi-la pelas mudas plantadas embute a perda de mudas no resultado.
+- **Dividir pelas mudas plantadas.** A divisão da taxa por hectare pelas 1.666,7 mudas plantadas é uma suposição simplificadora: as taxas do IPCC vêm de florestas secundárias em regeneração natural e não medem a mortalidade de mudas, de modo que o valor por árvore pressupõe um plantio mantido, com reposição das perdas. A sobrevivência medida em plantios brasileiros varia muito: 88,9% aos 8 meses num plantio da Embrapa no Pampa, 47,5% aos 40 meses em área degradada (Morais Junior et al., 2020). Por isso o app não mostra uma taxa de sobrevivência, que o cálculo não usa; a orientação "Como cuidar do plantio" avisa que, sem cuidado nos primeiros anos, muitas mudas morrem.
 - **Conferência com medições brasileiras.** O estudo ESALQ/Totum/SOS Mata Atlântica, feito em plantios reais de restauração, mediu 163,14 kg CO₂e por árvore em 20 anos. Para a Mata Atlântica calculamos 138,1 kg, um pouco abaixo, como esperado de uma estimativa conservadora. Para florestas que se regeneram sozinhas na América do Sul, Bernal et al. (2018) encontraram 18,8 (úmida) e 13,8 (seca) t CO₂/ha/ano, acima dos valores do IPCC usados aqui.
 - **Incerteza.** As taxas do IPCC para florestas tropicais secas e subtropicais têm incerteza de até ±90%. A tela deve deixar claro que o número de árvores é uma estimativa.
 
@@ -211,6 +224,19 @@ Essa consulta já evitou erros. A goiabeira não consta como nativa em nenhum es
 
 A taxa de sequestro é a do bioma, não a da espécie. O app não promete que uma espécie sequestra mais que outra.
 
+### Por que a taxa não muda com o tipo de árvore
+
+Em novembro de 2026, a equipe pesquisou se dava para diferenciar o sequestro por tipo de árvore (pioneiras e não pioneiras, crescimento rápido ou lento) ou por contexto de plantio. A conclusão foi manter a taxa por bioma e tratar os tipos de árvore só como orientação:
+
+- **Não há valor de referência por tipo de árvore.** O IPCC, a Embrapa, o Serviço Florestal Brasileiro e o inventário nacional dão taxas por hectare, por zona ecológica e idade da floresta, nunca por grupo de espécies.
+- **Os estudos brasileiros por tipo de árvore são pequenos e se contradizem.** Morais Junior et al. (2020), com 15 espécies por 40 meses, encontraram pioneiras acumulando mais carbono por árvore; Shimamoto, Botosso e Marques (Embrapa/UFPR), com 10 espécies, encontraram o dobro de biomassa nas não pioneiras. A variação entre árvores foi maior que a média.
+- **No único experimento controlado, a proporção de pioneiras não mudou a biomassa.** Brancalion et al. (2019, *Ecological Applications*), 12 anos e 20 espécies nativas em espaçamento de 3 m × 2 m: com 50% ou 67% de pioneiras, a diferença não foi significativa; o manejo, sim.
+- **Em 20 anos, as vantagens se compensam.** Pioneiras crescem rápido, mas muitas morrem por volta dos 10 anos; não pioneiras acumulam carbono principalmente depois de 20 anos. A prática brasileira de restauração planta os dois grupos juntos, e é esse plantio misto que a taxa por muda representa.
+- **Espécies exóticas ficam de fora.** O eucalipto cresce de 3 a 4 vezes mais que a floresta secundária nativa (IPCC 2019, Vol. 4, Tabela 4.10), mas é plantado para corte em poucos anos, então o carbono não fica guardado, e não recupera a mata nativa. O pinus é invasor no Sul. Mostrar essas taxas levaria o usuário a monoculturas.
+- **Sistemas agroflorestais e árvores isoladas ficam como texto.** Há taxa do IPCC para sistemas agroflorestais (Vol. 4, cap. 5, Tabela 5.2), mas ela é por hectare, inclui culturas como café e cacau, e parte do carbono sai com a colheita. Para árvores de quintal ou de rua, os números disponíveis são dos Estados Unidos, para mudas grandes de viveiro. A tela menciona os dois casos, sem calcular.
+
+Fontes da pesquisa: IPCC 2019 Refinement, Vol. 4, cap. 4 (Tabelas 4.9 e 4.10) e cap. 5 (Tabela 5.2); Brancalion et al. (2019), *Ecological Applications*, doi:10.1002/eap.1847; Morais Junior et al. (2020), *Ecological Indicators*; Shimamoto, Botosso e Marques, Embrapa/UFPR; manual de restauração do JBRJ e da Embrapa (2013).
+
 O arredondamento é sempre para cima, porque arredondar para baixo deixaria parte das emissões sem compensação.
 
 ### Sequestro líquido (RF06)
@@ -220,6 +246,39 @@ sequestroLiquidoKg = arvoresPlantadas × sequestroKgPorArvorePorAno × horizonte
 ```
 
 Um valor positivo indica que o plantio simulado remove mais carbono do que o período emitiu.
+
+### Remoção ao longo do tempo (RF06)
+
+A emissão do mês acontece agora; a remoção, ao longo de anos. A simulação mostra o acumulado em 5, 10 e 20 anos e o ano em que ele alcança a emissão:
+
+```
+remocaoAcumuladaKg(anos) = arvoresPlantadas × sequestroKgPorArvorePorAno × anos
+anoEmQueAlcanca = arredondarParaCima( emissaoKgCo2e / (arvoresPlantadas × sequestroKgPorArvorePorAno) )
+```
+
+Se o ano passa do horizonte de 20 anos, a tela diz que a remoção não chegaria à emissão nesse prazo. A conta é uma reta porque a taxa do IPCC é uma média constante para florestas de até 20 anos. Na prática, as mudas crescem mais devagar nos primeiros anos, e a tela avisa isso; não há, nas fontes consultadas, uma curva de crescimento confiável para substituir a reta. Funções em `src/calculo/arvores.ts` (`remocaoAcumuladaKgCo2`, `sequestroLiquidoKgCo2`, `anoEmQueAlcancaEmissao`).
+
+### Vários meses num plantio só (RF06)
+
+A simulação pode cobrir mais de um mês registrado (atalhos para o mês aberto, o ano dele e todos os meses, ou meses escolhidos um a um):
+
+```
+emissaoDoPeriodoKgCo2e = soma das emissões dos meses escolhidos
+arvores = arredondarParaCima( emissaoDoPeriodoKgCo2e / (sequestroKgPorArvorePorAno × horizonteAnos) )
+```
+
+- **Arredondar uma vez, sobre o total.** Somar as árvores de cada mês, já arredondadas, contaria árvores a mais (três meses de 0,25 árvore viram 3 árvores em vez de 1).
+- **Só meses registrados.** O app não estima os meses sem registro (como "média × 12"): seria uma emissão que o usuário não informou, sem rastro e que ignora a sazonalidade, como o ar-condicionado no verão. A escolha mostra quantos meses do ano estão registrados.
+- **Um plantio só, feito agora.** O relógio de 20 anos começa no plantio, não no primeiro mês emitido; os meses podem ser de anos diferentes. Um hábito de "plantar N árvores por mês" ficou de fora: o plantio de mudas nativas se faz uma vez por ano, no começo da estação de chuvas (manual JBRJ/Embrapa, 2013), e o atalho do ano já dá esse número.
+- **Cada simulação vale sozinha.** O app não acumula simulações: simular outubro e depois todos os meses contaria outubro duas vezes.
+
+### Área do plantio
+
+```
+areaM2 = arvores × 6 m²
+```
+
+É o espaçamento de 3 m × 2 m que dá as 1.666,7 mudas por hectare da taxa por muda. A tela mostra o valor exato abaixo de 100 m² e de 10 em 10 a partir daí, e avisa que árvores isoladas ocupam mais espaço cada e removem quantidades diferentes.
 
 ### Linguagem ao usuário
 

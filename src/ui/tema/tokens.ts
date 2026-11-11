@@ -74,6 +74,7 @@ function estilo(
 }
 
 export const tipografia = {
+  numeroControle: estilo(familias.numerosNegrito, 72, 1.0),
   numeroDestaque: estilo(familias.numerosNegrito, 52, 1.0, -1.56),
   titulo: estilo(familias.numerosNegrito, 34, 1.08, -0.68),
   tituloTela: estilo(familias.numerosNegrito, 24, 1.2),
@@ -124,6 +125,9 @@ export const medidas = {
   areaToqueMinima: 44,
   alturaBotao: 56,
   alturaCampo: 52,
+  // Barras do gráfico de remoção ao longo do tempo (simulação de plantio).
+  alturaBarra: 12,
+  linhaReferencia: 2,
   // Círculo atrás do ícone de uma sugestão de redução.
   circuloIcone: 40,
   bordaCartao: 1,

@@ -106,7 +106,8 @@ async function capturarTema(esquema) {
       pronta = r?.result?.value === true;
     }
     if (!pronta) console.warn(`A tela ${rota} não terminou de carregar em 60 s (${esquema}).`);
-    await espera(1500);
+    // A abertura animada (AberturaAnimada) dura 1,7 s; espera ela sair da frente.
+    await espera(2500);
 
     const nomeBase = caminho.replace(/^\//, '').replace(/\//g, '-') || 'inicio';
     const fotografar = async (n) => {

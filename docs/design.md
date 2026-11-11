@@ -17,7 +17,7 @@ Identificadores dos nós no Figma (arquivo `HlJaNtDhNHMXjLkzh4tK47`), usados par
 | 05 Registrar consumo | `5:2` | `7:188` | Sim (`src/app/(abas)/registrar.tsx`) |
 | 06 Memória de cálculo | `5:83` | `7:269` | Sim (`src/app/(abas)/(inicio)/memoria/[periodo]/[fonte].tsx`) |
 | 07 Sugestões de redução | `5:150` | `7:336` | Sim (`src/app/(abas)/(inicio)/sugestoes/[periodo].tsx`) |
-| 08 Simular plantio | `6:2` | `7:407` | Não |
+| 08 Simular plantio | `6:2` | `7:407` | Sim (`src/app/(abas)/(inicio)/plantio/[periodo].tsx`) |
 | 09 Histórico | `6:69` | `7:474` | Não |
 | 10 Ajustes | `6:154` | `7:559` | Não |
 
@@ -51,6 +51,7 @@ As três cores do gráfico diferem em luminosidade, não só em tom, para contin
 
 | Token | Família | Tamanho | Peso | Altura de linha | Uso |
 | --- | --- | --- | --- | --- | --- |
+| `numeroControle` | Space Grotesk | 72 | 700 | 1.0 | Número do controle de quantidade (simulação de plantio) |
 | `numeroDestaque` | Space Grotesk | 52 | 700 | 1.0 | Total no centro do anel; espaçamento entre letras −1,56 |
 | `titulo` | Space Grotesk | 34 | 700 | 1.08 | Títulos das telas de boas-vindas; espaçamento entre letras −0,68 |
 | `tituloTela` | Space Grotesk | 24 | 700 | 1.2 | Título de tela interna, como “Registrar consumo” |
@@ -90,9 +91,9 @@ Números com unidade usam Space Grotesk para o valor e IBM Plex Sans para a unid
 
 Construa e revise estes antes de qualquer tela:
 
-- **BotaoPrimario:** altura 56, raio 16, fundo `marca`, texto `sobreMarca` em `botao` (Space Grotesk 17/700), largura total.
+- **BotaoPrimario:** altura 56, raio 16, fundo `marca`, texto `sobreMarca` em `botao` (Space Grotesk 17/700), largura total. Desativado: fundo `trilhaAnel` e texto `textoSuave`.
 - **Campo de consumo:** campo editável com altura 52, raio 14, borda `borda`, valor em Space Grotesk e unidade em `textoSuave`. Acima dele, ícone da fonte, nome em `rotulo` e, à direita, o botão de ajuda: ícone `ajuda` de 20 em `textoSuave`, com área de toque ampliada.
-- **FolhaAjuda:** folha inferior aberta pelo botão de ajuda de um campo, com o mesmo véu e os mesmos cantos das folhas de escolha de mês. "Como preencher" em `rotulo` e `marcaForte`, nome do campo em `tituloDetalhe`, resumo em `corpo`, dicas em `linha` e `textoSuave` com ponto de 6 em `marcaForte`, exemplo em bloco `fundo` de raio 14 e botão "Entendi". Rola quando o texto não cabe (fonte grande). Os textos ficam em `src/ui/ajudaConsumo.ts`: dizem onde achar o número e como chegar a ele, sem fatores nem médias de consumo.
+- **FolhaAjuda:** folha inferior aberta pelo botão de ajuda de um campo, com o mesmo véu e os mesmos cantos das folhas de escolha de mês. "Como preencher" em `rotulo` e `marcaForte`, nome do campo em `tituloDetalhe`, resumo em `corpo`, dicas em `linha` e `textoSuave` com ponto de 6 em `marcaForte`, exemplo em bloco `fundo` de raio 14 e botão "Entendi". Rola quando o texto não cabe (fonte grande). A linha acima do título é "Como preencher" por padrão; a simulação de plantio usa "Antes de plantar". Os textos ficam em `src/ui/ajudaConsumo.ts`: dizem onde achar o número e como chegar a ele, sem fatores nem médias de consumo.
 - **BotaoTexto:** ação secundária sem fundo, texto `texto` em `itemForte`, área de toque de 44.
 - **BotaoSecundario:** ação secundária em destaque ("Ver como reduzir", "Simular plantio"): altura 52, raio 16, `superficie` com `borda`, texto `texto` em `itemForte`.
 - **Cartao:** padding 16, raio 16, `superficie` com `borda`.
@@ -102,6 +103,9 @@ Construa e revise estes antes de qualquer tela:
 - **Ilustração:** 200 × 200, desenhos de traço com as mesmas cores do tema; nas boas-vindas fica centralizada no espaço livre acima do título.
 - **LinhaLegenda:** marcador quadrado de 10 com raio 3, nome em `linha`, valor em `numeroLinha` alinhado à direita. Com ação (na Início), vira botão com altura mínima de 44 e seta `abrir` em `textoSuave`, e as linhas ficam sem espaço entre si.
 - **CabecalhoDetalhe:** seta `voltar` (24, traço 2) com área de toque ampliada e título em `tituloDetalhe`. Usado na memória de cálculo e nas sugestões de redução.
+- **GraficoRemocao:** barras horizontais de altura 12 e raio 4 sobre `trilhaAnel`, preenchidas em `grafico1`, uma por marco (5, 10 e 20 anos), numa escala só, com o valor em `numeroLinha` ao lado do rótulo. Uma linha vertical de 2 em `texto` marca a emissão do mês, com legenda própria abaixo das barras. Série única: sem caixa de legenda. Anunciado como imagem, com os valores em texto.
+- **SeletorMeses:** folha inferior de escolha de vários meses (simulação de plantio). Atalhos em pílulas no topo (marcado: fundo `marca`, texto `sobreMarca` em `itemForte`; os outros, borda `borda`), grade de 3 × 4 com setas de ano como no `SeletorPeriodo`, meses marcados com fundo `marca` e o ícone `marcado` (✓ de 16, para não depender só da cor), cobertura do ano em `legenda`, total em `itemForte` e `BotaoPrimario` "Simular". Atalhos são `radio`; meses, `checkbox`.
+- **SeletorBioma:** folha inferior com os quatro grupos de biomas em `OpcaoCartao`, com a taxa de cada um na descrição.
 - **CartaoSugestao:** `Cartao` em linha com ícone de 20 num círculo de 40 com fundo `fundo`, título em `opcao`, descrição em `apoio` e etiqueta de impacto em `miniForte`: "Impacto alto" com fundo `marca` e texto `sobreMarca`; médio e baixo só com borda `borda` e texto `textoSuave`.
 - **AnelEmissoes:** área de 210 com anel de 190 de diâmetro externo e 19 de espessura, trilha em `trilhaAnel`, segmentos por fonte da maior para a menor nas cores `grafico1`, `grafico2`, `grafico3`, pontas retas, começando no topo no sentido horário, com 4 pontos de espaço entre segmentos (nenhum quando há uma fonte só) e o total no centro em `numeroDestaque`. Construído com `react-native-svg`; ver "Movimento".
 - **BarraNavegacao:** quatro itens (Início, Registrar, Histórico, Ajustes), ícone de 22 e rótulo em `mini`. O ativo tem o ícone em `sobreMarca` sobre uma pílula `marca` de 56 × 32 e o rótulo em `marcaForte` com `miniForte`; só a cor do rótulo era sutil demais. A pílula é uma só e desliza entre as abas (ver "Movimento"). Fundo `superficie` com borda superior; é a barra das abas em `src/app/(abas)/_layout.tsx`.

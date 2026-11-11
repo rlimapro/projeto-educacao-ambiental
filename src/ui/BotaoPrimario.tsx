@@ -6,20 +6,24 @@ type Props = {
   rotulo: string;
   onPress: () => void;
   dica?: string;
+  // Desativado, perde o verde-limão para não parecer tocável.
+  desativado?: boolean;
 };
 
-export function BotaoPrimario({ rotulo, onPress, dica }: Props) {
+export function BotaoPrimario({ rotulo, onPress, dica, desativado = false }: Props) {
   const { cores, tipografia, espacamento, raios } = useTema();
 
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityHint={dica}
+      accessibilityState={{ disabled: desativado }}
+      disabled={desativado}
       onPress={onPress}
       style={({ pressed }) => [
         estilos.base,
         {
-          backgroundColor: cores.marca,
+          backgroundColor: desativado ? cores.trilhaAnel : cores.marca,
           borderRadius: raios.cartao,
           paddingHorizontal: espacamento.gg,
           paddingVertical: espacamento.p,
@@ -27,7 +31,9 @@ export function BotaoPrimario({ rotulo, onPress, dica }: Props) {
         },
       ]}
     >
-      <Text style={[tipografia.botao, { color: cores.sobreMarca }]}>{rotulo}</Text>
+      <Text style={[tipografia.botao, { color: desativado ? cores.textoSuave : cores.sobreMarca }]}>
+        {rotulo}
+      </Text>
     </Pressable>
   );
 }

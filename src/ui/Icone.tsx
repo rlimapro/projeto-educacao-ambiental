@@ -27,6 +27,10 @@ export type NomeIcone =
   | 'anterior'
   | 'voltar'
   | 'ajuda'
+  | 'arvore'
+  | 'menos'
+  | 'mais'
+  | 'marcado'
   | 'sugestao'
   | 'navInicio'
   | 'navRegistrar'
@@ -148,6 +152,40 @@ const desenhos: Record<NomeIcone, Desenho> = {
     tamanho: 24,
     traco: 2,
     render: () => <Path d="M15 18L9 12L15 6" />,
+  },
+  // Simulação de plantio (RF06), do protótipo.
+  arvore: {
+    tamanho: 22,
+    traco: 1.83333,
+    render: () => (
+      <>
+        <Path d="M11 20.1667V13.75" />
+        <Path d="M11 13.75C7.33333 13.75 4.58333 11.4583 4.58333 8.25C4.58333 6.54819 5.25937 4.91609 6.46273 3.71273C7.66609 2.50937 9.29819 1.83333 11 1.83333C12.7018 1.83333 14.3339 2.50937 15.5373 3.71273C16.7406 4.91609 17.4167 6.54819 17.4167 8.25C17.4167 11.4583 14.6667 13.75 11 13.75Z" />
+      </>
+    ),
+  },
+  menos: {
+    tamanho: 24,
+    traco: 2,
+    render: () => <Path d="M5 12H19" />,
+  },
+  mais: {
+    tamanho: 24,
+    traco: 2,
+    render: () => (
+      <>
+        <Path d="M12 5V19" />
+        <Path d="M5 12H19" />
+      </>
+    ),
+  },
+  // Mês marcado na escolha de vários meses. Não existe no protótipo (Lucide).
+  // Traço 3 na grade de 24 exibida com 16 dá o traço visual de 2.
+  marcado: {
+    tamanho: 16,
+    caixa: 24,
+    traco: 3,
+    render: () => <Path d="M20 6 9 17l-5-5" />,
   },
   // Não existe no protótipo; segue o traço e o tamanho do ícone "adicionar".
   ajuda: {
