@@ -19,6 +19,11 @@ export type Cores = {
   grafico2: string;
   grafico3: string;
   veu: string;
+  // Posição inválida na distribuição de mudas (sobreposição ou fora do terreno).
+  perigo: string;
+  perigoFundo: string;
+  // Espaço reservado por uma muda na distribuição.
+  areaMuda: string;
 };
 
 export const cores: Record<EsquemaCores, Cores> = {
@@ -36,6 +41,9 @@ export const cores: Record<EsquemaCores, Cores> = {
     grafico2: '#1F4D3C',
     grafico3: '#9CC4B0',
     veu: 'rgba(13, 18, 16, 0.4)',
+    perigo: '#B3261E',
+    perigoFundo: 'rgba(179, 38, 30, 0.14)',
+    areaMuda: 'rgba(106, 165, 33, 0.16)',
   },
   escuro: {
     fundo: '#0D1210',
@@ -51,6 +59,9 @@ export const cores: Record<EsquemaCores, Cores> = {
     grafico2: '#6FAF8E',
     grafico3: '#3F6B58',
     veu: 'rgba(0, 0, 0, 0.6)',
+    perigo: '#F2B8B5',
+    perigoFundo: 'rgba(242, 184, 181, 0.18)',
+    areaMuda: 'rgba(197, 240, 106, 0.14)',
   },
 };
 
@@ -125,6 +136,12 @@ export const medidas = {
   areaToqueMinima: 44,
   alturaBotao: 56,
   alturaCampo: 52,
+  // Altura máxima do terreno desenhado na distribuição de mudas.
+  alturaMaximaTerreno: 440,
+  // Copa a partir da qual cabe o número da muda dentro dela.
+  copaMinimaComNumero: 18,
+  // Muda arrastada, apagada no lugar de onde saiu.
+  opacidadeOrigemMuda: 0.35,
   // Barras do gráfico de remoção ao longo do tempo (simulação de plantio).
   alturaBarra: 12,
   linhaReferencia: 2,

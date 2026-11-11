@@ -42,6 +42,9 @@ Todos os valores abaixo vivem em `src/ui/tema` e são a única fonte de cor do a
 | `grafico2` | `#1F4D3C` | `#6FAF8E` | Segunda fonte |
 | `grafico3` | `#9CC4B0` | `#3F6B58` | Terceira fonte |
 | `veu` | `rgba(13, 18, 16, 0.4)` | `rgba(0, 0, 0, 0.6)` | Véu escuro atrás de folhas e janelas sobrepostas |
+| `perigo` | `#B3261E` | `#F2B8B5` | Lugar inválido na distribuição de mudas (contraste de 6,5:1 e 10:1 com a superfície) |
+| `perigoFundo` | `rgba(179, 38, 30, 0.14)` | `rgba(242, 184, 181, 0.18)` | Fundo do espaço de uma muda num lugar inválido |
+| `areaMuda` | `rgba(106, 165, 33, 0.16)` | `rgba(197, 240, 106, 0.14)` | Espaço reservado por uma muda no terreno |
 
 **Por que existem `marca` e `marcaForte`.** O verde-limão tem contraste excelente sobre o fundo escuro, mas some sobre o branco. No tema claro ele só aparece como preenchimento (botões, com texto escuro por cima); texto e ícones em destaque usam `marcaForte`. No escuro os dois tokens têm o mesmo valor.
 
@@ -105,6 +108,7 @@ Construa e revise estes antes de qualquer tela:
 - **CabecalhoDetalhe:** seta `voltar` (24, traço 2) com área de toque ampliada e título em `tituloDetalhe`. Usado na memória de cálculo e nas sugestões de redução.
 - **GraficoRemocao:** barras horizontais de altura 12 e raio 4 sobre `trilhaAnel`, preenchidas em `grafico1`, uma por marco (5, 10 e 20 anos), numa escala só, com o valor em `numeroLinha` ao lado do rótulo. Uma linha vertical de 2 em `texto` marca a emissão do mês, com legenda própria abaixo das barras. Série única: sem caixa de legenda. Anunciado como imagem, com os valores em texto.
 - **SeletorMeses:** folha inferior de escolha de vários meses (simulação de plantio). Atalhos em pílulas no topo (marcado: fundo `marca`, texto `sobreMarca` em `itemForte`; os outros, borda `borda`), grade de 3 × 4 com setas de ano como no `SeletorPeriodo`, meses marcados com fundo `marca` e o ícone `marcado` (✓ de 16, para não depender só da cor), cobertura do ano em `legenda`, total em `itemForte` e `BotaoPrimario` "Simular". Atalhos são `radio`; meses, `checkbox`.
+- **Terreno da distribuição de mudas:** retângulo `superficie` com `borda`, grade de 1 m (de 5 m acima de 30 m) em `trilhaAnel`, até 440 de altura. Cada muda é o retângulo de 3 m × 2 m que ela reserva, em `areaMuda` com borda `grafico1`, e a copa no meio em `grafico1` com o número em `miniForte` (quando a copa tem 18 ou mais). Selecionada: borda de 2 em `marcaForte`. No arraste, a muda de origem fica a 35% de opacidade e a cópia que segue o dedo é verde onde cabe e `perigo` onde não cabe.
 - **SeletorBioma:** folha inferior com os quatro grupos de biomas em `OpcaoCartao`, com a taxa de cada um na descrição.
 - **CartaoSugestao:** `Cartao` em linha com ícone de 20 num círculo de 40 com fundo `fundo`, título em `opcao`, descrição em `apoio` e etiqueta de impacto em `miniForte`: "Impacto alto" com fundo `marca` e texto `sobreMarca`; médio e baixo só com borda `borda` e texto `textoSuave`.
 - **AnelEmissoes:** área de 210 com anel de 190 de diâmetro externo e 19 de espessura, trilha em `trilhaAnel`, segmentos por fonte da maior para a menor nas cores `grafico1`, `grafico2`, `grafico3`, pontas retas, começando no topo no sentido horário, com 4 pontos de espaço entre segmentos (nenhum quando há uma fonte só) e o total no centro em `numeroDestaque`. Construído com `react-native-svg`; ver "Movimento".

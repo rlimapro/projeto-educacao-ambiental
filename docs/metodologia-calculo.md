@@ -278,7 +278,7 @@ arvores = arredondarParaCima( emissaoDoPeriodoKgCo2e / (sequestroKgPorArvorePorA
 areaM2 = arvores × 6 m²
 ```
 
-É o espaçamento de 3 m × 2 m que dá as 1.666,7 mudas por hectare da taxa por muda. A tela mostra o valor exato abaixo de 100 m² e de 10 em 10 a partir daí, e avisa que árvores isoladas ocupam mais espaço cada e removem quantidades diferentes.
+É o espaçamento de 3 m × 2 m que dá as 1.666,7 mudas por hectare da taxa por muda. A distribuição no terreno usa o mesmo retângulo por muda (`src/calculo/distribuicao.ts`), então o número de mudas que cabem num terreno é ⌊largura ÷ 3⌋ × ⌊comprimento ÷ 2⌋. A tela mostra o valor exato abaixo de 100 m² e de 10 em 10 a partir daí, e avisa que árvores isoladas ocupam mais espaço cada e removem quantidades diferentes.
 
 ### Linguagem ao usuário
 

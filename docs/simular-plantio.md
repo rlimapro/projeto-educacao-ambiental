@@ -32,6 +32,21 @@ Por isso:
 
 A forma da variação e da premissa de sobrevivência foi decidida numa discussão entre dois especialistas (carbono florestal e restauração), em duas rodadas. Os dois concordaram em não mostrar taxa de sobrevivência e em dizer que, sem cuidado, o resultado tende a ficar abaixo; a porcentagem por bioma foi escolhida por ser rastreável a uma célula da tabela do IPCC.
 
+## Distribuir no terreno
+
+Abaixo da área do plantio, "Ver como caberiam no terreno" abre `src/app/(abas)/(inicio)/distribuir.tsx` com a quantidade de árvores simulada. É um planejador em 2D, como a colocação de construções em jogos de estratégia:
+
+- **Terreno.** Largura e comprimento em metros, de 2 a 100. Começa no menor quadrado, a partir de 6 m, em que cabem todas as mudas, com folga.
+- **Espaço de cada muda.** Um retângulo de 3 m × 2 m numa grade de 1 m: o mesmo espaçamento do plantio de mata da taxa por muda, então o planejador e a área da simulação (árvores × 6 m²) sempre batem.
+- **Colocar e mover.** Tocar no terreno põe a próxima muda, centrada no toque; arrastar uma muda a leva para outra casa. Durante o arraste, o espaço fica vermelho onde encosta no de outra muda ou sai do terreno, e soltar ali devolve a muda ao lugar de antes. Encostar pela borda é permitido.
+- **Atalhos.** "Distribuir automaticamente" preenche em fileiras; tocar numa muda a seleciona para "Tirar a muda"; "Limpar terreno" tira todas. Diminuir o terreno tira as mudas que deixam de caber, com aviso.
+- **Capacidade.** A tela diz quantas mudas cabem (⌊largura ÷ 3⌋ × ⌊comprimento ÷ 2⌋) e avisa quando o terreno não comporta todas.
+- **Valores irreais.** A quantidade vinda do link vira um inteiro de 1 a 9.999 ("abc" e "-5" viram 1; "1e9", 9.999). Os campos do terreno só aceitam dígitos; um lado fora de 2 a 100 m não muda o terreno, deixa o campo vermelho com o aviso da faixa e volta ao último valor válido ao sair do campo. No terreno máximo (100 × 100 m) cabem 1.650 mudas; a copa é um círculo simples, sem SVG, para esse caso não pesar no celular, e o aviso sugere dividir o plantio em mais de um terreno em vez de aumentar o que já está no máximo.
+
+As regras são funções puras em `src/calculo/distribuicao.ts`, testadas sem a tela. O arraste usa os eventos de toque do próprio React Native (sistema de responder), sem biblioteca nova: as bibliotecas de arrastar e soltar avaliadas só reordenam listas ou soltam itens em zonas, sem colisão entre itens numa grade, e todas dependem do Reanimated, que o projeto evita.
+
+Para leitores de tela, o terreno é anunciado com a quantidade de mudas, cada muda com a posição em metros, e "Distribuir automaticamente" faz o trabalho sem arrastar.
+
 ## Vários meses
 
 A escolha de meses foi decidida com dois especialistas em neutralização (carbono florestal e restauração) e um de usabilidade móvel:

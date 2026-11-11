@@ -1,4 +1,4 @@
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -17,6 +17,7 @@ import {
 import { lerRegistrosConsumo, type RegistroConsumo } from '@/dados/consumos';
 import { AJUDA_CUIDADOS_DO_PLANTIO, AJUDA_TIPOS_DE_ARVORE } from '@/ui/ajudaPlantio';
 import type { AjudaCampo } from '@/ui/ajudaConsumo';
+import { BotaoTexto } from '@/ui/BotaoTexto';
 import { CabecalhoDetalhe } from '@/ui/CabecalhoDetalhe';
 import { Cartao } from '@/ui/Cartao';
 import { FolhaAjuda } from '@/ui/FolhaAjuda';
@@ -239,6 +240,12 @@ function Conteudo({
           Em plantio de restauração (3 m × 2 m), ocupariam cerca de {formatarDecimal(area)} m².
           Árvores isoladas precisam de mais espaço cada e removem quantidades diferentes.
         </Text>
+        <BotaoTexto
+          rotulo="Ver como caberiam no terreno"
+          onPress={() =>
+            router.push({ pathname: '/distribuir', params: { arvores: String(quantidade) } })
+          }
+        />
       </View>
 
       <View
