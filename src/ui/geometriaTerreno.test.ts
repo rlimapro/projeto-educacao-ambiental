@@ -4,7 +4,9 @@ import {
   enquadrar,
   limitarDeslocamento,
   limitarZoom,
+  mudaNaVista,
   pontoDoTerreno,
+  periodoSulcoM,
   pontoMedio,
   pontosPorMetroInteiro,
   tamanhoJanela,
@@ -106,5 +108,55 @@ describe('dentroDaArea', () => {
     // 16 pontos acima: 500 − 16 = 484
     expect(dentroDaArea({ x: 136, y: 484 }, lixeira, 16)).toBe(true);
     expect(dentroDaArea({ x: 136, y: 483 }, lixeira, 16)).toBe(false);
+  });
+});
+
+describe('periodoSulcoM', () => {
+  it('usa o menor espaçamento com pelo menos 6 pontos', () => {
+    // 0,5 m × 50 = 25 pontos
+    expect(periodoSulcoM(50, 6)).toBe(0.5);
+    // 0,5 × 6 = 3 < 6; 1 × 6 = 6
+    expect(periodoSulcoM(6, 6)).toBe(1);
+    // terreno de 100 m sem zoom: 1 × 3 = 3 < 6; 2 × 3 = 6
+    expect(periodoSulcoM(3, 6)).toBe(2);
+  });
+
+  it('para em 5 m quando nem isso alcança', () => {
+    // 5 × 1 = 5 < 6
+    expect(periodoSulcoM(1, 6)).toBe(5);
+  });
+});
+
+describe('mudaNaVista', () => {
+  // Muda de 3 m × 2 m; 10 pontos por metro; janela de 300 × 400 deslocada
+  // para (1.000, 1.000). A vista com margem vai de 700 a 1.600 na largura e de
+  // 600 a 1.800 na altura.
+  const espaco = { larguraM: 3, comprimentoM: 2 };
+  const janela = { largura: 300, altura: 400 };
+  const deslocamento = { x: 1000, y: 1000 };
+  const naVista = (x: number, y: number) =>
+    mudaNaVista({ x, y }, espaco, 10, deslocamento, janela);
+
+  it('desenha a muda dentro da janela', () => {
+    // (110 m; 110 m) → 1.100 pontos, dentro
+    expect(naVista(110, 110)).toBe(true);
+  });
+
+  it('desenha a muda na margem em volta da janela', () => {
+    // borda direita em (67 + 3) × 10 = 700: encosta na margem esquerda
+    expect(naVista(67, 110)).toBe(true);
+    // canto em 160 × 10 = 1.600: encosta na margem direita
+    expect(naVista(160, 110)).toBe(true);
+  });
+
+  it('não desenha a muda longe da vista', () => {
+    // borda direita em (66 + 3) × 10 = 690 < 700
+    expect(naVista(66, 110)).toBe(false);
+    // 161 × 10 = 1.610 > 1.600
+    expect(naVista(161, 110)).toBe(false);
+    // (0, 0): longe nos dois sentidos
+    expect(naVista(0, 0)).toBe(false);
+    // abaixo: 181 × 10 = 1.810 > 1.800
+    expect(naVista(110, 181)).toBe(false);
   });
 });

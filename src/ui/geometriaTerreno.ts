@@ -103,3 +103,38 @@ export function dentroDaArea(ponto: Ponto, area: Area, folga = 0): boolean {
     ponto.y <= area.y + area.altura + folga
   );
 }
+
+// Distância entre os sulcos do terreno arado, em metros: a menor da lista que
+// fica com pelo menos `minimoPontos` na tela. Sulcos mais juntos que isso, num
+// terreno grande sem zoom, virariam um borrão.
+const PERIODOS_SULCO_M = [0.5, 1, 2, 5] as const;
+
+export function periodoSulcoM(pontosPorMetro: number, minimoPontos: number): number {
+  return (
+    PERIODOS_SULCO_M.find((periodo) => periodo * pontosPorMetro >= minimoPontos) ??
+    PERIODOS_SULCO_M[PERIODOS_SULCO_M.length - 1]
+  );
+}
+
+// Se o retângulo de uma muda (canto e tamanho em metros) aparece na janela ou
+// numa margem de uma janela inteira em volta dela. Com zoom, só essas mudas
+// são desenhadas: um terreno de 1.650 mudas mostra algumas dezenas por vez, e
+// a margem cobre o arraste até a vista ser atualizada.
+export function mudaNaVista(
+  posicaoM: Ponto,
+  espacoM: { larguraM: number; comprimentoM: number },
+  pontosPorMetro: number,
+  deslocamento: Ponto,
+  janela: Tamanho,
+): boolean {
+  const esquerda = posicaoM.x * pontosPorMetro;
+  const topo = posicaoM.y * pontosPorMetro;
+  const direita = esquerda + espacoM.larguraM * pontosPorMetro;
+  const baixo = topo + espacoM.comprimentoM * pontosPorMetro;
+  return (
+    direita >= deslocamento.x - janela.largura &&
+    esquerda <= deslocamento.x + 2 * janela.largura &&
+    baixo >= deslocamento.y - janela.altura &&
+    topo <= deslocamento.y + 2 * janela.altura
+  );
+}

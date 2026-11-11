@@ -1,12 +1,16 @@
-import { useLayoutEffect, useRef, useState, type ComponentRef } from 'react';
-import {
-  Animated,
-  StyleSheet,
-  Text,
-  View,
-  type GestureResponderEvent,
-} from 'react-native';
-import Svg, { Line } from 'react-native-svg';
+import { memo, useLayoutEffect, useMemo, useRef, useState, type ComponentRef } from 'react';
+import { Animated, Image, StyleSheet, Text, View, type GestureResponderEvent } from 'react-native';
+import Svg, {
+  Defs,
+  Ellipse,
+  Line,
+  LinearGradient,
+  Path,
+  Pattern,
+  RadialGradient,
+  Rect,
+  Stop,
+} from 'react-native-svg';
 
 import {
   ESPACO_MUDA,
@@ -24,7 +28,9 @@ import {
   enquadrar,
   limitarDeslocamento,
   limitarZoom,
+  mudaNaVista,
   pontoDoTerreno,
+  periodoSulcoM,
   pontoMedio,
   pontosPorMetroInteiro,
   tamanhoJanela,
@@ -33,6 +39,14 @@ import {
   type Tamanho,
 } from './geometriaTerreno';
 import { medidas, useTema } from './tema';
+import {
+  LARGURA_BLOCO_M,
+  SULCOS_POR_BLOCO,
+  detalhesDoBloco,
+  manchasDoTerreno,
+  sulcosDoBloco,
+  type Detalhe,
+} from './texturaTerreno';
 
 // Terreno da distribuição de mudas (RF06), com zoom. Toque no fundo põe uma
 // muda; arrastar uma muda a move; com dois dedos, a pinça aproxima ou afasta;
@@ -49,7 +63,12 @@ import { medidas, useTema } from './tema';
 const GRADE_FINA_ATE_M = 30;
 const PONTOS_POR_M_GRADE_FINA = 10;
 // Copa desenhada no meio do espaço da muda, em fração do lado menor.
-const PROPORCAO_COPA = 0.7;
+const PROPORCAO_COPA = 0.8;
+// Copa vista de cima (assets/plantio): branca, pintada com a cor do tema. Uma
+// imagem, e não SVG: um terreno grande pode ter 1.650 mudas, e o aparelho
+// decodifica a imagem uma vez e a reaproveita em todas. Sem giro: a luz vem do
+// mesmo lado em todas as copas.
+const COPA = require('../../assets/images/copa.png');
 // Deslocamento do dedo, em pontos, a partir do qual o toque vira arraste.
 const LIMIAR_ARRASTE = 4;
 // Cada toque em − ou + divide ou multiplica o zoom por este valor. Os botões
@@ -115,6 +134,10 @@ export function PlanoTerreno({
   const [translacao] = useState(() => new Animated.ValueXY({ x: 0, y: 0 }));
   const [escala] = useState(() => new Animated.Value(1));
   const deslocamento = useRef<Ponto>({ x: 0, y: 0 });
+  // Deslocamento da última vez que as mudas visíveis foram escolhidas. Andar
+  // pelo terreno só move o transform; a vista é atualizada ao soltar o dedo ou
+  // quando ela anda meia janela, para não redesenhar as mudas a cada quadro.
+  const [vista, setVista] = useState<Ponto>({ x: 0, y: 0 });
   // Deslocamento a aplicar quando o novo zoom for desenhado.
   const pendente = useRef<Ponto | null>(null);
   const gesto = useRef<Gesto>({ tipo: 'nenhum' });
@@ -149,6 +172,7 @@ export function PlanoTerreno({
     const limitado = limitarDeslocamento(alvo, terreno, pontosPorM, janela);
     deslocamento.current = limitado;
     translacao.setValue({ x: -limitado.x, y: -limitado.y });
+    setVista(limitado);
     // janela e terreno dependem só destes valores.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pontosPorM, janela.largura, janela.altura, terreno.larguraM, terreno.comprimentoM]);
@@ -176,7 +200,10 @@ export function PlanoTerreno({
   function zoomPeloBotao(fator: number) {
     const centro = { x: janela.largura / 2, y: janela.altura / 2 };
     const pontoM = pontoDoTerreno(centro, deslocamento.current, pontosPorM);
-    confirmarZoom(zoom * fator, pontoM, (j) => ({ x: j.largura / 2, y: j.altura / 2 }));
+    confirmarZoom(zoom * fator, pontoM, (j) => ({
+      x: j.largura / 2,
+      y: j.altura / 2,
+    }));
   }
 
   function noMeioDaJanela(toques: Toques): Ponto {
@@ -220,15 +247,18 @@ export function PlanoTerreno({
       const meio = atual.meio;
       confirmarZoom(atual.zoomNovo, atual.pontoM, () => meio);
     }
+    if (atual.tipo === 'andar') setVista(deslocamento.current);
     gesto.current = { tipo: 'nenhum' };
   }
 
   function medirJanela() {
-    janelaRef.current?.measure?.((_x: number, _y: number, _l: number, _a: number, paginaX: number, paginaY: number) => {
-      if (Number.isFinite(paginaX) && Number.isFinite(paginaY)) {
-        origemJanela.current = { x: paginaX + borda, y: paginaY + borda };
-      }
-    });
+    janelaRef.current?.measure?.(
+      (_x: number, _y: number, _l: number, _a: number, paginaX: number, paginaY: number) => {
+        if (Number.isFinite(paginaX) && Number.isFinite(paginaY)) {
+          origemJanela.current = { x: paginaX + borda, y: paginaY + borda };
+        }
+      },
+    );
   }
 
   // Gestos que começam no fundo do terreno.
@@ -270,7 +300,11 @@ export function PlanoTerreno({
         const dy = pageY - atual.inicio.y;
         if (Math.abs(dx) <= LIMIAR_ARRASTE && Math.abs(dy) <= LIMIAR_ARRASTE) return;
         if (!conteudoMaiorQueJanela) return;
-        gesto.current = { tipo: 'andar', inicio: atual.inicio, deslocamento: atual.deslocamento };
+        gesto.current = {
+          tipo: 'andar',
+          inicio: atual.inicio,
+          deslocamento: atual.deslocamento,
+        };
       }
       const andando = gesto.current;
       if (andando.tipo === 'andar') {
@@ -285,13 +319,24 @@ export function PlanoTerreno({
             janela,
           ),
         );
+        // Longe da última vista, escolhe de novo as mudas antes de a margem acabar.
+        const andou = deslocamento.current;
+        if (
+          Math.abs(andou.x - vista.x) > janela.largura / 2 ||
+          Math.abs(andou.y - vista.y) > janela.altura / 2
+        ) {
+          setVista(andou);
+        }
       }
     },
     onResponderRelease: () => {
       const atual = gesto.current;
       if (atual.tipo === 'toque') {
         gesto.current = { tipo: 'nenhum' };
-        aoTocarNoTerreno({ x: atual.local.x / pontosPorM, y: atual.local.y / pontosPorM });
+        aoTocarNoTerreno({
+          x: atual.local.x / pontosPorM,
+          y: atual.local.y / pontosPorM,
+        });
         return;
       }
       terminarGesto();
@@ -310,7 +355,8 @@ export function PlanoTerreno({
       if ((evento.nativeEvent.touches?.length ?? 0) >= 2) comecarPinca(evento.nativeEvent.touches);
       return true;
     },
-    onResponderMove: (evento: GestureResponderEvent) => moverPinca(evento.nativeEvent.touches ?? []),
+    onResponderMove: (evento: GestureResponderEvent) =>
+      moverPinca(evento.nativeEvent.touches ?? []),
     onResponderTerminationRequest: () => false,
     onResponderRelease: terminarGesto,
     onResponderTerminate: terminarGesto,
@@ -370,7 +416,7 @@ export function PlanoTerreno({
           {
             width: janela.largura + 2 * borda,
             height: janela.altura + 2 * borda,
-            backgroundColor: cores.superficie,
+            backgroundColor: cores.terraArada,
             borderColor: cores.borda,
             borderWidth: borda,
           },
@@ -405,36 +451,43 @@ export function PlanoTerreno({
           >
             <Grade terreno={terreno} pontosPorM={pontosPorM} />
           </View>
-          {mudas.map((posicao, indice) => (
-            // A muda tocada continua montada durante o arraste (desmontá-la
-            // encerraria o gesto); só fica apagada enquanto a cópia segue o dedo.
-            <Muda
-              key={`${indice}-${posicao.x}-${posicao.y}`}
-              numero={numeroInicial + indice}
-              posicao={posicao}
-              pontosPorM={pontosPorM}
-              selecionada={selecionada === indice}
-              estado={arraste?.indice === indice ? 'origem' : 'normal'}
-              aoEncostar={() => {
-                mudaComODedo.current = true;
-              }}
-              aoTocar={() => aoSelecionar(selecionada === indice ? null : indice)}
-              aoArrastar={(posicaoNova) => {
-                const outras = mudas.filter((_, i) => i !== indice);
-                setArraste({
-                  indice,
-                  posicao: posicaoNova,
-                  valida: posicaoValida(posicaoNova, outras, terreno),
-                });
-              }}
-              aoSoltar={(posicaoFinal) => {
-                mudaComODedo.current = false;
-                setArraste(null);
-                aoSoltar(indice, posicaoFinal);
-              }}
-              terreno={terreno}
-            />
-          ))}
+          {mudas.map((posicao, indice) =>
+            // Com zoom, só as mudas na vista e em volta dela; a selecionada e a
+            // arrastada ficam sempre, para não perder a seleção nem o gesto.
+            zoom > 1 &&
+            indice !== selecionada &&
+            indice !== arraste?.indice &&
+            !mudaNaVista(posicao, ESPACO_MUDA, pontosPorM, vista, janela) ? null : (
+              // A muda tocada continua montada durante o arraste (desmontá-la
+              // encerraria o gesto); só fica apagada enquanto a cópia segue o dedo.
+              <Muda
+                key={`${indice}-${posicao.x}-${posicao.y}`}
+                numero={numeroInicial + indice}
+                posicao={posicao}
+                pontosPorM={pontosPorM}
+                selecionada={selecionada === indice}
+                estado={arraste?.indice === indice ? 'origem' : 'normal'}
+                aoEncostar={() => {
+                  mudaComODedo.current = true;
+                }}
+                aoTocar={() => aoSelecionar(selecionada === indice ? null : indice)}
+                aoArrastar={(posicaoNova) => {
+                  const outras = mudas.filter((_, i) => i !== indice);
+                  setArraste({
+                    indice,
+                    posicao: posicaoNova,
+                    valida: posicaoValida(posicaoNova, outras, terreno),
+                  });
+                }}
+                aoSoltar={(posicaoFinal) => {
+                  mudaComODedo.current = false;
+                  setArraste(null);
+                  aoSoltar(indice, posicaoFinal);
+                }}
+                terreno={terreno}
+              />
+            ),
+          )}
           {arraste ? (
             <Muda
               numero={numeroInicial + arraste.indice}
@@ -447,13 +500,19 @@ export function PlanoTerreno({
           ) : null}
         </Animated.View>
       </View>
-
     </View>
   );
 }
 
-// Linhas da grade do terreno, que não recebem toques.
-function Grade({ terreno, pontosPorM }: { terreno: Terreno; pontosPorM: number }) {
+// Terra arada e linhas da grade do terreno, que não recebem toques. Em memo:
+// só muda com o terreno e o zoom, e não a cada passo do arraste de uma muda.
+const Grade = memo(function Grade({
+  terreno,
+  pontosPorM,
+}: {
+  terreno: Terreno;
+  pontosPorM: number;
+}) {
   const { cores } = useTema();
   const grande = Math.max(terreno.larguraM, terreno.comprimentoM) > GRADE_FINA_ATE_M;
   const passo = grande && pontosPorM < PONTOS_POR_M_GRADE_FINA ? 5 : 1;
@@ -467,6 +526,20 @@ function Grade({ terreno, pontosPorM }: { terreno: Terreno; pontosPorM: number }
     { length: Math.floor(terreno.comprimentoM / passo) + 1 },
     (_, i) => i * passo,
   );
+  // Sulcos ao longo da largura, num bloco de 7 m que se repete (texturaTerreno.ts).
+  const sulco = periodoSulcoM(pontosPorM, medidas.sulcoMinimo) * pontosPorM;
+  const larguraBloco = LARGURA_BLOCO_M * pontosPorM;
+  const comDetalhes = sulco >= medidas.sulcoComDetalhes;
+  const sulcos = useMemo(() => sulcosDoBloco(larguraBloco, sulco), [larguraBloco, sulco]);
+  const detalhes = useMemo(
+    () => (comDetalhes ? detalhesDoBloco(larguraBloco, sulco) : []),
+    [comDetalhes, larguraBloco, sulco],
+  );
+  const manchas = useMemo(
+    () => manchasDoTerreno(terreno),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [terreno.larguraM, terreno.comprimentoM],
+  );
 
   return (
     <Svg
@@ -475,6 +548,67 @@ function Grade({ terreno, pontosPorM }: { terreno: Terreno; pontosPorM: number }
       style={[StyleSheet.absoluteFill, estilos.semToque]}
       aria-hidden
     >
+      <Defs>
+        {/* Encosta do sulco: da terra, logo abaixo da crista, até a sombra do fundo. */}
+        <LinearGradient id="encosta-do-sulco" x1="0" y1="0" x2="0" y2="1">
+          <Stop offset="0" stopColor={cores.terraArada} />
+          <Stop offset="0.55" stopColor={cores.sulcoTerra} />
+          <Stop offset="1" stopColor={cores.sombraTerra} />
+        </LinearGradient>
+        <RadialGradient id="terra-umida" cx="50%" cy="50%" r="50%">
+          <Stop offset="0" stopColor={cores.sombraTerra} stopOpacity={0.3} />
+          <Stop offset="1" stopColor={cores.sombraTerra} stopOpacity={0} />
+        </RadialGradient>
+        <RadialGradient id="terra-seca" cx="50%" cy="50%" r="50%">
+          <Stop offset="0" stopColor={cores.cristaTerra} stopOpacity={0.45} />
+          <Stop offset="1" stopColor={cores.cristaTerra} stopOpacity={0} />
+        </RadialGradient>
+        <Pattern
+          id="terra-arada"
+          patternUnits="userSpaceOnUse"
+          width={larguraBloco}
+          height={sulco * SULCOS_POR_BLOCO}
+        >
+          <Rect width={larguraBloco} height={sulco * SULCOS_POR_BLOCO} fill={cores.terraArada} />
+          {sulcos.map((s, i) => (
+            <Path key={`e${i}`} d={s.encosta} fill="url(#encosta-do-sulco)" />
+          ))}
+          {sulcos.map((s, i) => (
+            <Path
+              key={`f${i}`}
+              d={s.fundo}
+              fill="none"
+              stroke={cores.sombraTerra}
+              strokeWidth={sulco * 0.05}
+            />
+          ))}
+          {sulcos.map((s, i) => (
+            <Path
+              key={`c${i}`}
+              d={s.crista}
+              fill="none"
+              stroke={cores.cristaTerra}
+              strokeOpacity={0.85}
+              strokeWidth={sulco * 0.15}
+              strokeLinecap="round"
+            />
+          ))}
+          {detalhes.map((d, i) => (
+            <DetalheTerra key={i} detalhe={d} sulco={sulco} />
+          ))}
+        </Pattern>
+      </Defs>
+      <Rect width={largura} height={altura} fill="url(#terra-arada)" />
+      {manchas.map((m, i) => (
+        <Ellipse
+          key={i}
+          cx={m.x * pontosPorM}
+          cy={m.y * pontosPorM}
+          rx={m.rx * pontosPorM}
+          ry={m.ry * pontosPorM}
+          fill={m.umida ? 'url(#terra-umida)' : 'url(#terra-seca)'}
+        />
+      ))}
       {verticais.map((m) => (
         <Line
           key={`v${m}`}
@@ -498,6 +632,63 @@ function Grade({ terreno, pontosPorM }: { terreno: Terreno; pontosPorM: number }
         />
       ))}
     </Svg>
+  );
+});
+
+// Um torrão, uma pedrinha ou um resto de palha do bloco de terra arada.
+function DetalheTerra({ detalhe: d, sulco }: { detalhe: Detalhe; sulco: number }) {
+  const { cores } = useTema();
+  const giro = `rotate(${d.giro.toFixed(1)} ${d.x.toFixed(2)} ${d.y.toFixed(2)})`;
+  if (d.tipo === 'palha') {
+    const rad = (d.giro * Math.PI) / 180;
+    const dx = Math.cos(rad) * d.rx;
+    const dy = Math.sin(rad) * d.rx;
+    return (
+      <Line
+        x1={d.x - dx}
+        y1={d.y - dy}
+        x2={d.x + dx}
+        y2={d.y + dy}
+        stroke={cores.palhaTerra}
+        strokeWidth={sulco * 0.04}
+        strokeLinecap="round"
+      />
+    );
+  }
+  if (d.tipo === 'pedra' || d.tipo === 'torraoClaro') {
+    // Pedras e torrões na luz fazem sombra para baixo, à direita, como a copa
+    // das mudas: é o que lhes dá volume.
+    const sombra = d.rx * 0.35;
+    return (
+      <>
+        <Ellipse
+          cx={d.x + sombra}
+          cy={d.y + sombra}
+          rx={d.rx}
+          ry={d.ry}
+          fill={cores.sombraTerra}
+          transform={giro}
+        />
+        <Ellipse
+          cx={d.x}
+          cy={d.y}
+          rx={d.rx}
+          ry={d.ry}
+          fill={d.tipo === 'pedra' ? cores.pedraTerra : cores.cristaTerra}
+          transform={giro}
+        />
+      </>
+    );
+  }
+  return (
+    <Ellipse
+      cx={d.x}
+      cy={d.y}
+      rx={d.rx}
+      ry={d.ry}
+      fill={cores.sombraTerra}
+      transform={giro}
+    />
   );
 }
 
@@ -549,7 +740,10 @@ function Muda({
         onResponderGrant: (evento: GestureResponderEvent) => {
           moveu.current = false;
           ultima.current = posicao;
-          inicio.current = { x: evento.nativeEvent.pageX, y: evento.nativeEvent.pageY };
+          inicio.current = {
+            x: evento.nativeEvent.pageX,
+            y: evento.nativeEvent.pageY,
+          };
           aoEncostar?.();
           // Impede a rolagem nativa de tomar o arraste.
           return true;
@@ -587,6 +781,7 @@ function Muda({
     estado === 'invalida' ? cores.perigo : selecionada ? cores.marcaForte : cores.grafico1;
   const fundo = estado === 'invalida' ? cores.perigoFundo : cores.areaMuda;
   const copa = Math.min(largura, altura) * PROPORCAO_COPA;
+  const corCopa = estado === 'invalida' ? cores.perigo : cores.grafico1;
 
   return (
     <View
@@ -613,15 +808,23 @@ function Muda({
         },
       ]}
     >
-      {/* Círculo simples de View, e não SVG: um terreno grande pode ter mais de mil mudas. */}
-      <View
-        style={{
-          width: copa,
-          height: copa,
-          borderRadius: raios.pilula,
-          backgroundColor: estado === 'invalida' ? cores.perigo : cores.grafico1,
-        }}
-      />
+      {copa >= medidas.copaMinimaComDesenho ? (
+        <Image
+          source={COPA}
+          aria-hidden
+          style={{ width: copa, height: copa, tintColor: corCopa }}
+        />
+      ) : (
+        // Pequena demais para mostrar o desenho (terreno grande sem zoom).
+        <View
+          style={{
+            width: copa,
+            height: copa,
+            borderRadius: raios.pilula,
+            backgroundColor: corCopa,
+          }}
+        />
+      )}
       {copa >= medidas.copaMinimaComNumero ? (
         <Text style={[tipografia.miniForte, estilos.numeroMuda, { color: cores.sobreMarca }]}>
           {numero}

@@ -26,6 +26,14 @@ export type Cores = {
   areaMuda: string;
   // Linhas de metro da grade do terreno.
   gradeTerreno: string;
+  // Terreno arado: a terra, a encosta dos sulcos, a crista iluminada, a sombra
+  // no fundo (também torrões escuros e terra úmida), pedrinhas e palha.
+  terraArada: string;
+  sulcoTerra: string;
+  cristaTerra: string;
+  sombraTerra: string;
+  pedraTerra: string;
+  palhaTerra: string;
 };
 
 export const cores: Record<EsquemaCores, Cores> = {
@@ -46,7 +54,13 @@ export const cores: Record<EsquemaCores, Cores> = {
     perigo: '#B3261E',
     perigoFundo: 'rgba(179, 38, 30, 0.14)',
     areaMuda: 'rgba(106, 165, 33, 0.16)',
-    gradeTerreno: '#E6ECE8',
+    gradeTerreno: 'rgba(74, 54, 30, 0.14)',
+    terraArada: '#DCC8A4',
+    sulcoTerra: '#C6AA7E',
+    cristaTerra: '#EEE2CB',
+    sombraTerra: '#A98D63',
+    pedraTerra: '#CFCABF',
+    palhaTerra: '#EDDCA0',
   },
   escuro: {
     fundo: '#0D1210',
@@ -65,7 +79,13 @@ export const cores: Record<EsquemaCores, Cores> = {
     perigo: '#F2B8B5',
     perigoFundo: 'rgba(242, 184, 181, 0.18)',
     areaMuda: 'rgba(197, 240, 106, 0.14)',
-    gradeTerreno: '#26302C',
+    gradeTerreno: 'rgba(238, 225, 205, 0.09)',
+    terraArada: '#30281F',
+    sulcoTerra: '#221C16',
+    cristaTerra: '#4A3D2E',
+    sombraTerra: '#17120E',
+    pedraTerra: '#5A564E',
+    palhaTerra: '#5E5235',
   },
 };
 
@@ -149,6 +169,14 @@ export const medidas = {
   lixeira: 72,
   folgaLixeira: 16,
   escalaLixeiraAtiva: 1.15,
+  // Sulcos do terreno arado: nunca mais juntos que isto na tela, para os
+  // torrões, pedras e palha caberem em qualquer zoom; abaixo do tamanho com
+  // detalhes (só se o espaçamento chegar ao máximo de 5 m), eles viram ruído.
+  sulcoMinimo: 12,
+  sulcoComDetalhes: 12,
+  // Copa a partir da qual vale desenhar a copa vista de cima; abaixo disso o
+  // desenho nem se vê, e um círculo simples é mais leve para o aparelho.
+  copaMinimaComDesenho: 10,
   // Copa a partir da qual cabe o número da muda dentro dela.
   copaMinimaComNumero: 18,
   // Muda arrastada, apagada no lugar de onde saiu.

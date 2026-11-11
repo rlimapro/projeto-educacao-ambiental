@@ -587,6 +587,31 @@ describe('Zoom no terreno', () => {
     expect(screen.getByText('0 de 9.999 mudas no terreno · cabem até 1.650')).toBeTruthy();
   });
 
+  it('com zoom, desenha só as mudas perto da vista', async () => {
+    // 400 mudas: terreno sugerido de 52 × 52 m (⌊50/3⌋ × ⌊50/2⌋ = 400, mais 2 m)
+    await renderRouter(rotas, { initialUrl: '/distribuir?arvores=400' });
+    await medirTerreno();
+    await fireEvent.press(screen.getByRole('button', { name: 'Distribuir automaticamente' }));
+    const mudasDesenhadas = () => screen.queryAllByLabelText(/^Muda \d+,/).length;
+    expect(mudasDesenhadas()).toBe(400);
+
+    // 300 ÷ 52 ≈ 5,8 pontos por metro; o máximo de 32 é cerca de 5,5 vezes, e
+    // cinco toques de 1,5× passam dele. O zoom é em torno do centro (26 m).
+    for (let i = 0; i < 5; i++) {
+      await fireEvent.press(screen.getByRole('button', { name: 'Aproximar' }));
+    }
+    // A 32 pontos por metro, a janela de 300 × 440 mais uma janela de margem
+    // de cada lado cobre uns 28 m × 41 m em volta do centro: só parte das mudas.
+    const perto = mudasDesenhadas();
+    expect(perto).toBeGreaterThan(0);
+    expect(perto).toBeLessThan(400);
+    // A muda 1, no canto (0, 0), fica a mais de 26 − 14 = 12 m da vista
+    expect(screen.queryByLabelText(/^Muda 1, a 0 m da esquerda/)).toBeNull();
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Ver inteiro' }));
+    expect(mudasDesenhadas()).toBe(400);
+  });
+
   it('não oferece zoom num terreno que já aparece grande', async () => {
     // 6 × 6 m a 50 pontos por metro já passa do zoom máximo de 32
     await renderRouter(rotas, { initialUrl: '/distribuir?arvores=2' });
