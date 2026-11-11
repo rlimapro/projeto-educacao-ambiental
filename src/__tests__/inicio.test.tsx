@@ -83,6 +83,27 @@ describe('Início', () => {
     expect(screen.getByRole('button', { name: 'Registrar consumo' })).toBeTruthy();
   });
 
+  it('explica o caminho no primeiro uso, reduzindo antes de compensar', async () => {
+    await renderRouter(rotas, { initialUrl: '/' });
+
+    expect(screen.getByText('Suas emissões')).toBeTruthy();
+    // O perfil escolhido nas boas-vindas; sem escolha, Residência
+    expect(screen.getByText('Residência')).toBeTruthy();
+    const passos = [
+      screen.getByLabelText(/^Passo 1 de 3: Registre o consumo do mês/),
+      screen.getByLabelText(/^Passo 2 de 3: Veja suas emissões/),
+      screen.getByLabelText(/^Passo 3 de 3: Reduza e simule o plantio/),
+    ];
+    expect(passos).toHaveLength(3);
+    expect(screen.getByText('Seus registros ficam só neste aparelho.')).toBeTruthy();
+  });
+
+  it('leva ao registro a partir da tela sem registros', async () => {
+    const app = await renderRouter(rotas, { initialUrl: '/' });
+    await fireEvent.press(screen.getByRole('button', { name: 'Registrar consumo' }));
+    expect(app.getPathname()).toBe('/registrar');
+  });
+
   it('mostra o período e o perfil dos consumos registrados', async () => {
     registrarDoisPeriodos();
     await renderRouter(rotas, { initialUrl: '/' });
