@@ -14,6 +14,7 @@ export type Cores = {
   marca: string;
   sobreMarca: string;
   marcaForte: string;
+  perigo: string;
   trilhaAnel: string;
   grafico1: string;
   grafico2: string;
@@ -31,6 +32,7 @@ export const cores: Record<EsquemaCores, Cores> = {
     marca: '#C5F06A',
     sobreMarca: '#0D1210',
     marcaForte: '#3D6B0F',
+    perigo: '#B42318',
     trilhaAnel: '#E6ECE8',
     grafico1: '#6AA521',
     grafico2: '#1F4D3C',
@@ -46,6 +48,7 @@ export const cores: Record<EsquemaCores, Cores> = {
     marca: '#C5F06A',
     sobreMarca: '#0D1210',
     marcaForte: '#C5F06A',
+    perigo: '#F97066',
     trilhaAnel: '#161D1A',
     grafico1: '#C5F06A',
     grafico2: '#6FAF8E',

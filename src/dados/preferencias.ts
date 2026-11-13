@@ -9,10 +9,10 @@ export type PreferenciaTema = 'claro' | 'escuro' | 'sistema';
 
 export const PREFERENCIA_TEMA_PADRAO: PreferenciaTema = 'claro';
 
-const CHAVE_TEMA = 'preferencias.tema';
+export const CHAVE_TEMA = 'preferencias.tema';
 const CHAVE_BOAS_VINDAS = 'preferencias.boasVindasConcluidas';
-const CHAVE_PERFIL = 'preferencias.perfil';
-const CHAVE_PERIODO = 'preferencias.periodo';
+export const CHAVE_PERFIL = 'preferencias.perfil';
+export const CHAVE_PERIODO = 'preferencias.periodo';
 
 export const PERFIL_PADRAO: Perfil = 'residencia';
 export const PERIODO_PADRAO: PeriodoReferencia = 'mes';
@@ -68,4 +68,10 @@ export function lerPeriodo(): PeriodoReferencia {
 
 export function salvarPeriodo(periodo: PeriodoReferencia): void {
   Storage.setItemSync(CHAVE_PERIODO, periodo);
+}
+
+export function apagarPreferenciasPessoais(): void {
+  Storage.removeItemSync(CHAVE_TEMA);
+  Storage.removeItemSync(CHAVE_PERFIL);
+  Storage.removeItemSync(CHAVE_PERIODO);
 }
