@@ -12,7 +12,7 @@ export type RegistroConsumo = {
   criadoEm: string;
 };
 
-const CHAVE_REGISTROS = 'consumos.registrados.v1';
+export const CHAVE_REGISTROS = 'consumos.registrados.v1';
 const IDS_FONTES: FonteEmissaoId[] = ['energia', 'gasolina', 'etanol', 'diesel', 'glp'];
 const IDS_FATORES = ['energia', 'gasolina-e30', 'gasolina-e32', 'etanol', 'diesel', 'glp'];
 const PERFIS: Perfil[] = ['pessoa', 'residencia', 'comercio'];

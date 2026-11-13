@@ -19,7 +19,7 @@ Identificadores dos nós no Figma (arquivo `HlJaNtDhNHMXjLkzh4tK47`), usados par
 | 07 Sugestões de redução | `5:150` | `7:336` | Sim (`src/app/(abas)/(inicio)/sugestoes/[periodo].tsx`) |
 | 08 Simular plantio | `6:2` | `7:407` | Sim (`src/app/(abas)/(inicio)/plantio/[periodo].tsx`) |
 | 09 Histórico | `6:69` | `7:474` | Não |
-| 10 Ajustes | `6:154` | `7:559` | Não |
+| 10 Ajustes | `6:154` | `7:559` | Sim (`src/app/(abas)/ajustes.tsx`) |
 
 O protótipo não tem a tela "Uma conta que você pode conferir" das boas-vindas, nem a escolha de estado e bioma do RF13. Telas sem protótipo seguem o modelo das existentes.
 
@@ -37,6 +37,7 @@ Todos os valores abaixo vivem em `src/ui/tema` e são a única fonte de cor do a
 | `marca` | `#C5F06A` | `#C5F06A` | Preenchimento de botões primários e destaques |
 | `sobreMarca` | `#0D1210` | `#0D1210` | Texto e ícones sobre `marca` |
 | `marcaForte` | `#3D6B0F` | `#C5F06A` | Texto, ícones e traços em destaque sobre fundo ou superfície |
+| `perigo` | `#B42318` | `#F97066` | Ações destrutivas e mensagens de erro |
 | `trilhaAnel` | `#E6ECE8` | `#161D1A` | Trilha de fundo do gráfico em anel |
 | `grafico1` | `#6AA521` | `#C5F06A` | Maior fonte no anel |
 | `grafico2` | `#1F4D3C` | `#6FAF8E` | Segunda fonte |
@@ -165,6 +166,6 @@ O último quadro da abertura, simplificado para continuar legível a 29 px: um a
 
 ## Tema
 
-- Padrão: claro. Opções em Ajustes: Claro, Escuro e Seguir o sistema.
+- Padrão: claro. Opções em Ajustes: Claro, Escuro e Sistema.
 - A escolha fica salva no aparelho e é aplicada antes da primeira tela aparecer, para não piscar o tema errado.
 - Verifique toda tela nova nos dois temas antes de concluir.

@@ -7,14 +7,25 @@ import { medidas, useTema } from './tema';
 const opcoes: { valor: PreferenciaTema; rotulo: string }[] = [
   { valor: 'claro', rotulo: 'Claro' },
   { valor: 'escuro', rotulo: 'Escuro' },
-  { valor: 'sistema', rotulo: 'Seguir o sistema' },
+  { valor: 'sistema', rotulo: 'Sistema' },
 ];
 
 export function SeletorTema() {
   const { cores, tipografia, espacamento, raios, preferencia, definirPreferencia } = useTema();
 
   return (
-    <View accessibilityRole="radiogroup" style={[estilos.grupo, { gap: espacamento.pp }]}>
+    <View
+      accessibilityRole="radiogroup"
+      accessibilityLabel="Aparência"
+      style={[estilos.grupo, {
+        gap: espacamento.mini,
+        padding: espacamento.mini,
+        borderRadius: raios.linha,
+        borderWidth: medidas.bordaCartao,
+        borderColor: cores.borda,
+        backgroundColor: cores.superficie,
+      }]}
+    >
       {opcoes.map(({ valor, rotulo }) => {
         const selecionada = valor === preferencia;
         return (
@@ -26,10 +37,8 @@ export function SeletorTema() {
             style={({ pressed }) => [
               estilos.opcao,
               {
-                borderRadius: raios.pilula,
+                borderRadius: raios.segmento,
                 paddingHorizontal: espacamento.m,
-                borderWidth: medidas.bordaCartao,
-                borderColor: selecionada ? cores.marca : cores.borda,
                 backgroundColor: selecionada ? cores.marca : cores.superficie,
                 opacity: pressed ? medidas.opacidadePressionado : 1,
               },
@@ -48,9 +57,10 @@ export function SeletorTema() {
 const estilos = StyleSheet.create({
   grupo: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
+    width: '100%',
   },
   opcao: {
+    flex: 1,
     minHeight: medidas.areaToqueMinima,
     justifyContent: 'center',
   },

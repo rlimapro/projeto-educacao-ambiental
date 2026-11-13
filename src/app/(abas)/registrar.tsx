@@ -1,5 +1,5 @@
-import { router } from 'expo-router';
-import { useState } from 'react';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback, useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -141,7 +141,7 @@ function numeroValido(valor: string): boolean {
 
 export default function Registrar() {
   const { cores, tipografia, espacamento } = useTema();
-  const [perfil] = useState(() => lerPerfil());
+  const [perfil, setPerfil] = useState(lerPerfil);
   const [estadoInicial] = useState(lerEstadoInicial);
   const [periodo, setPeriodo] = useState(estadoInicial.periodo);
   const [registroAtual, setRegistroAtual] = useState(estadoInicial.registro);
@@ -153,6 +153,10 @@ export default function Registrar() {
   const [seletorVisivel, setSeletorVisivel] = useState(false);
   const [confirmarSubstituicao, setConfirmarSubstituicao] = useState(false);
   const [campoAjuda, setCampoAjuda] = useState<CampoComAjuda | null>(null);
+
+  useFocusEffect(useCallback(() => {
+    setPerfil(lerPerfil());
+  }, []));
   const idPeriodo = periodo.id;
   const referencia = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' }).format(
     new Date(periodo.ano, periodo.mes - 1, 1),
