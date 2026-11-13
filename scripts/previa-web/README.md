@@ -16,7 +16,7 @@ Em outro, com o servidor já respondendo:
 npm run previa:capturar -- /boas-vindas Continuar Continuar Continuar
 ```
 
-A prévia usa a porta 8099, para poder rodar junto com o `npx expo start` do Expo Go (porta 8081). O primeiro argumento é a rota; os seguintes são os rótulos dos botões a tocar, um por captura. As imagens vão para `.previa/` (ignorada pelo git), uma por passo e por tema, e os avisos do console do navegador aparecem no terminal. Uma tela pronta não deixa nenhum aviso.
+A prévia usa a porta 8099, para poder rodar junto com o `npx expo start` do Expo Go (porta 8081). O primeiro argumento é a rota; os seguintes são os rótulos dos botões a tocar, um por captura. Com o prefixo `segurar:` (por exemplo, `"segurar:Muda 2, a 3 m da esquerda e 0 m do topo"`), o script toca e segura o elemento por 700 ms com eventos de mouse de verdade, para abrir menus de toque longo. Os toques comuns usam `click()`, que não passa pelo sistema de toques do React Native: elementos que tratam o toque por conta própria, como as mudas do terreno, só respondem ao `segurar:`. Com `arrastar:Rótulo@x,y`, ele segura, arrasta até o ponto (x, y) da tela de 390 × 844, fotografa ainda arrastando (`<n>a.png`) e solta: é como se confere a lixeira dos terrenos. As imagens vão para `.previa/` (ignorada pelo git), uma por passo e por tema, e os avisos do console do navegador aparecem no terminal. Uma tela pronta não deixa nenhum aviso.
 
 Para comparar com o Figma, coloque as capturas lado a lado com a imagem do protótipo. Com o ImageMagick:
 

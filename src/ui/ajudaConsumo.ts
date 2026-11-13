@@ -5,6 +5,8 @@
 export type CampoComAjuda = 'energia' | 'gasolina' | 'gas' | 'etanol' | 'diesel';
 
 export type AjudaCampo = {
+  // Linha acima do título; sem ela, "Como preencher".
+  chamada?: string;
   titulo: string;
   resumo: string;
   dicas: string[];

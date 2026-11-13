@@ -27,7 +27,12 @@ export type NomeIcone =
   | 'anterior'
   | 'voltar'
   | 'ajuda'
+  | 'arvore'
+  | 'menos'
+  | 'mais'
+  | 'marcado'
   | 'sugestao'
+  | 'lixeira'
   | 'navInicio'
   | 'navRegistrar'
   | 'navHistorico'
@@ -148,6 +153,40 @@ const desenhos: Record<NomeIcone, Desenho> = {
     tamanho: 24,
     traco: 2,
     render: () => <Path d="M15 18L9 12L15 6" />,
+  },
+  // Simulação de plantio (RF06), do protótipo.
+  arvore: {
+    tamanho: 22,
+    traco: 1.83333,
+    render: () => (
+      <>
+        <Path d="M11 20.1667V13.75" />
+        <Path d="M11 13.75C7.33333 13.75 4.58333 11.4583 4.58333 8.25C4.58333 6.54819 5.25937 4.91609 6.46273 3.71273C7.66609 2.50937 9.29819 1.83333 11 1.83333C12.7018 1.83333 14.3339 2.50937 15.5373 3.71273C16.7406 4.91609 17.4167 6.54819 17.4167 8.25C17.4167 11.4583 14.6667 13.75 11 13.75Z" />
+      </>
+    ),
+  },
+  menos: {
+    tamanho: 24,
+    traco: 2,
+    render: () => <Path d="M5 12H19" />,
+  },
+  mais: {
+    tamanho: 24,
+    traco: 2,
+    render: () => (
+      <>
+        <Path d="M12 5V19" />
+        <Path d="M5 12H19" />
+      </>
+    ),
+  },
+  // Mês marcado na escolha de vários meses. Não existe no protótipo (Lucide).
+  // Traço 3 na grade de 24 exibida com 16 dá o traço visual de 2.
+  marcado: {
+    tamanho: 16,
+    caixa: 24,
+    traco: 3,
+    render: () => <Path d="M20 6 9 17l-5-5" />,
   },
   // Não existe no protótipo; segue o traço e o tamanho do ícone "adicionar".
   ajuda: {
@@ -390,6 +429,21 @@ const desenhos: Record<NomeIcone, Desenho> = {
         <Path d="M20 12v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8" />
         <Path d="m4 8 16-4" />
         <Path d="m8.86 6.78-.45-1.81a2 2 0 0 1 1.45-2.43l1.94-.48a2 2 0 0 1 2.43 1.46l.45 1.8" />
+      </>
+    ),
+  },
+  // Lixeira que surge ao segurar um terreno. Não existe no protótipo (Lucide, "trash-2").
+  lixeira: {
+    tamanho: 28,
+    caixa: 24,
+    traco: 2,
+    render: () => (
+      <>
+        <Path d="M3 6h18" />
+        <Path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+        <Path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+        <Path d="M10 11v6" />
+        <Path d="M14 11v6" />
       </>
     ),
   },

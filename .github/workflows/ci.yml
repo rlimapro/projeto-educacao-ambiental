@@ -24,17 +24,26 @@ jobs:
       - name: Baixar o código
         uses: actions/checkout@v7
 
+      # Versão fixa: com `lts/*`, o CI trocaria de Node sozinho a cada LTS nova.
+      # Atualize-a de propósito, depois de rodar os testes na versão nova.
       - name: Preparar o Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: lts/*
+          node-version: 26.13.1
           cache: npm
 
       - name: Instalar dependências
         run: npm ci
 
+      # Compara as dependências com a tabela do pacote `expo` instalado
+      # (fixada pelo package-lock.json), e não com a lista que a Expo publica
+      # online e atualiza a cada patch do SDK 58. Sem isso, o job quebra sempre
+      # que sai um patch novo, mesmo sem nenhuma mudança no projeto.
+      # A versão do expo-doctor também é fixa: atualize-a de propósito.
       - name: Verificar compatibilidade com o SDK do Expo
-        run: npx expo-doctor
+        run: npx --yes expo-doctor@1.21.8
+        env:
+          EXPO_OFFLINE: "1"
 
       - name: Verificar tipos
         run: npx tsc --noEmit

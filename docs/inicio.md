@@ -18,7 +18,20 @@ Visual: protótipo no Figma, tela "04 Início" (nós `2:2` claro e `7:109` escur
 
 Depois de "Calcular emissões", o Registrar abre a Início no mês registrado (parâmetro `periodo`, no formato AAAA-MM). O mês escolhido continua o mesmo ao voltar da memória de cálculo.
 
-Sem nenhum período registrado, a tela mostra um cartão explicando o que fazer, com o botão "Registrar consumo".
+## Primeiro uso, sem registros
+
+Antes do primeiro registro, a Início mostra o que vai aparecer ali e o caminho até lá. O protótipo não desenha esse estado; ele segue o modelo das boas-vindas.
+
+| Parte | Conteúdo |
+| --- | --- |
+| Topo | "Suas emissões" e o perfil escolhido nas boas-vindas, como na Início com dados |
+| Ilustração | `semRegistros` (`src/ui/Ilustracao.tsx`): o anel de emissões ainda vazio, com uma conta de luz em branco e o "+" de registrar |
+| Título e frase | "Nenhum consumo registrado" e "Comece pela conta deste mês para ver suas emissões, fonte por fonte." |
+| Botão | "Registrar consumo", que abre a aba Registrar |
+| Como funciona | Três passos numerados: registrar o consumo do mês (luz, combustível ou gás), ver as emissões (o total, de onde vem e como foi calculado) e reduzir e simular o plantio. A ordem é a do app: reduzir antes de compensar (princípio 3 do `AGENTS.md`) |
+| Privacidade | "Seus registros ficam só neste aparelho.", a promessa das boas-vindas |
+
+Para leitores de tela, cada passo é anunciado inteiro ("Passo 1 de 3: Registre o consumo do mês. A conta de luz, o combustível ou o gás de cozinha."), e a ilustração fica escondida, porque o título já diz o que ela mostra.
 
 ## Seletor de mês
 

@@ -18,6 +18,7 @@ import { BotaoPrimario } from '@/ui/BotaoPrimario';
 import { Cartao } from '@/ui/Cartao';
 import { CartaoNumero } from '@/ui/CartaoNumero';
 import { Etiqueta } from '@/ui/Etiqueta';
+import { Ilustracao } from '@/ui/Ilustracao';
 import {
   formatarEmissaoComUnidade,
   formatarParticipacao,
@@ -94,22 +95,7 @@ export default function Inicio() {
   }
 
   if (periodos.length === 0) {
-    return (
-      <SafeAreaView
-        edges={['top']}
-        style={[estilos.vazio, { backgroundColor: cores.fundo, paddingHorizontal: margemTela }]}
-      >
-        <Cartao style={{ gap: espacamento.m }}>
-          <Text accessibilityRole="header" style={[tipografia.subtitulo, { color: cores.texto }]}>
-            Nenhum consumo registrado
-          </Text>
-          <Text style={[tipografia.corpo, { color: cores.textoSuave }]}>
-            Registre a conta de luz, o combustível ou o gás do mês para ver suas emissões aqui.
-          </Text>
-          <BotaoPrimario rotulo="Registrar consumo" onPress={() => router.navigate('/registrar')} />
-        </Cartao>
-      </SafeAreaView>
-    );
+    return <InicioSemRegistros />;
   }
 
   const indice = Math.max(
@@ -240,6 +226,101 @@ export default function Inicio() {
   );
 }
 
+// Primeiro uso, sem nenhum registro: o que a Início vai mostrar e o caminho
+// até lá, na ordem do app (registrar, ver, reduzir antes de compensar).
+const PASSOS = [
+  {
+    titulo: 'Registre o consumo do mês',
+    descricao: 'A conta de luz, o combustível ou o gás de cozinha.',
+  },
+  {
+    titulo: 'Veja suas emissões',
+    descricao: 'O total do mês, de onde ele vem e como cada número foi calculado.',
+  },
+  {
+    titulo: 'Reduza e simule o plantio',
+    descricao: 'Sugestões para emitir menos e quantas árvores neutralizariam o que sobrar.',
+  },
+] as const;
+
+function InicioSemRegistros() {
+  const { cores, tipografia, espacamento, raios } = useTema();
+
+  return (
+    <SafeAreaView edges={['top']} style={[estilos.tela, { backgroundColor: cores.fundo }]}>
+      <ScrollView
+        contentContainerStyle={{
+          paddingHorizontal: margemTela,
+          paddingVertical: espacamento.m,
+          gap: espacamento.g,
+        }}
+      >
+        <View style={[estilos.topo, { minHeight: medidas.areaToqueMinima }]}>
+          <Text accessibilityRole="header" style={[tipografia.subtitulo, { color: cores.texto }]}>
+            Suas emissões
+          </Text>
+          <Etiqueta texto={nomesPerfil[lerPerfil()]} />
+        </View>
+
+        <View style={[estilos.centro, { gap: espacamento.m }]}>
+          <Ilustracao nome="semRegistros" />
+          <View style={[estilos.centro, { gap: espacamento.p }]}>
+            <Text
+              accessibilityRole="header"
+              style={[tipografia.tituloDetalhe, estilos.textoCentro, { color: cores.texto }]}
+            >
+              Nenhum consumo registrado
+            </Text>
+            <Text style={[tipografia.corpo, estilos.textoCentro, { color: cores.textoSuave }]}>
+              Comece pela conta deste mês para ver suas emissões, fonte por fonte.
+            </Text>
+          </View>
+        </View>
+
+        <BotaoPrimario rotulo="Registrar consumo" onPress={() => router.navigate('/registrar')} />
+
+        <Cartao style={{ gap: espacamento.m }}>
+          <Text accessibilityRole="header" style={[tipografia.itemForte, { color: cores.texto }]}>
+            Como funciona
+          </Text>
+          <View accessibilityRole="list" style={{ gap: espacamento.m }}>
+            {PASSOS.map((passo, i) => (
+              <View
+                key={passo.titulo}
+                accessible
+                accessibilityLabel={`Passo ${i + 1} de ${PASSOS.length}: ${passo.titulo}. ${passo.descricao}`}
+                style={[estilos.passo, { gap: espacamento.p }]}
+              >
+                <View
+                  style={[
+                    estilos.numeroPasso,
+                    { borderRadius: raios.pilula, backgroundColor: cores.marca },
+                  ]}
+                >
+                  <Text style={[tipografia.numeroLinha, { color: cores.sobreMarca }]}>{i + 1}</Text>
+                </View>
+                <View style={[estilos.expandir, { gap: espacamento.mini }]}>
+                  <Text style={[tipografia.itemForte, { color: cores.texto }]}>{passo.titulo}</Text>
+                  <Text style={[tipografia.legenda, { color: cores.textoSuave }]}>
+                    {passo.descricao}
+                  </Text>
+                </View>
+              </View>
+            ))}
+          </View>
+        </Cartao>
+
+        <View style={[estilos.privacidade, { gap: espacamento.p }]}>
+          <Icone nome="semInternet" cor="textoSuave" fundo="fundo" />
+          <Text style={[tipografia.legenda, estilos.encolher, { color: cores.textoSuave }]}>
+            Seus registros ficam só neste aparelho.
+          </Text>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+
 const estilos = StyleSheet.create({
   tela: {
     flex: 1,
@@ -262,5 +343,32 @@ const estilos = StyleSheet.create({
   },
   cartoes: {
     flexDirection: 'row',
+  },
+  centro: {
+    alignItems: 'center',
+  },
+  textoCentro: {
+    textAlign: 'center',
+  },
+  passo: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  numeroPasso: {
+    width: medidas.circuloIcone,
+    height: medidas.circuloIcone,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  expandir: {
+    flex: 1,
+  },
+  encolher: {
+    flexShrink: 1,
+  },
+  privacidade: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

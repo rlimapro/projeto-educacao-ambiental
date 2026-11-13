@@ -75,6 +75,15 @@ export type TaxaSequestro = {
   versao: number;
 };
 
+// Taxa de um grupo de biomas (RF06, RF13), com a variação típica em torno da
+// média: desvio-padrão ÷ média da Tabela 4.9 do IPCC 2019, arredondado.
+export type TaxaSequestroBioma = TaxaSequestro & {
+  // Como aparece para o usuário: "Cerrado, Caatinga e Pantanal".
+  biomas: string;
+  // Fração de 0 a 1 (0,45 é "cerca de 45% acima ou abaixo").
+  variacaoRelativa: number;
+};
+
 // Sugestões de redução (RF08). As fontes se agrupam como o usuário as vê:
 // gasolina, etanol e diesel são todos "combustível".
 export type GrupoFonte = 'combustivel' | 'energia' | 'gas';

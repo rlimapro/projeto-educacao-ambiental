@@ -1,4 +1,4 @@
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { GRUPOS_FONTE, agruparSugestoes, emissaoEvitadaKgCo2e } from '@/calculo/sugestoes';
 import type { GrupoComSugestoes, GrupoFonte } from '@/calculo/tipos';
 import { buscarRegistroConsumo, type RegistroConsumo } from '@/dados/consumos';
+import { BotaoSecundario } from '@/ui/BotaoSecundario';
 import { BotaoTexto } from '@/ui/BotaoTexto';
 import { CabecalhoDetalhe } from '@/ui/CabecalhoDetalhe';
 import { Cartao } from '@/ui/Cartao';
@@ -17,7 +18,8 @@ import { margemTela, useTema } from '@/ui/tema';
 // Sugestões de redução do mês (RF08). Layout segue o protótipo no Figma
 // ("07 Sugestões de redução"). Abre no grupo de fontes que mais emitiu, ou no
 // grupo pedido pelo parâmetro `grupo` (vindo da memória de cálculo de uma
-// fonte). Com mais de um grupo, botões no topo trocam entre eles.
+// fonte). Com mais de um grupo, botões no topo trocam entre eles. Só depois das
+// sugestões vem a simulação de plantio (RF06): reduzir antes de compensar.
 
 // Fração usada no "quanto vale reduzir"; um número redondo e alcançável.
 const REDUCAO_EXEMPLO = 0.1;
@@ -147,6 +149,16 @@ function Conteudo({
           />
         </View>
       ) : null}
+
+      <View style={{ gap: espacamento.pp, marginTop: espacamento.pp }}>
+        <Text style={[tipografia.item, { color: cores.textoSuave }]}>Já reduziu o que dava?</Text>
+        <BotaoSecundario
+          rotulo="Simular plantio"
+          onPress={() =>
+            router.push({ pathname: '/plantio/[periodo]', params: { periodo: registro.id } })
+          }
+        />
+      </View>
     </>
   );
 }

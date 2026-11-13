@@ -1,13 +1,14 @@
 import type { ReactNode } from 'react';
-import Svg, { Circle, Path, Rect } from 'react-native-svg';
+import Svg, { Circle, G, Path, Rect } from 'react-native-svg';
 
 import { medidas, useTema, type Cores } from './tema';
 
-// Ilustrações das boas-vindas. "anel" e "cadeado" foram exportadas do
-// protótipo no Figma (geometria original, cores trocadas pelos tokens do
-// tema). "conta" não existe no protótipo e segue o mesmo desenho do cadeado.
+// Ilustrações das boas-vindas e da Início sem registros. "anel" e "cadeado"
+// foram exportadas do protótipo no Figma (geometria original, cores trocadas
+// pelos tokens do tema). "conta" e "semRegistros" não existem no protótipo e
+// seguem o mesmo desenho: traço de 3,5 em `texto`, destaque em `marca`.
 
-export type NomeIlustracao = 'anel' | 'conta' | 'cadeado';
+export type NomeIlustracao = 'anel' | 'conta' | 'cadeado' | 'semRegistros';
 
 export function Ilustracao({ nome }: { nome: NomeIlustracao }) {
   const { cores } = useTema();
@@ -131,6 +132,60 @@ const desenhos: Record<NomeIlustracao, (cores: Cores) => ReactNode> = {
         strokeLinecap="round"
       />
       <Circle cx={100} cy={114} r={5} fill={cores.sobreMarca} />
+    </>
+  ),
+  // Início sem registros: o anel de emissões ainda vazio (a trilha, com um
+  // tracejado de "a preencher") e, no meio, uma conta de luz em branco com o
+  // "+" de registrar. Mesmas medidas do anel das boas-vindas: raio 89, traço 22.
+  semRegistros: (cores) => (
+    <>
+      <Circle cx={100} cy={100} r={89} stroke={cores.trilhaAnel} strokeWidth={22} />
+      <Circle
+        cx={100}
+        cy={100}
+        r={89}
+        stroke={cores.borda}
+        strokeWidth={1.5}
+        strokeDasharray="2 8"
+        strokeLinecap="round"
+      />
+      <G transform="rotate(-6 100 100)">
+        <Path
+          d="M72 50H128Q136 50 136 58V142L130 148L124 142L118 148L112 142L106 148L100 142L94 148L88 142L82 148L76 142L70 148L64 142V58Q64 50 72 50Z"
+          fill={cores.superficie}
+          stroke={cores.texto}
+          strokeWidth={3.5}
+          strokeLinejoin="round"
+        />
+        <Path
+          d="M83 60L75 72H82L80 82L89 69H82Z"
+          stroke={cores.marcaForte}
+          strokeWidth={2.5}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <Rect x={96} y={64} width={30} height={7} rx={3.5} fill={cores.borda} />
+        <Rect x={76} y={94} width={48} height={7} rx={3.5} fill={cores.borda} />
+        <Rect x={76} y={108} width={34} height={7} rx={3.5} fill={cores.borda} />
+        {/* O valor da conta, ainda em branco. */}
+        <Path
+          d="M76 128H124"
+          stroke={cores.textoSuave}
+          strokeWidth={2.5}
+          strokeDasharray="4 5"
+          strokeLinecap="round"
+        />
+      </G>
+      <Circle cx={138} cy={140} r={17} fill={cores.marca} stroke={cores.texto} strokeWidth={3.5} />
+      <Path
+        d="M138 132V148M130 140H146"
+        stroke={cores.sobreMarca}
+        strokeWidth={3.5}
+        strokeLinecap="round"
+      />
+      <Circle cx={44} cy={46} r={6} fill={cores.marca} stroke={cores.texto} strokeWidth={2} />
+      <Circle cx={164} cy={56} r={3} fill={cores.texto} />
+      <Circle cx={36} cy={150} r={3} fill={cores.texto} />
     </>
   ),
 };

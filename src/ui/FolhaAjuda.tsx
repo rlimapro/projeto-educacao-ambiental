@@ -62,7 +62,9 @@ function Conteudo({ ajuda, aoFechar }: { ajuda: AjudaCampo; aoFechar: () => void
         }}
       >
         <View style={{ gap: espacamento.mini }}>
-          <Text style={[tipografia.rotulo, { color: cores.marcaForte }]}>Como preencher</Text>
+          <Text style={[tipografia.rotulo, { color: cores.marcaForte }]}>
+            {ajuda.chamada ?? 'Como preencher'}
+          </Text>
           <Text
             accessibilityRole="header"
             style={[tipografia.tituloDetalhe, { color: cores.texto }]}

@@ -44,9 +44,9 @@ O impacto é qualitativo e compara as sugestões de um mesmo grupo. Não é uma 
 - Sem registro no mês, ou com emissão zero: "Nenhuma emissão neste mês".
 - Erro ao ler os dados: mensagem sem alterar nada.
 
-## Provisório
+## Depois das sugestões
 
-- **"Simular plantio"** não aparece: a tela de simulação (RF06) ainda não existe. Quando existir, entra no fim da tela com "Já reduziu o que dava?", como no protótipo, depois das sugestões.
+No fim da tela, "Já reduziu o que dava?" e "Simular plantio" levam à simulação de plantio (RF06, `docs/simular-plantio.md`), como no protótipo. É o único caminho até ela: o plantio sempre vem depois de reduzir.
 
 ## Divergências do protótipo
 
