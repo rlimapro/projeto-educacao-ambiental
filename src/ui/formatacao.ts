@@ -1,3 +1,5 @@
+import type { Perfil } from '@/calculo/tipos';
+
 // Formatação de números para exibição, no padrão brasileiro. Regras em
 // docs/metodologia-calculo.md, seção "Arredondamento e exibição".
 
@@ -106,4 +108,15 @@ export function descreverUnidadeFator(unidadeFator: string): string {
   const [numerador, denominador] = unidadeFator.split('/');
   if (!denominador) return unidadeFator;
   return `${numerador} por ${denominadores[denominador] ?? denominador}`;
+}
+
+const nomesDosPerfis: Record<Perfil, string> = {
+  pessoa: 'Pessoal',
+  residencia: 'Residência',
+  comercio: 'Comércio',
+};
+
+// Perfil como aparece no topo da Início e do Histórico: "Residência".
+export function nomeDoPerfil(perfil: Perfil): string {
+  return nomesDosPerfis[perfil];
 }

@@ -41,7 +41,7 @@ Tocar no mês abre uma folha com os 12 meses do ano em grade e setas para trocar
 
 - **Dados de exemplo.** Os períodos vêm de `src/dados/periodos.ts`, fixos no código, com os totais do protótipo (outubro 245 kg; setembro 278; agosto 302; julho 280). Saem quando o registro de consumos (RF02) gravar no SQLite.
 - **Taxa de árvores.** Usa a menor taxa da metodologia (3,037 kg de CO₂ por árvore por ano), a que vale enquanto o usuário não escolhe o estado (RF13).
-- **Histórico e Ajustes** mostram "Em breve".
+- **Ajustes** mostra "Em breve". O Histórico está em `docs/historico.md`.
 
 ## Divergências do protótipo
 

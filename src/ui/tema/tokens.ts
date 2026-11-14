@@ -118,6 +118,7 @@ export const tipografia = {
   tituloDetalhe: estilo(familias.numerosNegrito, 20, 1.2),
   subtitulo: estilo(familias.numerosNegrito, 18, 1.2),
   numeroLinha: estilo(familias.numerosNegrito, 15, 1.3),
+  numeroBarra: estilo(familias.numerosNegrito, 12, 1.3),
   botao: estilo(familias.numerosNegrito, 17, 1.2),
   contador: estilo(familias.numerosMedio, 14, 1.3),
   corpo: estilo(familias.texto, 16, 1.5),
@@ -184,6 +185,17 @@ export const medidas = {
   // Barras do gráfico de remoção ao longo do tempo (simulação de plantio).
   alturaBarra: 12,
   linhaReferencia: 2,
+  // Barras do gráfico de emissões por mês (histórico): largura, altura da
+  // maior barra da janela, altura mínima de um mês com emissão e cantos
+  // (arredondados em cima, quase retos na base).
+  larguraBarraMes: 30,
+  alturaMaximaBarraMes: 120,
+  alturaMinimaBarraMes: 4,
+  raioTopoBarraMes: 8,
+  raioBaseBarraMes: 3,
+  // Pílula da variação em relação ao mês anterior (histórico).
+  larguraVariacao: 56,
+  alturaVariacao: 24,
   // Círculo atrás do ícone de uma sugestão de redução.
   circuloIcone: 40,
   bordaCartao: 1,

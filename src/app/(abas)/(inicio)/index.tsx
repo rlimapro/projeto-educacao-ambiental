@@ -10,7 +10,6 @@ import {
 } from '@/calculo/arvores';
 import { compararPeriodos, resumirEmissoes } from '@/calculo/resumo';
 import { agruparSugestoes } from '@/calculo/sugestoes';
-import type { Perfil } from '@/calculo/tipos';
 import { listarPeriodos } from '@/dados/periodos';
 import { lerPerfil } from '@/dados/preferencias';
 import { AnelEmissoes } from '@/ui/AnelEmissoes';
@@ -24,6 +23,7 @@ import {
   formatarParticipacao,
   formatarVariacao,
   nomeDoMes,
+  nomeDoPerfil,
 } from '@/ui/formatacao';
 import { Icone } from '@/ui/Icone';
 import { LinhaAcao } from '@/ui/LinhaAcao';
@@ -35,12 +35,6 @@ import { margemTela, medidas, useTema, type Cores } from '@/ui/tema';
 // ("04 Início") e usa apenas períodos registrados no aparelho. Tocar numa fonte
 // da legenda abre a memória de cálculo dela (RF04). O parâmetro `periodo`
 // (AAAA-MM) abre a tela num mês, como depois de registrar um consumo.
-
-const nomesPerfil: Record<Perfil, string> = {
-  pessoa: 'Pessoal',
-  residencia: 'Residência',
-  comercio: 'Comércio',
-};
 
 const CORES_FONTES: (keyof Cores)[] = ['grafico1', 'grafico2', 'grafico3'];
 
@@ -145,7 +139,7 @@ export default function Inicio() {
             <Text style={[tipografia.subtitulo, { color: cores.texto }]}>{titulo}</Text>
             <Icone nome="abrirPeriodo" cor="texto" />
           </Pressable>
-          <Etiqueta texto={nomesPerfil[lerPerfil()]} />
+          <Etiqueta texto={nomeDoPerfil(lerPerfil())} />
         </View>
 
         <View style={estilos.anel}>
@@ -259,7 +253,7 @@ function InicioSemRegistros() {
           <Text accessibilityRole="header" style={[tipografia.subtitulo, { color: cores.texto }]}>
             Suas emissões
           </Text>
-          <Etiqueta texto={nomesPerfil[lerPerfil()]} />
+          <Etiqueta texto={nomeDoPerfil(lerPerfil())} />
         </View>
 
         <View style={[estilos.centro, { gap: espacamento.m }]}>

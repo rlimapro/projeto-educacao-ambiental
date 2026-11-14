@@ -155,6 +155,6 @@ describe('Início', () => {
     expect(screen.getByRole('tab', { name: 'Início', selected: true })).toBeTruthy();
 
     await fireEvent.press(screen.getByRole('tab', { name: 'Histórico' }));
-    expect(screen.getByText('Em breve você poderá comparar seus meses anteriores aqui.')).toBeTruthy();
+    expect(screen.getByText('Emissões por mês · Residência')).toBeTruthy();
   });
 });
